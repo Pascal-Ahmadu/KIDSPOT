@@ -44,7 +44,7 @@ export function StockAdjustForm({
           placeholder="Select a product…"
           options={products.map((p) => ({
             value: String(p.id),
-            label: `${p.name} (${p.sku}) · ${p.stock} in stock`,
+            label: `${p.sku} · ${p.stock} in stock · ${p.name}`,
           }))}
         />
       </div>
