@@ -574,25 +574,25 @@ export function Till({
                       ? "No price yet: a manager can add one in Products"
                       : undefined
                   }
-                  className="flex w-full items-center gap-3 rounded-[8px] border border-line bg-white p-2 text-left transition hover:border-brand disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-full w-full items-start gap-3 rounded-[8px] border border-line bg-white p-2 text-left transition hover:border-brand disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="block h-12 w-12 shrink-0 overflow-hidden rounded-[6px] bg-surface">
                     <ProductImage src={p.imageUrl} alt="" />
                   </span>
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="text-sm leading-5 text-ink">{p.name}</span>
-                    {/* The shop's own first column (brand / supplier, as written in the stock sheet). */}
+                  <span className="flex min-w-0 flex-1 flex-col self-stretch">
+                    {/* The shop's own first column (brand / supplier, as written in the stock sheet), shown first. */}
                     {p.brand && (
-                      <span className="text-xs font-semibold leading-[18px] text-brand">
+                      <span className="truncate text-xs font-semibold leading-[18px] text-brand">
                         {p.brand}
                       </span>
                     )}
+                    <span className="line-clamp-2 text-sm leading-5 text-ink">{p.name}</span>
                     {p.description && (
-                      <span className="text-xs leading-[18px] text-[#7C7C7C]">
+                      <span className="line-clamp-1 text-xs leading-[18px] text-[#7C7C7C]">
                         {p.description}
                       </span>
                     )}
-                    <span className="flex items-center justify-between gap-2 text-xs leading-5">
+                    <span className="mt-auto flex items-center justify-between gap-2 pt-1 text-xs leading-5">
                       <span className="font-mono text-[#BDBDBD]">{p.sku}</span>
                       <span
                         className={left <= 0 ? "text-accent" : "text-[#7C7C7C]"}
