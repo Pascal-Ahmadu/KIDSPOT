@@ -172,8 +172,8 @@ function DealTag({ percent }: { percent: number }) {
 /** Decorative leaf sprig (Asset 1 in the Figma). */
 function Leaf({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 100 100" className={className} fill="#a7869e" aria-hidden="true">
-      <path d="M14 92c18-14 34-32 48-54" stroke="#a7869e" strokeWidth="3" fill="none" strokeLinecap="round" />
+    <svg viewBox="0 0 100 100" className={className} fill="#c98552" aria-hidden="true">
+      <path d="M14 92c18-14 34-32 48-54" stroke="#c98552" strokeWidth="3" fill="none" strokeLinecap="round" />
       <path d="M62 38c4-14 14-24 30-28-2 16-12 27-30 28z" />
       <path d="M52 52c-2-14 4-27 17-35 3 15-3 28-17 35z" />
       <path d="M53 51c13-6 27-5 37 4-14 7-27 6-37-4z" />

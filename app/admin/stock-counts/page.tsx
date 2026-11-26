@@ -100,7 +100,7 @@ export default async function StockCountsPage({ searchParams }: { searchParams: 
                       <td className={cn(td, "whitespace-nowrap text-[#525252]")}>{c.submittedAt ? formatDateTime(c.submittedAt) : "—"}</td>
                       <td className={td}>{c.status === "open" ? "—" : gaps ? <Tag color={TAG.coral}>{gaps} don&apos;t match</Tag> : <Tag color={TAG.green}>All match</Tag>}</td>
                       <td className={td}>
-                        {c.status === "open" ? <Tag color={TAG.gold}>Counting</Tag> : c.status === "submitted" ? <Tag color={TAG.purple}>To review</Tag> : <Tag color={TAG.grey}>Reviewed</Tag>}
+                        {c.status === "open" ? <Tag color={TAG.gold}>Counting</Tag> : c.status === "submitted" ? <Tag color={TAG.orange}>To review</Tag> : <Tag color={TAG.grey}>Reviewed</Tag>}
                       </td>
                       {manager && (
                         <td className={cn(td, "text-right")}>

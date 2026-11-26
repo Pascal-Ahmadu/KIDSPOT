@@ -15,7 +15,7 @@ import { ROLE_LABELS, type Role } from "@/lib/staff";
 
 export const metadata: Metadata = { title: "Staff" };
 
-const ROLE_COLORS: Record<Role, string> = { owner: TAG.purple, manager: TAG.teal, cashier: TAG.grey };
+const ROLE_COLORS: Record<Role, string> = { owner: TAG.orange, manager: TAG.teal, cashier: TAG.grey };
 
 export default async function StaffPage({ searchParams }: { searchParams: Promise<{ new?: string; edit?: string }> }) {
   const sp = await searchParams;

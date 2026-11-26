@@ -115,7 +115,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
                     </td>
                     <td className={td}>
                       <span className="flex flex-wrap gap-1">
-                        {inStore(c) && <Tag color={TAG.purple}>In store</Tag>}
+                        {inStore(c) && <Tag color={TAG.orange}>In store</Tag>}
                         {c.email && <Tag color={TAG.teal}>Online</Tag>}
                       </span>
                     </td>

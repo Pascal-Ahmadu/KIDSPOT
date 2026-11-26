@@ -126,7 +126,7 @@ function Backdrop() {
       {/* dashed lines */}
       <path d="M1180 260h160M1190 280h120" stroke="#f3c9cd" strokeWidth="4" strokeDasharray="10 10" strokeLinecap="round" />
       <circle cx="1880" cy="60" r="8" fill="#f6b8bf" />
-      <circle cx="760" cy="60" r="6" fill="#c9b8ec" />
+      <circle cx="760" cy="60" r="6" fill="#f9c9a4" />
     </svg>
   );
 }

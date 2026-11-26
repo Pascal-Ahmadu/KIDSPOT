@@ -15,7 +15,7 @@ import { paginate } from "@/lib/paginate";
 export const metadata: Metadata = { title: "Invoices" };
 export const dynamic = "force-dynamic";
 
-const TONES: Record<string, string> = { Paid: TAG.green, Cancelled: TAG.grey, Draft: TAG.purple, Due: TAG.gold, Overdue: TAG.coral };
+const TONES: Record<string, string> = { Paid: TAG.green, Cancelled: TAG.grey, Draft: TAG.orange, Due: TAG.gold, Overdue: TAG.coral };
 
 export default async function InvoicesPage({ searchParams }: { searchParams: Promise<{ view?: string; page?: string }> }) {
   const sp = await searchParams;

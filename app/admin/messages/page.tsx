@@ -60,7 +60,7 @@ export default async function MessagesPage({ searchParams }: Props) {
                       <div className="min-w-0">
                         <p className="flex flex-wrap items-center gap-2 font-medium text-ink">
                           {m.subject}
-                          {!m.isRead && <Tag color={TAG.purple}>New</Tag>}
+                          {!m.isRead && <Tag color={TAG.orange}>New</Tag>}
                         </p>
                         <p className="text-sm text-[#525252]">
                           {m.name} ·{" "}

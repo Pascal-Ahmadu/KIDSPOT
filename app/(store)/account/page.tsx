@@ -13,8 +13,8 @@ export const dynamic = "force-dynamic";
 const STATUS: Record<string, string> = {
   pending: "bg-amber-50 text-amber-700",
   paid: "bg-sky-50 text-sky-700",
-  processing: "bg-indigo-50 text-indigo-700",
-  shipped: "bg-violet-50 text-violet-700",
+  processing: "bg-orange-50 text-orange-700",
+  shipped: "bg-sky-50 text-sky-700",
   delivered: "bg-emerald-50 text-emerald-700",
   cancelled: "bg-surface text-muted",
 };

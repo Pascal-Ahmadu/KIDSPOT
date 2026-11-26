@@ -18,7 +18,7 @@ const PAGE_SIZE = 10;
 type Search = { view?: string; stock?: "low" | "out" | "all"; q?: string; page?: string; product?: string; adjust?: string };
 
 /** Colour and wording for each stock movement type. */
-const MOVE_COLORS: Record<string, string> = { sale: TAG.purple, restock: TAG.green, adjustment: TAG.gold, return: TAG.teal, initial: TAG.grey };
+const MOVE_COLORS: Record<string, string> = { sale: TAG.orange, restock: TAG.green, adjustment: TAG.gold, return: TAG.teal, initial: TAG.grey };
 const MOVE_LABELS: Record<string, string> = { sale: "Sale", restock: "Delivery", adjustment: "Correction", return: "Return", initial: "Opening stock" };
 
 export default async function InventoryPage({ searchParams }: { searchParams: Promise<Search> }) {

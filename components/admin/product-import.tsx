@@ -212,7 +212,7 @@ export function ProductImport() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <Tag color={TAG.green}>{preview.counts.create} new</Tag>
-              <Tag color={TAG.purple}>{preview.counts.update} update</Tag>
+              <Tag color={TAG.orange}>{preview.counts.update} update</Tag>
               {preview.counts.error > 0 && (
                 <Tag color={TAG.coral}>{preview.counts.error} with errors</Tag>
               )}
@@ -291,7 +291,7 @@ export function ProductImport() {
                       ) : r.action === "create" ? (
                         <Tag color={TAG.green}>New</Tag>
                       ) : (
-                        <Tag color={TAG.purple}>Update</Tag>
+                        <Tag color={TAG.orange}>Update</Tag>
                       )}
                       {!r.isActive && r.action !== "error" && (
                         <span className="ml-1">

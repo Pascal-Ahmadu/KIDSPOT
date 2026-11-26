@@ -2,9 +2,9 @@
 
 :root {
   /* Kid's Spot design tokens (from Figma) */
-  --brand: #9f86d9; /* Brand/Brand-1 */
-  --brand-dark: #8a6fcb;
-  --brand-light: #f1ecfb;
+  --brand: #f37021; /* Brand/Brand-1 (orange; was purple #9f86d9) */
+  --brand-dark: #d95c12;
+  --brand-light: #fff1e6;
   --pink: #ff82b3;
   --pink-light: #ffaacb;
   --sky: #34b5e1;
@@ -16,7 +16,7 @@
   --n0: #ffffff;
   --topbar: #eae1d1; /* Background/Background-1 */
   --accent: #e35946; /* Brand/Brand-3 */
-  --hero-panel: #e3cee3; /* Background/Background-4 */
+  --hero-panel: #fde3cf; /* Background/Background-4 (peach; was lilac #e3cee3) */
   --deal-tag: #bfddde; /* Background/Background-3 */
   --brand-2: #eda62a; /* Brand/Brand-2 */
   /* Logo colours (from the Kid's Spot logo) */

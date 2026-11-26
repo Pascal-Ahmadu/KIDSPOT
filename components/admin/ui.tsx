@@ -3,7 +3,7 @@ import { cn } from "@/lib/format";
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-100 text-amber-800",
   paid: "bg-sky-100 text-sky-800",
-  processing: "bg-violet-100 text-violet-800",
+  processing: "bg-orange-100 text-orange-800",
   shipped: "bg-blue-100 text-blue-800",
   delivered: "bg-emerald-100 text-emerald-800",
   cancelled: "bg-rose-100 text-rose-800",
@@ -17,7 +17,7 @@ export function OrderStatusBadge({ status, className }: { status: string; classN
 const STATUS_TAG_COLORS: Record<string, string> = {
   pending: "#EDA62A",
   paid: "#3E8C8E",
-  processing: "#9F86D9",
+  processing: "#F37021",
   shipped: "#525252",
   delivered: "#10A957",
   cancelled: "#E35946",
@@ -37,7 +37,7 @@ export function Tag({ color, children, className }: { color: string; children: R
 }
 
 /** Tag colours from the store palette. */
-export const TAG = { green: "#10A957", gold: "#EDA62A", coral: "#E35946", purple: "#9F86D9", teal: "#3E8C8E", grey: "#7C7C7C" } as const;
+export const TAG = { green: "#10A957", gold: "#EDA62A", coral: "#E35946", orange: "#F37021", teal: "#3E8C8E", grey: "#7C7C7C" } as const;
 
 export function OrderStatusTag({ status, className }: { status: string; className?: string }) {
   return (
