@@ -41,6 +41,7 @@ export type TillProduct = {
   slug: string;
   brand: string | null;
   description: string | null;
+  stockNote: string | null;
 };
 export type TillSale = {
   id: number;
@@ -150,7 +151,7 @@ export function Till({
     const list = words.length
       ? products.filter((p) => {
           const hay =
-            `${p.name} ${p.sku} ${p.brand ?? ""} ${p.description ?? ""}`.toLowerCase();
+            `${p.name} ${p.sku} ${p.brand ?? ""} ${p.description ?? ""} ${p.stockNote ?? ""}`.toLowerCase();
           return words.every((w) => hay.includes(w));
         })
       : products;

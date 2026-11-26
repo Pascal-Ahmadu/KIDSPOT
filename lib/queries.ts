@@ -1,4 +1,16 @@
-import { and, asc, desc, eq, gte, inArray, like, lte, or, sql, type SQL } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  inArray,
+  like,
+  lte,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
 import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 import { couponLabel, couponStatus } from "@/lib/coupons";
 import { db } from "@/lib/db";
@@ -45,7 +57,11 @@ export async function getCategoriesWithCounts() {
 }
 
 export async function getCategoryBySlug(slug: string) {
-  const rows = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
+  const rows = await db
+    .select()
+    .from(categories)
+    .where(eq(categories.slug, slug))
+    .limit(1);
   return rows[0] ?? null;
 }
 
@@ -53,7 +69,9 @@ export async function getCategoryBySlug(slug: string) {
 /* Products                                                            */
 /* ------------------------------------------------------------------ */
 
-function withCategory(rows: Array<{ products: Product; categories: Category | null }>): ProductWithCategory[] {
+function withCategory(
+  rows: Array<{ products: Product; categories: Category | null }>,
+): ProductWithCategory[] {
   return rows.map((r) => ({ ...r.products, category: r.categories }));
 }
 
@@ -72,13 +90,22 @@ export async function getStoreProducts(filter: StoreProductFilter = {}) {
   const conds = [eq(products.isActive, true)];
   if (filter.q) {
     const term = `%${filter.q}%`;
-    conds.push(or(like(products.name, term), like(products.description, term))!);
+    conds.push(
+      or(like(products.name, term), like(products.description, term))!,
+    );
   }
   if (filter.category) conds.push(eq(categories.slug, filter.category));
   if (filter.audience === "girls" || filter.audience === "boys") {
-    conds.push(or(eq(products.audience, filter.audience), eq(products.audience, "unisex"), sql`${products.audience} is null`)!);
+    conds.push(
+      or(
+        eq(products.audience, filter.audience),
+        eq(products.audience, "unisex"),
+        sql`${products.audience} is null`,
+      )!,
+    );
   }
-  if (filter.onSale) conds.push(sql`${products.compareAtPrice} > ${products.price}`);
+  if (filter.onSale)
+    conds.push(sql`${products.compareAtPrice} > ${products.price}`);
   if (filter.min != null) conds.push(gte(products.price, filter.min));
   if (filter.max != null) conds.push(lte(products.price, filter.max));
 
@@ -142,27 +169,61 @@ export async function getProductById(id: number) {
   return withCategory(rows)[0] ?? null;
 }
 
-export async function getRelatedProducts(product: ProductWithCategory, limit = 4) {
+export async function getRelatedProducts(
+  product: ProductWithCategory,
+  limit = 4,
+) {
   if (!product.categoryId) return [];
   const rows = await db
     .select()
     .from(products)
     .leftJoin(categories, eq(products.categoryId, categories.id))
-    .where(and(eq(products.isActive, true), eq(products.categoryId, product.categoryId), sql`${products.id} != ${product.id}`))
+    .where(
+      and(
+        eq(products.isActive, true),
+        eq(products.categoryId, product.categoryId),
+        sql`${products.id} != ${product.id}`,
+      ),
+    )
     .limit(limit);
   return withCategory(rows);
 }
 
-export type AdminProductFilter = { q?: string; category?: string; stock?: "low" | "out" | "all"; status?: "active" | "inactive" | "all" };
+export type AdminProductFilter = {
+  q?: string;
+  category?: string;
+  stock?: "low" | "out" | "all";
+  status?: "active" | "inactive" | "all";
+};
 
 export async function getAdminProducts(filter: AdminProductFilter = {}) {
   const conds = [];
-  if (filter.q) {
-    const term = `%${filter.q}%`;
-    conds.push(or(like(products.name, term), like(products.sku, term))!);
+  // Every word must appear somewhere: name, SKU, brand (the sheet's first column), description or stock note.
+  for (const word of (filter.q ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 8)) {
+    const term = `%${word}%`;
+    conds.push(
+      or(
+        like(products.name, term),
+        like(products.sku, term),
+        like(products.brand, term),
+        like(products.description, term),
+        like(products.stockNote, term),
+      )!,
+    );
   }
-  if (filter.category) conds.push(eq(products.categoryId, Number(filter.category)));
-  if (filter.stock === "low") conds.push(and(sql`${products.stock} <= ${products.lowStockThreshold}`, sql`${products.stock} > 0`)!);
+  if (filter.category)
+    conds.push(eq(products.categoryId, Number(filter.category)));
+  if (filter.stock === "low")
+    conds.push(
+      and(
+        sql`${products.stock} <= ${products.lowStockThreshold}`,
+        sql`${products.stock} > 0`,
+      )!,
+    );
   if (filter.stock === "out") conds.push(eq(products.stock, 0));
   if (filter.status === "active") conds.push(eq(products.isActive, true));
   if (filter.status === "inactive") conds.push(eq(products.isActive, false));
@@ -201,13 +262,20 @@ export async function getLowStockProducts(limit = 10) {
     .select()
     .from(products)
     .leftJoin(categories, eq(products.categoryId, categories.id))
-    .where(and(eq(products.isActive, true), sql`${products.stock} <= ${products.lowStockThreshold}`))
+    .where(
+      and(
+        eq(products.isActive, true),
+        sql`${products.stock} <= ${products.lowStockThreshold}`,
+      ),
+    )
     .orderBy(asc(products.stock))
     .limit(limit);
   return withCategory(rows);
 }
 
-export async function getStockMovements(opts: { productId?: number; limit?: number } = {}) {
+export async function getStockMovements(
+  opts: { productId?: number; limit?: number } = {},
+) {
   const conds = [];
   if (opts.productId) conds.push(eq(stockMovements.productId, opts.productId));
   return db
@@ -234,16 +302,25 @@ export async function getStockMovements(opts: { productId?: number; limit?: numb
 /* Orders                                                              */
 /* ------------------------------------------------------------------ */
 
-export type OrderFilter = { status?: string; q?: string ; customer?: string };
+export type OrderFilter = { status?: string; q?: string; customer?: string };
 
 export async function getOrders(filter: OrderFilter = {}) {
   const conds = [];
-  if (filter.status && filter.status !== "all") conds.push(eq(orders.status, filter.status));
+  if (filter.status && filter.status !== "all")
+    conds.push(eq(orders.status, filter.status));
   if (filter.q) {
     const term = `%${filter.q}%`;
-    conds.push(or(like(orders.orderNumber, term), like(orders.shippingName, term), like(customers.email, term), like(orders.shippingPhone, term))!);
+    conds.push(
+      or(
+        like(orders.orderNumber, term),
+        like(orders.shippingName, term),
+        like(customers.email, term),
+        like(orders.shippingPhone, term),
+      )!,
+    );
   }
-  if (filter.customer) conds.push(eq(orders.customerId, Number(filter.customer)));
+  if (filter.customer)
+    conds.push(eq(orders.customerId, Number(filter.customer)));
   return db
     .select({
       id: orders.id,
@@ -296,7 +373,11 @@ export async function getOrderById(id: number) {
 }
 
 export async function getOrderByNumber(orderNumber: string) {
-  const rows = await db.select({ id: orders.id }).from(orders).where(eq(orders.orderNumber, orderNumber)).limit(1);
+  const rows = await db
+    .select({ id: orders.id })
+    .from(orders)
+    .where(eq(orders.orderNumber, orderNumber))
+    .limit(1);
   if (!rows[0]) return null;
   return getOrderById(rows[0].id);
 }
@@ -317,7 +398,9 @@ export async function getCustomers() {
       orderCount: sql<number>`(select count(*) from orders o where o.customer_id = ${customers}.id)`,
       totalSpent: sql<number>`(select coalesce(sum(total),0) from orders o where o.customer_id = ${customers}.id and o.status != 'cancelled')`,
       storeOrders: sql<number>`(select count(*) from orders o where o.customer_id = ${customers}.id and o.channel = 'store')`,
-      lastOrderAt: sql<number | null>`(select max(created_at) from orders o where o.customer_id = ${customers}.id)`,
+      lastOrderAt: sql<
+        number | null
+      >`(select max(created_at) from orders o where o.customer_id = ${customers}.id)`,
     })
     .from(customers)
     .orderBy(desc(customers.createdAt));
@@ -349,7 +432,9 @@ export async function getDashboardStats() {
     .from(orders)
     .where(notCancelled);
 
-  const [customerCount] = await db.select({ count: sql<number>`count(*)` }).from(customers);
+  const [customerCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(customers);
   const inventory = await getInventorySummary();
 
   return { ...totals, customers: customerCount.count, inventory };
@@ -402,12 +487,19 @@ export async function getMonthlyFinance(months = 6) {
     .from(orderItems)
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
     .leftJoin(products, eq(orderItems.productId, products.id))
-    .where(and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`))
+    .where(
+      and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`),
+    )
     .groupBy(monthKey);
   const discounts = await db
-    .select({ month: monthKey, discount: sql<number>`coalesce(sum(${orders.discount}), 0)` })
+    .select({
+      month: monthKey,
+      discount: sql<number>`coalesce(sum(${orders.discount}), 0)`,
+    })
     .from(orders)
-    .where(and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`))
+    .where(
+      and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`),
+    )
     .groupBy(monthKey);
   const byMonth = new Map(items.map((r) => [r.month, r]));
   const discByMonth = new Map(discounts.map((r) => [r.month, r.discount]));
@@ -417,7 +509,13 @@ export async function getMonthlyFinance(months = 6) {
     const row = byMonth.get(key);
     const revenue = (row?.goods ?? 0) - (discByMonth.get(key) ?? 0);
     const cost = row?.cost ?? 0;
-    return { key, label: d.toLocaleDateString("en-GB", { month: "short" }), revenue, cost, profit: revenue - cost };
+    return {
+      key,
+      label: d.toLocaleDateString("en-GB", { month: "short" }),
+      revenue,
+      cost,
+      profit: revenue - cost,
+    };
   });
 }
 
@@ -437,22 +535,39 @@ export async function getDailyFinance(days = 30) {
     .from(orderItems)
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
     .leftJoin(products, eq(orderItems.productId, products.id))
-    .where(and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`))
+    .where(
+      and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`),
+    )
     .groupBy(dayKey);
   const discounts = await db
-    .select({ day: dayKey, discount: sql<number>`coalesce(sum(${orders.discount}), 0)` })
+    .select({
+      day: dayKey,
+      discount: sql<number>`coalesce(sum(${orders.discount}), 0)`,
+    })
     .from(orders)
-    .where(and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`))
+    .where(
+      and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`),
+    )
     .groupBy(dayKey);
   const byDay = new Map(items.map((r) => [r.day, r]));
   const discByDay = new Map(discounts.map((r) => [r.day, r.discount]));
   return Array.from({ length: days }, (_, i) => {
-    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    const d = new Date(
+      start.getFullYear(),
+      start.getMonth(),
+      start.getDate() + i,
+    );
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     const row = byDay.get(key);
     const revenue = (row?.goods ?? 0) - (discByDay.get(key) ?? 0);
     const cost = row?.cost ?? 0;
-    return { key, label: d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }), revenue, cost, profit: revenue - cost };
+    return {
+      key,
+      label: d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+      revenue,
+      cost,
+      profit: revenue - cost,
+    };
   });
 }
 
@@ -476,23 +591,35 @@ export async function getMonthlyCategorySales(months = 6, top = 5) {
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
     .leftJoin(products, eq(orderItems.productId, products.id))
     .leftJoin(categories, eq(products.categoryId, categories.id))
-    .where(and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`))
+    .where(
+      and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`),
+    )
     .groupBy(categories.id, monthKey);
 
   const monthList = Array.from({ length: months }, (_, i) => {
     const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
-    return { key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`, label: d.toLocaleDateString("en-GB", { month: "short" }) };
+    return {
+      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      label: d.toLocaleDateString("en-GB", { month: "short" }),
+    };
   });
   const byCat = new Map<string, { name: string; values: number[] }>();
   for (const r of rows) {
     const id = String(r.categoryId ?? "none");
-    const entry = byCat.get(id) ?? { name: r.name, values: monthList.map(() => 0) };
+    const entry = byCat.get(id) ?? {
+      name: r.name,
+      values: monthList.map(() => 0),
+    };
     const i = monthList.findIndex((m) => m.key === r.month);
     if (i >= 0) entry.values[i] += r.goods;
     byCat.set(id, entry);
   }
   const series = [...byCat.values()]
-    .sort((a, b) => b.values.reduce((n, v) => n + v, 0) - a.values.reduce((n, v) => n + v, 0))
+    .sort(
+      (a, b) =>
+        b.values.reduce((n, v) => n + v, 0) -
+        a.values.reduce((n, v) => n + v, 0),
+    )
     .slice(0, top);
   return { months: monthList, series };
 }
@@ -515,7 +642,9 @@ export async function getTopProducts(limit = 5, days = 30) {
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
     .leftJoin(products, eq(orderItems.productId, products.id))
     .leftJoin(categories, eq(products.categoryId, categories.id))
-    .where(and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`))
+    .where(
+      and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`),
+    )
     .groupBy(orderItems.productId, orderItems.name, orderItems.sku)
     .orderBy(desc(sql`sum(${orderItems.quantity})`))
     .limit(limit);
@@ -534,7 +663,9 @@ export async function getSalesByCategory(days = 30) {
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
     .leftJoin(products, eq(orderItems.productId, products.id))
     .leftJoin(categories, eq(products.categoryId, categories.id))
-    .where(and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`))
+    .where(
+      and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`),
+    )
     .groupBy(categories.id)
     .orderBy(desc(sql`sum(${orderItems.lineTotal})`));
 }
@@ -563,14 +694,22 @@ export async function getOrderStatusCounts() {
     .select({ status: orders.status, count: sql<number>`count(*)` })
     .from(orders)
     .groupBy(orders.status);
-  return Object.fromEntries(rows.map((r) => [r.status, r.count])) as Record<string, number>;
+  return Object.fromEntries(rows.map((r) => [r.status, r.count])) as Record<
+    string,
+    number
+  >;
 }
 
 /* ------------------------------------------------------------------ */
 /* Home: "New in Store" tabs                                           */
 /* ------------------------------------------------------------------ */
 
-export type NewInStoreTab = { key: "girls" | "boys" | "accessories"; label: string; href: string; products: ProductWithCategory[] };
+export type NewInStoreTab = {
+  key: "girls" | "boys" | "accessories";
+  label: string;
+  href: string;
+  products: ProductWithCategory[];
+};
 
 /** Eight newest products per tab, photographed products first. Unisex / untagged clothing shows in both clothing tabs. */
 export async function getNewInStore(limit = 8): Promise<NewInStoreTab[]> {
@@ -585,7 +724,14 @@ export async function getNewInStore(limit = 8): Promise<NewInStoreTab[]> {
       .then(withCategory);
 
   const clothingFor = (audience: "girls" | "boys") =>
-    and(eq(categories.slug, "clothing"), or(eq(products.audience, audience), eq(products.audience, "unisex"), sql`${products.audience} is null`));
+    and(
+      eq(categories.slug, "clothing"),
+      or(
+        eq(products.audience, audience),
+        eq(products.audience, "unisex"),
+        sql`${products.audience} is null`,
+      ),
+    );
 
   const [girls, boys, accessories] = await Promise.all([
     base(clothingFor("girls")),
@@ -594,9 +740,24 @@ export async function getNewInStore(limit = 8): Promise<NewInStoreTab[]> {
   ]);
 
   return [
-    { key: "girls", label: "Girls' Clothing", href: "/products?category=clothing&audience=girls", products: girls },
-    { key: "boys", label: "Boys' Clothing", href: "/products?category=clothing&audience=boys", products: boys },
-    { key: "accessories", label: "Accessories", href: "/products?category=accessories", products: accessories },
+    {
+      key: "girls",
+      label: "Girls' Clothing",
+      href: "/products?category=clothing&audience=girls",
+      products: girls,
+    },
+    {
+      key: "boys",
+      label: "Boys' Clothing",
+      href: "/products?category=clothing&audience=boys",
+      products: boys,
+    },
+    {
+      key: "accessories",
+      label: "Accessories",
+      href: "/products?category=accessories",
+      products: accessories,
+    },
   ];
 }
 
@@ -610,10 +771,19 @@ export async function getTrendingProductIds(limit = 6, days = 30) {
 /* Home: "Shop by Category" menu + product preview                     */
 /* ------------------------------------------------------------------ */
 
-export type CategoryShowcase = { id: number; name: string; slug: string; productCount: number; products: ProductWithCategory[] };
+export type CategoryShowcase = {
+  id: number;
+  name: string;
+  slug: string;
+  productCount: number;
+  products: ProductWithCategory[];
+};
 
 /** Categories that have active products (most products first), each with its 3 newest items, photographed first. */
-export async function getCategoryShowcase(maxCategories = 8, perCategory = 3): Promise<CategoryShowcase[]> {
+export async function getCategoryShowcase(
+  maxCategories = 8,
+  perCategory = 3,
+): Promise<CategoryShowcase[]> {
   const cats = await db
     .select({
       id: categories.id,
@@ -622,7 +792,12 @@ export async function getCategoryShowcase(maxCategories = 8, perCategory = 3): P
       productCount: sql<number>`(select count(*) from products p where p.category_id = ${categories}.id and p.is_active = 1)`,
     })
     .from(categories)
-    .orderBy(desc(sql`(select count(*) from products p where p.category_id = ${categories}.id and p.is_active = 1)`), asc(categories.name))
+    .orderBy(
+      desc(
+        sql`(select count(*) from products p where p.category_id = ${categories}.id and p.is_active = 1)`,
+      ),
+      asc(categories.name),
+    )
     .limit(maxCategories);
 
   const withProducts = cats.filter((c) => c.productCount > 0);
@@ -652,10 +827,19 @@ export async function getCategoryShowcase(maxCategories = 8, perCategory = 3): P
 export async function getTrendingProducts(limit = 10, days = 30, fill = true) {
   const since = Math.floor(Date.now() / 1000) - days * 86400;
   const ranked = await db
-    .select({ id: orderItems.productId, units: sql<number>`sum(${orderItems.quantity})` })
+    .select({
+      id: orderItems.productId,
+      units: sql<number>`sum(${orderItems.quantity})`,
+    })
     .from(orderItems)
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
-    .where(and(gte(orders.createdAt, since), sql`${orders.status} != 'cancelled'`, sql`${orderItems.productId} is not null`))
+    .where(
+      and(
+        gte(orders.createdAt, since),
+        sql`${orders.status} != 'cancelled'`,
+        sql`${orderItems.productId} is not null`,
+      ),
+    )
     .groupBy(orderItems.productId)
     .orderBy(desc(sql`sum(${orderItems.quantity})`))
     .limit(limit * 2);
@@ -672,7 +856,11 @@ export async function getTrendingProducts(limit = 10, days = 30, fill = true) {
     : [];
   const rank = new Map(ids.map((id, i) => [id, i]));
   const sellers = rows
-    .sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0) || rank.get(a.id)! - rank.get(b.id)!)
+    .sort(
+      (a, b) =>
+        Number(b.stock > 0) - Number(a.stock > 0) ||
+        rank.get(a.id)! - rank.get(b.id)!,
+    )
     .slice(0, limit);
 
   if (sellers.length >= limit || !fill) return sellers;
@@ -682,8 +870,22 @@ export async function getTrendingProducts(limit = 10, days = 30, fill = true) {
       .select()
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
-      .where(and(eq(products.isActive, true), sellers.length ? sql`${products.id} not in (${sql.join(sellers.map((s) => sql`${s.id}`), sql`, `)})` : undefined))
-      .orderBy(desc(products.isFeatured), sql`${products.imageUrl} is null`, desc(products.createdAt))
+      .where(
+        and(
+          eq(products.isActive, true),
+          sellers.length
+            ? sql`${products.id} not in (${sql.join(
+                sellers.map((s) => sql`${s.id}`),
+                sql`, `,
+              )})`
+            : undefined,
+        ),
+      )
+      .orderBy(
+        desc(products.isFeatured),
+        sql`${products.imageUrl} is null`,
+        desc(products.createdAt),
+      )
       .limit(limit - sellers.length),
   );
   return [...sellers, ...extra];
@@ -697,7 +899,11 @@ export async function getCategoryPicks(slug: string, limit = 8) {
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
       .where(and(eq(products.isActive, true), eq(categories.slug, slug)))
-      .orderBy(sql`${products.imageUrl} is null`, desc(products.isFeatured), desc(products.createdAt))
+      .orderBy(
+        sql`${products.imageUrl} is null`,
+        desc(products.isFeatured),
+        desc(products.createdAt),
+      )
       .limit(limit),
   );
   if (inCat.length >= limit) return inCat;
@@ -706,8 +912,17 @@ export async function getCategoryPicks(slug: string, limit = 8) {
       .select()
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
-      .where(and(eq(products.isActive, true), sql`coalesce(${categories.slug}, '') != ${slug}`))
-      .orderBy(sql`${products.imageUrl} is null`, desc(products.isFeatured), desc(products.createdAt))
+      .where(
+        and(
+          eq(products.isActive, true),
+          sql`coalesce(${categories.slug}, '') != ${slug}`,
+        ),
+      )
+      .orderBy(
+        sql`${products.imageUrl} is null`,
+        desc(products.isFeatured),
+        desc(products.createdAt),
+      )
       .limit(limit - inCat.length),
   );
   return [...inCat, ...more];
@@ -720,8 +935,19 @@ export async function getFlashSale(limit = 9) {
       .select()
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
-      .where(and(eq(products.isActive, true), sql`${products.stock} > 0`, sql`${products.compareAtPrice} > ${products.price}`))
-      .orderBy(desc(sql`1.0 * (${products.compareAtPrice} - ${products.price}) / ${products.compareAtPrice}`), sql`${products.imageUrl} is null`)
+      .where(
+        and(
+          eq(products.isActive, true),
+          sql`${products.stock} > 0`,
+          sql`${products.compareAtPrice} > ${products.price}`,
+        ),
+      )
+      .orderBy(
+        desc(
+          sql`1.0 * (${products.compareAtPrice} - ${products.price}) / ${products.compareAtPrice}`,
+        ),
+        sql`${products.imageUrl} is null`,
+      )
       .limit(limit),
   );
 }
@@ -745,18 +971,28 @@ export type ListingFilter = {
   sort?: "newest" | "price-asc" | "price-desc" | "name" | "popular";
 };
 
-type Facet = "categories" | "audience" | "price" | "colors" | "sizes" | "brands";
+type Facet =
+  "categories" | "audience" | "price" | "colors" | "sizes" | "brands";
 
 /** WHERE clause for the listing; `skip` drops one facet so its own counts stay useful. */
 function listingConditions(f: ListingFilter, skip?: Facet) {
   const conds = [eq(products.isActive, true)];
   if (f.q) {
     const term = `%${f.q}%`;
-    conds.push(or(like(products.name, term), like(products.description, term))!);
+    conds.push(
+      or(like(products.name, term), like(products.description, term))!,
+    );
   }
-  if (f.categories?.length && skip !== "categories") conds.push(inArray(categories.slug, f.categories));
+  if (f.categories?.length && skip !== "categories")
+    conds.push(inArray(categories.slug, f.categories));
   if (f.audience && skip !== "audience") {
-    conds.push(or(eq(products.audience, f.audience), eq(products.audience, "unisex"), sql`${products.audience} is null`)!);
+    conds.push(
+      or(
+        eq(products.audience, f.audience),
+        eq(products.audience, "unisex"),
+        sql`${products.audience} is null`,
+      )!,
+    );
   }
   if (skip !== "price") {
     if (f.min != null) conds.push(gte(products.price, f.min));
@@ -766,9 +1002,12 @@ function listingConditions(f: ListingFilter, skip?: Facet) {
   if (f.onSale) conds.push(sql`${products.compareAtPrice} > ${products.price}`);
   const anyOf = (column: AnySQLiteColumn, values?: string[]) =>
     or(...values!.map((v) => like(column, `%,${v},%`)))!;
-  if (f.colors?.length && skip !== "colors") conds.push(anyOf(products.colors, f.colors));
-  if (f.sizes?.length && skip !== "sizes") conds.push(anyOf(products.sizes, f.sizes));
-  if (f.brands?.length && skip !== "brands") conds.push(inArray(products.brand, f.brands));
+  if (f.colors?.length && skip !== "colors")
+    conds.push(anyOf(products.colors, f.colors));
+  if (f.sizes?.length && skip !== "sizes")
+    conds.push(anyOf(products.sizes, f.sizes));
+  if (f.brands?.length && skip !== "brands")
+    conds.push(inArray(products.brand, f.brands));
   return and(...conds);
 }
 
@@ -786,7 +1025,10 @@ export async function getProductListing(
   f: ListingFilter,
   page = 1,
   perPage = 12,
-  vocab: { colors: readonly string[]; sizes: readonly string[] } = { colors: [], sizes: [] },
+  vocab: { colors: readonly string[]; sizes: readonly string[] } = {
+    colors: [],
+    sizes: [],
+  },
 ) {
   const where = listingConditions(f);
   const unitsSold = sql`(select coalesce(sum(oi.quantity),0) from order_items oi where oi.product_id = ${products}.id)`;
@@ -801,29 +1043,65 @@ export async function getProductListing(
             ? [desc(unitsSold), desc(products.createdAt)]
             : [sql`${products.imageUrl} is null`, desc(products.createdAt)];
 
-  const base = () => db.select().from(products).leftJoin(categories, eq(products.categoryId, categories.id));
-  const countSelect = (fields: Record<string, SQL<number>>, skip: Facet): Promise<Record<string, number>[]> =>
-    db.select(fields).from(products).leftJoin(categories, eq(products.categoryId, categories.id)).where(listingConditions(f, skip)) as Promise<
-      Record<string, number>[]
-    >;
+  const base = () =>
+    db
+      .select()
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id));
+  const countSelect = (
+    fields: Record<string, SQL<number>>,
+    skip: Facet,
+  ): Promise<Record<string, number>[]> =>
+    db
+      .select(fields)
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(listingConditions(f, skip)) as Promise<Record<string, number>[]>;
 
-  const valueCounts = (column: AnySQLiteColumn, values: readonly string[], skip: Facet) =>
+  const valueCounts = (
+    column: AnySQLiteColumn,
+    values: readonly string[],
+    skip: Facet,
+  ) =>
     values.length
       ? countSelect(
-          Object.fromEntries(values.map((v) => [v, sql<number>`coalesce(sum(case when ${column} like ${`%,${v},%`} then 1 else 0 end), 0)`])) as Record<string, SQL<number>>,
+          Object.fromEntries(
+            values.map((v) => [
+              v,
+              sql<number>`coalesce(sum(case when ${column} like ${`%,${v},%`} then 1 else 0 end), 0)`,
+            ]),
+          ) as Record<string, SQL<number>>,
           skip,
         ).then((r) => r[0] ?? {})
       : Promise.resolve({} as Record<string, number>);
 
-  const [[{ total }], rows, categoryCounts, [audienceCounts], [priceStats], bandCounts, colorCounts, sizeCounts, brandCounts] = await Promise.all([
-    db.select({ total: sql<number>`count(*)` }).from(products).leftJoin(categories, eq(products.categoryId, categories.id)).where(where),
+  const [
+    [{ total }],
+    rows,
+    categoryCounts,
+    [audienceCounts],
+    [priceStats],
+    bandCounts,
+    colorCounts,
+    sizeCounts,
+    brandCounts,
+  ] = await Promise.all([
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(where),
     base()
       .where(where)
       .orderBy(...order)
       .limit(perPage)
       .offset((Math.max(1, page) - 1) * perPage),
     db
-      .select({ slug: categories.slug, name: categories.name, count: sql<number>`count(*)` })
+      .select({
+        slug: categories.slug,
+        name: categories.name,
+        count: sql<number>`count(*)`,
+      })
       .from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))
       .where(listingConditions(f, "categories"))
@@ -837,7 +1115,10 @@ export async function getProductListing(
       "audience",
     ),
     db
-      .select({ min: sql<number>`coalesce(min(${products.price}),0)`, max: sql<number>`coalesce(max(${products.price}),0)` })
+      .select({
+        min: sql<number>`coalesce(min(${products.price}),0)`,
+        max: sql<number>`coalesce(max(${products.price}),0)`,
+      })
       .from(products)
       .where(eq(products.isActive, true)),
     countSelect(
@@ -855,7 +1136,12 @@ export async function getProductListing(
       .select({ brand: products.brand, count: sql<number>`count(*)` })
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
-      .where(and(listingConditions(f, "brands"), sql`${products.brand} is not null and ${products.brand} != ''`))
+      .where(
+        and(
+          listingConditions(f, "brands"),
+          sql`${products.brand} is not null and ${products.brand} != ''`,
+        ),
+      )
       .groupBy(products.brand)
       .orderBy(asc(products.brand)),
   ]);
@@ -871,7 +1157,12 @@ export async function getProductListing(
     bandCounts,
     colorCounts,
     sizeCounts,
-    brandCounts: brandCounts.map((b: { brand: string | null; count: number }) => ({ brand: b.brand!, count: b.count })),
+    brandCounts: brandCounts.map(
+      (b: { brand: string | null; count: number }) => ({
+        brand: b.brand!,
+        count: b.count,
+      }),
+    ),
   };
 }
 
@@ -895,7 +1186,12 @@ export async function getBrands() {
   const rows = await db
     .select({ name: products.brand, count: sql<number>`count(*)` })
     .from(products)
-    .where(and(eq(products.isActive, true), sql`${products.brand} is not null and ${products.brand} != ''`))
+    .where(
+      and(
+        eq(products.isActive, true),
+        sql`${products.brand} is not null and ${products.brand} != ''`,
+      ),
+    )
     .groupBy(products.brand)
     .orderBy(desc(sql`count(*)`), asc(products.brand));
   return rows.map((r) => ({ name: r.name!, count: r.count }));
@@ -904,9 +1200,15 @@ export async function getBrands() {
 /** Newest photographed products, for the Instagram strip. */
 export async function getPhotoProducts(limit = 6) {
   return db
-    .select({ slug: products.slug, name: products.name, imageUrl: products.imageUrl })
+    .select({
+      slug: products.slug,
+      name: products.name,
+      imageUrl: products.imageUrl,
+    })
     .from(products)
-    .where(and(eq(products.isActive, true), sql`${products.imageUrl} is not null`))
+    .where(
+      and(eq(products.isActive, true), sql`${products.imageUrl} is not null`),
+    )
     .orderBy(desc(products.isFeatured), desc(products.createdAt))
     .limit(limit);
 }
@@ -915,9 +1217,15 @@ export async function getPhotoProducts(limit = 6) {
  * "Customers also viewed" for a product page: products bought in the same orders (most often first),
  * topped up with same-category items, then best sellers.
  */
-export async function getCustomersAlsoViewed(product: { id: number; categoryId: number | null }, limit = 4) {
+export async function getCustomersAlsoViewed(
+  product: { id: number; categoryId: number | null },
+  limit = 4,
+) {
   const coBought = await db
-    .select({ id: orderItems.productId, n: sql<number>`count(distinct ${orderItems.orderId})` })
+    .select({
+      id: orderItems.productId,
+      n: sql<number>`count(distinct ${orderItems.orderId})`,
+    })
     .from(orderItems)
     .where(
       and(
@@ -929,7 +1237,9 @@ export async function getCustomersAlsoViewed(product: { id: number; categoryId: 
     .orderBy(desc(sql`count(distinct ${orderItems.orderId})`))
     .limit(limit * 2);
 
-  const picked = (await getProductsByIds(coBought.map((r) => r.id!))).filter((p) => p.stock > 0).slice(0, limit);
+  const picked = (await getProductsByIds(coBought.map((r) => r.id!)))
+    .filter((p) => p.stock > 0)
+    .slice(0, limit);
   const exclude = () => [product.id, ...picked.map((p) => p.id)];
 
   if (picked.length < limit && product.categoryId) {
@@ -938,7 +1248,16 @@ export async function getCustomersAlsoViewed(product: { id: number; categoryId: 
         .select()
         .from(products)
         .leftJoin(categories, eq(products.categoryId, categories.id))
-        .where(and(eq(products.isActive, true), eq(products.categoryId, product.categoryId), sql`${products.id} not in (${sql.join(exclude().map((id) => sql`${id}`), sql`, `)})`))
+        .where(
+          and(
+            eq(products.isActive, true),
+            eq(products.categoryId, product.categoryId),
+            sql`${products.id} not in (${sql.join(
+              exclude().map((id) => sql`${id}`),
+              sql`, `,
+            )})`,
+          ),
+        )
         .orderBy(sql`${products.imageUrl} is null`, desc(products.createdAt))
         .limit(limit - picked.length),
     );
@@ -946,7 +1265,11 @@ export async function getCustomersAlsoViewed(product: { id: number; categoryId: 
   }
   if (picked.length < limit) {
     const ids = new Set(exclude());
-    picked.push(...(await getTrendingProducts(limit * 2)).filter((p) => !ids.has(p.id)).slice(0, limit - picked.length));
+    picked.push(
+      ...(await getTrendingProducts(limit * 2))
+        .filter((p) => !ids.has(p.id))
+        .slice(0, limit - picked.length),
+    );
   }
   return picked;
 }
@@ -957,7 +1280,12 @@ export async function getProductOrderCount(productId: number) {
     .select({ n: sql<number>`count(distinct ${orderItems.orderId})` })
     .from(orderItems)
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
-    .where(and(eq(orderItems.productId, productId), sql`${orders.status} != 'cancelled'`));
+    .where(
+      and(
+        eq(orderItems.productId, productId),
+        sql`${orders.status} != 'cancelled'`,
+      ),
+    );
   return row?.n ?? 0;
 }
 
@@ -965,10 +1293,16 @@ export async function getProductOrderCount(productId: number) {
 /* Reviews                                                             */
 /* ------------------------------------------------------------------ */
 
-export type ReviewSummary = { count: number; average: number; breakdown: { stars: number; count: number; pct: number }[] };
+export type ReviewSummary = {
+  count: number;
+  average: number;
+  breakdown: { stars: number; count: number; pct: number }[];
+};
 
 /** Published-review stats for one product: average, count and % per star level (5 → 1). */
-export async function getReviewSummary(productId: number): Promise<ReviewSummary> {
+export async function getReviewSummary(
+  productId: number,
+): Promise<ReviewSummary> {
   const rows = await db
     .select({ rating: reviews.rating, n: sql<number>`count(*)` })
     .from(reviews)
@@ -976,20 +1310,34 @@ export async function getReviewSummary(productId: number): Promise<ReviewSummary
     .groupBy(reviews.rating);
   const byStar = new Map(rows.map((r) => [r.rating, r.n]));
   const count = rows.reduce((s, r) => s + r.n, 0);
-  const average = count ? rows.reduce((s, r) => s + r.rating * r.n, 0) / count : 0;
+  const average = count
+    ? rows.reduce((s, r) => s + r.rating * r.n, 0) / count
+    : 0;
   return {
     count,
     average,
     breakdown: [5, 4, 3, 2, 1].map((stars) => {
       const n = byStar.get(stars) ?? 0;
-      return { stars, count: n, pct: count ? Math.round((n / count) * 100) : 0 };
+      return {
+        stars,
+        count: n,
+        pct: count ? Math.round((n / count) * 100) : 0,
+      };
     }),
   };
 }
 
 export async function getProductReviews(productId: number, limit = 20) {
   return db
-    .select({ id: reviews.id, name: reviews.name, rating: reviews.rating, title: reviews.title, body: reviews.body, verified: reviews.verified, createdAt: reviews.createdAt })
+    .select({
+      id: reviews.id,
+      name: reviews.name,
+      rating: reviews.rating,
+      title: reviews.title,
+      body: reviews.body,
+      verified: reviews.verified,
+      createdAt: reviews.createdAt,
+    })
     .from(reviews)
     .where(and(eq(reviews.productId, productId), eq(reviews.isPublished, true)))
     .orderBy(desc(reviews.createdAt))
@@ -999,10 +1347,24 @@ export async function getProductReviews(productId: number, limit = 20) {
 /** Recent published 4- and 5-star reviews with some substance, for the "Our Happy Customers" carousel. */
 export async function getHappyCustomerReviews(limit = 9) {
   return db
-    .select({ id: reviews.id, name: reviews.name, rating: reviews.rating, body: reviews.body, verified: reviews.verified, productName: products.name, productSlug: products.slug })
+    .select({
+      id: reviews.id,
+      name: reviews.name,
+      rating: reviews.rating,
+      body: reviews.body,
+      verified: reviews.verified,
+      productName: products.name,
+      productSlug: products.slug,
+    })
     .from(reviews)
     .innerJoin(products, eq(reviews.productId, products.id))
-    .where(and(eq(reviews.isPublished, true), gte(reviews.rating, 4), sql`length(${reviews.body}) >= 40`))
+    .where(
+      and(
+        eq(reviews.isPublished, true),
+        gte(reviews.rating, 4),
+        sql`length(${reviews.body}) >= 40`,
+      ),
+    )
     .orderBy(desc(reviews.verified), desc(reviews.createdAt))
     .limit(limit);
 }
@@ -1016,7 +1378,13 @@ export async function getWelcomeOffer() {
   if (!code) return null;
   const c = await db.select().from(coupons).where(eq(coupons.code, code)).get();
   if (!c || couponStatus(c) !== "Active") return null;
-  return { code: c.code, label: couponLabel(c), minSubtotal: c.minSubtotal, type: c.type, value: c.value };
+  return {
+    code: c.code,
+    label: couponLabel(c),
+    minSubtotal: c.minSubtotal,
+    type: c.type,
+    value: c.value,
+  };
 }
 
 export async function getSubscribers() {
@@ -1026,19 +1394,32 @@ export async function getSubscribers() {
 /* Contact messages */
 
 export async function getUnreadMessageCount() {
-  const [row] = await db.select({ n: sql<number>`count(*)` }).from(contactMessages).where(eq(contactMessages.isRead, false));
+  const [row] = await db
+    .select({ n: sql<number>`count(*)` })
+    .from(contactMessages)
+    .where(eq(contactMessages.isRead, false));
   return row?.n ?? 0;
 }
 
-export async function getContactMessages(filter: { status?: "unread" | "read" } = {}) {
+export async function getContactMessages(
+  filter: { status?: "unread" | "read" } = {},
+) {
   return db
     .select()
     .from(contactMessages)
-    .where(filter.status === "unread" ? eq(contactMessages.isRead, false) : filter.status === "read" ? eq(contactMessages.isRead, true) : undefined)
+    .where(
+      filter.status === "unread"
+        ? eq(contactMessages.isRead, false)
+        : filter.status === "read"
+          ? eq(contactMessages.isRead, true)
+          : undefined,
+    )
     .orderBy(desc(contactMessages.createdAt));
 }
 
-export async function getAdminReviews(filter: { status?: "published" | "hidden" } = {}) {
+export async function getAdminReviews(
+  filter: { status?: "published" | "hidden" } = {},
+) {
   return db
     .select({
       id: reviews.id,
@@ -1056,6 +1437,12 @@ export async function getAdminReviews(filter: { status?: "published" | "hidden" 
     })
     .from(reviews)
     .innerJoin(products, eq(reviews.productId, products.id))
-    .where(filter.status === "published" ? eq(reviews.isPublished, true) : filter.status === "hidden" ? eq(reviews.isPublished, false) : undefined)
+    .where(
+      filter.status === "published"
+        ? eq(reviews.isPublished, true)
+        : filter.status === "hidden"
+          ? eq(reviews.isPublished, false)
+          : undefined,
+    )
     .orderBy(desc(reviews.createdAt));
 }

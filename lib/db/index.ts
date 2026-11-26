@@ -380,7 +380,7 @@ async function migrate() {
       columns.get(table)!.add(column);
     }
   };
-  for (const column of ["audience", "sizes", "colors", "brand", "gallery", "details"]) await add("products", column, "TEXT");
+  for (const column of ["audience", "sizes", "colors", "brand", "gallery", "details", "stock_note"]) await add("products", column, "TEXT");
   await add("order_items", "options", "TEXT");
   await add("orders", "discount", "INTEGER NOT NULL DEFAULT 0");
   await add("orders", "coupon_code", "TEXT");

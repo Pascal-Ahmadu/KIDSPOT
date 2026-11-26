@@ -69,6 +69,7 @@ export default async function TillPage() {
         sku: p.sku,
         brand: p.brand,
         description: p.description,
+        stockNote: p.stockNote,
         price: p.price,
         stock: p.stock,
         sizes: decodeList(p.sizes),
