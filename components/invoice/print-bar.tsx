@@ -5,7 +5,7 @@ import { ArrowDownTrayIcon, PrinterIcon } from "@heroicons/react/24/outline";
 /** Print / save-as-PDF buttons above an invoice (hidden when printing). */
 export function PrintBar({ shareText, shareUrl }: { shareText?: string; shareUrl?: string }) {
   return (
-    <div className="no-print mx-auto mb-4 flex w-full max-w-[800px] flex-wrap justify-end gap-2 px-4 sm:px-0">
+    <div className="no-print mx-auto mb-4 flex w-full max-w-[800px] flex-wrap justify-end gap-2 px-4 print:hidden sm:px-0">
       {shareUrl && (
         <a href={`https://wa.me/?text=${encodeURIComponent(`${shareText ?? ""} ${shareUrl}`.trim())}`} target="_blank" rel="noreferrer" className="btn btn-ghost">
           Share on WhatsApp

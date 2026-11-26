@@ -13,7 +13,7 @@ export type Db = LibSQLDatabase<typeof schema>;
 /** The `tx` handed to db.transaction(async (tx) => ...). */
 export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
-const globalForDb = globalThis as unknown as { __kidstoreLibsql?: { db: Db; client: Client } };
+const globalForDb = globalThis as unknown as { __kidstoreLibsql?: { db: Db; client: Client; url?: string } };
 
 /**
  * The live services (Turso, Vercel Blob) are used in production. Local development (`npm run dev`) uses
@@ -32,11 +32,15 @@ function connectionUrl() {
 export const isLocalDatabase = !(useLiveServices && process.env.TURSO_DATABASE_URL);
 
 function connect() {
-  const client = createClient({ url: connectionUrl(), authToken: isLocalDatabase ? undefined : process.env.TURSO_AUTH_TOKEN });
-  return { client, db: drizzle(client, { schema }) };
+  const url = connectionUrl();
+  const client = createClient({ url, authToken: isLocalDatabase ? undefined : process.env.TURSO_AUTH_TOKEN });
+  return { client, db: drizzle(client, { schema }), url };
 }
 
-const instance = globalForDb.__kidstoreLibsql ?? connect();
+// Reused across dev hot reloads, but reconnect if the target changed (e.g. local file vs Turso).
+const cached = globalForDb.__kidstoreLibsql;
+const instance = cached && cached.url === connectionUrl() ? cached : connect();
+if (cached && cached !== instance) cached.client.close();
 if (process.env.NODE_ENV !== "production") globalForDb.__kidstoreLibsql = instance;
 
 export const db: Db = instance.db;
