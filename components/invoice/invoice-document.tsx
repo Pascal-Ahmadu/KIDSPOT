@@ -30,6 +30,8 @@ export function InvoiceDocument(p: InvoiceDocumentProps) {
   const showBank = p.bank && p.bank.accountNumber && p.status.tone === "due";
   return (
     <article className="invoice-doc mx-auto w-full max-w-[800px] bg-white p-6 text-[14px] leading-6 text-[#292929] sm:p-10">
+      {/* Invoices print on clean A4. */}
+      <style>{`@media print { @page { size: A4; margin: 12mm; } }`}</style>
       <header className="flex flex-wrap items-start justify-between gap-6 border-b border-[#DCDCDC] pb-6">
         <div className="flex items-center gap-3">
           <Image src="/brand/bear-badge.png" alt="" width={48} height={48} className="h-12 w-12 rounded-full" />

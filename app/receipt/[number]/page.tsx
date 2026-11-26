@@ -53,7 +53,7 @@ export default async function ReceiptPage({
     <main className="min-h-screen bg-[#F6F6F6] py-6 print:min-h-0 print:bg-white print:py-0">
       {/* Thermal paper: 80mm roll, no margins, height grows with the receipt. */}
       {/* No page size: the printer driver's 80mm roll decides; margin 0 keeps the receipt at the top. */}
-      <style>{`@media print { @page { margin: 0; } html, body { background: #fff !important; margin: 0 !important; min-height: 0 !important; } }`}</style>
+      <style>{`@media print { @page { size: auto; margin: 0; } html, body { background: #fff !important; margin: 0 !important; min-height: 0 !important; } }`}</style>
       <AutoPrint auto={sp.print === "1"} />
       {/* Same 72mm width on screen and on paper (the XP-80's printable width), so the measured length matches the print. */}
       <div className="mx-auto w-fit bg-white px-3 py-2 print:w-full print:p-0">

@@ -399,12 +399,9 @@ body {
   color: var(--n900);
 }
 
-/* Invoices: print just the document on clean A4. */
+/* Printing: hide on-screen controls. The page size is set by each printable page itself
+   (A4 in InvoiceDocument, the printer's own 80mm roll on /receipt), so they never clash. */
 @media print {
-  @page {
-    size: A4;
-    margin: 12mm;
-  }
   .no-print {
     display: none !important;
   }
