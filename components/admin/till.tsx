@@ -55,6 +55,12 @@ export type TillSale = {
 type Line = { key: string; productId: number; quantity: number; size?: string };
 type Payment = "cash" | "transfer" | "card";
 
+/** The 80mm thermal receipt for a sale, opened with the print window ready. Same signed link as the invoice. */
+const receiptPrintUrl = (invoiceUrl: string) => {
+  const u = new URL(invoiceUrl, "http://x");
+  return `${u.pathname.replace(/^\/invoice\//, "/receipt/")}${u.search}&print=1`;
+};
+
 const PAYMENTS: { value: Payment; label: string }[] = [
   { value: "transfer", label: "Transfer" },
   { value: "card", label: "Card" },
@@ -412,7 +418,10 @@ export function Till({
       {lines.map((l) => {
         const p = byId.get(l.productId)!;
         return (
-          <li key={l.key} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2">
+          <li
+            key={l.key}
+            className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2"
+          >
             <div className="flex min-w-[220px] flex-1 items-center justify-between gap-3">
               <span className="text-sm leading-5 text-ink">{p.name}</span>
               <span className="text-sm font-semibold text-ink">
@@ -571,9 +580,7 @@ export function Till({
                     <ProductImage src={p.imageUrl} alt="" />
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="text-sm leading-5 text-ink">
-                      {p.name}
-                    </span>
+                    <span className="text-sm leading-5 text-ink">{p.name}</span>
                     {(p.description || p.brand) && (
                       <span
                         className="text-xs leading-[18px] text-[#7C7C7C]"
@@ -729,12 +736,13 @@ export function Till({
                 </ul>
                 <div className="grid grid-cols-2 gap-2">
                   <a
-                    href={receipt.invoiceUrl}
+                    href={receiptPrintUrl(receipt.invoiceUrl)}
                     target="_blank"
                     rel="noreferrer"
                     className="btn btn-ghost gap-2"
+                    title="80mm receipt for the thermal printer"
                   >
-                    <PrinterIcon className="h-5 w-5" /> Print invoice
+                    <PrinterIcon className="h-5 w-5" /> Print receipt
                   </a>
                   <a
                     href={whatsappHref(receipt)}
