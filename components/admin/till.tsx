@@ -574,42 +574,49 @@ export function Till({
                       ? "No price yet: a manager can add one in Products"
                       : undefined
                   }
-                  className="flex h-full w-full items-start gap-3 rounded-[8px] border border-line bg-white p-2 text-left transition hover:border-brand disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-full w-full items-stretch gap-3 rounded-[8px] border border-line bg-white p-3 text-left transition hover:border-brand disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <span className="block h-12 w-12 shrink-0 overflow-hidden rounded-[6px] bg-surface">
+                  <span className="block h-14 w-14 shrink-0 overflow-hidden rounded-[6px] bg-surface">
                     <ProductImage src={p.imageUrl} alt="" />
                   </span>
-                  <span className="flex min-w-0 flex-1 flex-col self-stretch">
-                    {/* The shop's own first column (brand / supplier, as written in the stock sheet), shown first. */}
-                    {p.brand && (
-                      <span className="truncate text-xs font-semibold leading-[18px] text-brand">
-                        {p.brand}
-                      </span>
-                    )}
-                    <span className="line-clamp-2 text-sm leading-5 text-ink">{p.name}</span>
+                  {/* Same structure on every tile: brand, name, description, then SKU · stock · price on one bottom line. */}
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    {/* The shop's own first column (brand / supplier, as written in the stock sheet). */}
+                    <span className="truncate text-xs font-semibold leading-[18px] text-brand">
+                      {p.brand || " "}
+                    </span>
+                    <span className="line-clamp-2 text-sm font-medium leading-5 text-ink">
+                      {p.name}
+                    </span>
                     {p.description && (
-                      <span className="line-clamp-1 text-xs leading-[18px] text-[#7C7C7C]">
+                      <span className="mt-0.5 line-clamp-1 text-xs leading-[18px] text-[#7C7C7C]">
                         {p.description}
                       </span>
                     )}
-                    <span className="mt-auto flex items-center justify-between gap-2 pt-1 text-xs leading-5">
-                      <span className="font-mono text-[#BDBDBD]">{p.sku}</span>
+                    <span className="mt-auto flex items-end justify-between gap-2 pt-2">
+                      <span className="flex flex-col text-xs leading-[18px]">
+                        <span className="font-mono text-[#BDBDBD]">
+                          {p.sku}
+                        </span>
+                        <span
+                          className={
+                            left <= 0 ? "text-accent" : "text-[#7C7C7C]"
+                          }
+                        >
+                          {left <= 0 ? "None left" : `${left} left`}
+                        </span>
+                      </span>
                       <span
-                        className={left <= 0 ? "text-accent" : "text-[#7C7C7C]"}
+                        className={cn(
+                          "shrink-0 font-semibold",
+                          p.price > 0
+                            ? "text-base text-ink"
+                            : "text-xs text-accent",
+                        )}
                       >
-                        {left <= 0 ? "None left" : `${left} left`}
+                        {p.price > 0 ? money(p.price) : "No price yet"}
                       </span>
                     </span>
-                  </span>
-                  <span
-                    className={cn(
-                      "shrink-0 text-sm font-semibold",
-                      p.price > 0
-                        ? "text-ink"
-                        : "text-xs font-medium text-accent",
-                    )}
-                  >
-                    {p.price > 0 ? money(p.price) : "No price yet"}
                   </span>
                 </button>
               </li>
