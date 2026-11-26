@@ -45,7 +45,7 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   const email = parsed.data.email.toLowerCase();
   if (locked(email)) return { error: "Too many attempts. Please wait 15 minutes and try again." };
 
-  const acct = db.select().from(accounts).where(eq(accounts.email, email)).get();
+  const acct = await db.select().from(accounts).where(eq(accounts.email, email)).get();
   if (!acct || !verifyPassword(parsed.data.password, acct.passwordHash)) {
     fail(email);
     return { error: "That email and password don't match an account." };
@@ -67,13 +67,13 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
   const parsed = registerSchema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) return { fieldErrors: errorsOf(parsed.error.issues) };
   const email = parsed.data.email.toLowerCase();
-  if (db.select({ id: accounts.id }).from(accounts).where(eq(accounts.email, email)).get()) {
+  if (await db.select({ id: accounts.id }).from(accounts).where(eq(accounts.email, email)).get()) {
     return { fieldErrors: { email: "An account with this email already exists. Try logging in." } };
   }
   const name = `${parsed.data.firstName} ${parsed.data.lastName}`;
-  const acct = db.insert(accounts).values({ name, email, passwordHash: hashPassword(parsed.data.password) }).returning({ id: accounts.id }).get();
+  const acct = await db.insert(accounts).values({ name, email, passwordHash: hashPassword(parsed.data.password) }).returning({ id: accounts.id }).get();
   // Opt-in checkbox: add to the newsletter list (ignored if already subscribed).
-  if (parsed.data.newsletter) db.insert(subscribers).values({ email, source: "register" }).onConflictDoNothing().run();
+  if (parsed.data.newsletter) await db.insert(subscribers).values({ email, source: "register" }).onConflictDoNothing().run();
   await startSession(acct.id);
   return { ok: true, name };
 }

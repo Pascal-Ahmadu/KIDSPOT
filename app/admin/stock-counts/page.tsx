@@ -19,41 +19,41 @@ export default async function StockCountsPage({ searchParams }: { searchParams: 
   const sp = await searchParams;
   const me = (await getStaffSession())!;
   const manager = isManager(me.role);
-  const names = staffNames();
+  const names = await staffNames();
 
-  const open = db.select().from(stockCounts).where(and(eq(stockCounts.staffId, me.id), eq(stockCounts.status, "open"))).get();
+  const open = await db.select().from(stockCounts).where(and(eq(stockCounts.staffId, me.id), eq(stockCounts.status, "open"))).get();
   const openItems = open
-    ? db
-        .select({ id: stockCountItems.id, name: products.name, sku: products.sku, imageUrl: products.imageUrl })
-        .from(stockCountItems)
-        .innerJoin(products, eq(stockCountItems.productId, products.id))
-        .where(eq(stockCountItems.countId, open.id))
-        .all()
+    ? await db
+              .select({ id: stockCountItems.id, name: products.name, sku: products.sku, imageUrl: products.imageUrl })
+              .from(stockCountItems)
+              .innerJoin(products, eq(stockCountItems.productId, products.id))
+              .where(eq(stockCountItems.countId, open.id))
+              .all()
     : [];
 
-  const counts = (manager ? db.select().from(stockCounts) : db.select().from(stockCounts).where(eq(stockCounts.staffId, me.id))).orderBy(desc(stockCounts.createdAt)).limit(50).all();
+  const counts = await (manager ? db.select().from(stockCounts) : db.select().from(stockCounts).where(eq(stockCounts.staffId, me.id))).orderBy(desc(stockCounts.createdAt)).limit(50).all();
   const allItems = counts.length
-    ? db
-        .select()
-        .from(stockCountItems)
-        .where(
-          inArray(
-            stockCountItems.countId,
-            counts.map((c) => c.id),
-          ),
-        )
-        .all()
+    ? await db
+              .select()
+              .from(stockCountItems)
+              .where(
+                inArray(
+                  stockCountItems.countId,
+                  counts.map((c) => c.id),
+                ),
+              )
+              .all()
     : [];
   const gapsFor = (id: number) => allItems.filter((i) => i.countId === id && i.expected != null && i.expected !== i.counted).length;
 
   const viewing = manager && sp.view ? counts.find((c) => c.id === Number(sp.view) && c.status !== "open") : undefined;
   const viewLines = viewing
-    ? db
-        .select({ id: stockCountItems.id, name: products.name, sku: products.sku, expected: stockCountItems.expected, counted: stockCountItems.counted, corrected: stockCountItems.corrected })
-        .from(stockCountItems)
-        .innerJoin(products, eq(stockCountItems.productId, products.id))
-        .where(eq(stockCountItems.countId, viewing.id))
-        .all()
+    ? await db
+              .select({ id: stockCountItems.id, name: products.name, sku: products.sku, expected: stockCountItems.expected, counted: stockCountItems.counted, corrected: stockCountItems.corrected })
+              .from(stockCountItems)
+              .innerJoin(products, eq(stockCountItems.productId, products.id))
+              .where(eq(stockCountItems.countId, viewing.id))
+              .all()
     : [];
 
   return (

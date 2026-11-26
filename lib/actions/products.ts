@@ -120,7 +120,7 @@ export async function createProductAction(_prev: ActionState, formData: FormData
         note: "Initial stock",
       });
     }
-    logActivity(me, "product_create", `Added product ${values.name} at ${money(values.price)} with ${result.stock} in stock`, { entity: "product", entityId: created.id });
+    await logActivity(me, "product_create", `Added product ${values.name} at ${money(values.price)} with ${result.stock} in stock`, { entity: "product", entityId: created.id });
   } catch (e) {
     return { error: friendlyDbError(e) };
   }
@@ -130,7 +130,7 @@ export async function createProductAction(_prev: ActionState, formData: FormData
 
 export async function updateProductAction(id: number, _prev: ActionState, formData: FormData): Promise<ActionState> {
   const me = await requireAdmin();
-  const before = db.select({ name: products.name, price: products.price, costPrice: products.costPrice }).from(products).where(eq(products.id, id)).get();
+  const before = await db.select({ name: products.name, price: products.price, costPrice: products.costPrice }).from(products).where(eq(products.id, id)).get();
   const result = parseProduct(formData);
   if ("fieldErrors" in result) return { fieldErrors: result.fieldErrors };
 
@@ -146,7 +146,7 @@ export async function updateProductAction(id: number, _prev: ActionState, formDa
       before && before.price !== values.price && `price ${money(before.price)} → ${money(values.price)}`,
       before && (before.costPrice ?? null) !== (values.costPrice ?? null) && `cost price ${before.costPrice != null ? money(before.costPrice) : "none"} → ${values.costPrice != null ? money(values.costPrice) : "none"}`,
     ].filter(Boolean);
-    logActivity(me, changes.length ? "price_change" : "product_update", `Edited ${values.name}${changes.length ? `: ${changes.join(", ")}` : ""}`, { entity: "product", entityId: id });
+    await logActivity(me, changes.length ? "price_change" : "product_update", `Edited ${values.name}${changes.length ? `: ${changes.join(", ")}` : ""}`, { entity: "product", entityId: id });
   } catch (e) {
     return { error: friendlyDbError(e) };
   }
@@ -156,16 +156,16 @@ export async function updateProductAction(id: number, _prev: ActionState, formDa
 
 export async function toggleProductActiveAction(id: number, isActive: boolean) {
   const me = await requireAdmin();
-  const p = db.select({ name: products.name }).from(products).where(eq(products.id, id)).get();
-  logActivity(me, "product_visibility", `${isActive ? "Showed" : "Hid"} ${p?.name ?? `product #${id}`} in the store`, { entity: "product", entityId: id });
+  const p = await db.select({ name: products.name }).from(products).where(eq(products.id, id)).get();
+  await logActivity(me, "product_visibility", `${isActive ? "Showed" : "Hid"} ${p?.name ?? `product #${id}`} in the store`, { entity: "product", entityId: id });
   await db.update(products).set({ isActive, updatedAt: Math.floor(Date.now() / 1000) }).where(eq(products.id, id));
   revalidateStore();
 }
 
 export async function deleteProductAction(id: number) {
   const me = await requireAdmin();
-  const p = db.select({ name: products.name, stock: products.stock }).from(products).where(eq(products.id, id)).get();
-  logActivity(me, "product_delete", `Deleted product ${p?.name ?? `#${id}`} (${p?.stock ?? 0} were in stock)`, { entity: "product", entityId: id });
+  const p = await db.select({ name: products.name, stock: products.stock }).from(products).where(eq(products.id, id)).get();
+  await logActivity(me, "product_delete", `Deleted product ${p?.name ?? `#${id}`} (${p?.stock ?? 0} were in stock)`, { entity: "product", entityId: id });
   await db.delete(products).where(eq(products.id, id));
   revalidateStore();
   redirect("/admin/products?deleted=1");
@@ -200,12 +200,12 @@ export async function adjustStockAction(_prev: ActionState, formData: FormData):
 
   try {
     const after = await applyStockChange({ productId, type, quantity, note: note || null });
-    const p = db.select({ name: products.name }).from(products).where(eq(products.id, productId)).get();
+    const p = await db.select({ name: products.name }).from(products).where(eq(products.id, productId)).get();
     const label = type === "return" ? "Customer return" : "Correction";
-    logActivity(me, type === "adjustment" ? "stock_correction" : "stock_return", `${label}: ${quantity > 0 ? "+" : ""}${quantity} × ${p?.name ?? `#${productId}`} (now ${after})${note ? ` · ${note}` : ""}`, {
-      entity: "product",
-      entityId: productId,
-    });
+    await logActivity(me, type === "adjustment" ? "stock_correction" : "stock_return", `${label}: ${quantity > 0 ? "+" : ""}${quantity} × ${p?.name ?? `#${productId}`} (now ${after})${note ? ` · ${note}` : ""}`, {
+            entity: "product",
+            entityId: productId,
+          });
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Could not update stock." };
   }
@@ -220,7 +220,7 @@ export async function setStockAction(productId: number, newStock: number, note?:
   const diff = Math.max(0, Math.floor(newStock)) - current[0].stock;
   if (diff === 0) return;
   await applyStockChange({ productId, type: "adjustment", quantity: diff, note: note ?? "Stock count correction" });
-  logActivity(me, "stock_correction", `Correction: ${diff > 0 ? "+" : ""}${diff} for product #${productId}`, { entity: "product", entityId: productId });
+  await logActivity(me, "stock_correction", `Correction: ${diff > 0 ? "+" : ""}${diff} for product #${productId}`, { entity: "product", entityId: productId });
   revalidateStore();
 }
 
@@ -231,27 +231,27 @@ export async function applyStockChange(input: {
   note: string | null;
   orderId?: number | null;
 }) {
-  return db.transaction((tx) => {
-    const row = tx.select({ stock: products.stock }).from(products).where(eq(products.id, input.productId)).get();
-    if (!row) throw new Error("Product not found");
-    const after = row.stock + input.quantity;
-    if (after < 0) throw new Error(`Only ${row.stock} unit(s) in stock; cannot remove ${Math.abs(input.quantity)}.`);
-    tx.update(products)
-      .set({ stock: after, updatedAt: Math.floor(Date.now() / 1000) })
-      .where(eq(products.id, input.productId))
-      .run();
-    tx.insert(stockMovements)
-      .values({
-        productId: input.productId,
-        type: input.type,
-        quantity: input.quantity,
-        stockAfter: after,
-        note: input.note,
-        orderId: input.orderId ?? null,
-      })
-      .run();
-    return after;
-  });
+  return await db.transaction(async (tx) => {
+      const row = await tx.select({ stock: products.stock }).from(products).where(eq(products.id, input.productId)).get();
+      if (!row) throw new Error("Product not found");
+      const after = row.stock + input.quantity;
+      if (after < 0) throw new Error(`Only ${row.stock} unit(s) in stock; cannot remove ${Math.abs(input.quantity)}.`);
+      await tx.update(products)
+              .set({ stock: after, updatedAt: Math.floor(Date.now() / 1000) })
+              .where(eq(products.id, input.productId))
+              .run();
+      await tx.insert(stockMovements)
+              .values({
+                productId: input.productId,
+                type: input.type,
+                quantity: input.quantity,
+                stockAfter: after,
+                note: input.note,
+                orderId: input.orderId ?? null,
+              })
+              .run();
+      return after;
+    });
 }
 
 function friendlyDbError(e: unknown) {

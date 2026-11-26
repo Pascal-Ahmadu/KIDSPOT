@@ -27,19 +27,19 @@ export default async function TransfersPage({ searchParams }: { searchParams: Pr
     missing: eq(orders.paymentCheck, "missing"),
     done: or(eq(orders.paymentCheck, "received"), eq(orders.paymentCheck, "missing"))!,
   };
-  const rows = db
-    .select()
-    .from(orders)
-    .where(and(...base, byView[view]))
-    .orderBy(desc(orders.createdAt))
-    .all();
-  const count = (v: string) =>
-    db
-      .select({ id: orders.id })
+  const rows = await db
+      .select()
       .from(orders)
-      .where(and(...base, byView[v]))
-      .all().length;
-  const names = staffNames();
+      .where(and(...base, byView[view]))
+      .orderBy(desc(orders.createdAt))
+      .all();
+  const count = async (v: string) =>
+    (await db
+            .select({ id: orders.id })
+            .from(orders)
+            .where(and(...base, byView[v]))
+            .all()).length;
+  const names = await staffNames();
   const paged = paginate(rows, sp.page, 20);
   const total = rows.reduce((n, o) => n + o.total, 0);
   const href = (v: string, p = 1) => `/admin/transfers?view=${v}${p > 1 ? `&page=${p}` : ""}`;
@@ -58,8 +58,8 @@ export default async function TransfersPage({ searchParams }: { searchParams: Pr
           <FilterTabs
             label="Filter"
             items={[
-              { href: href("todo"), label: "To check", active: view === "todo", count: count("todo") },
-              { href: href("missing"), label: "Not received", active: view === "missing", count: count("missing") },
+              { href: href("todo"), label: "To check", active: view === "todo", count: await count("todo") },
+              { href: href("missing"), label: "Not received", active: view === "missing", count: await count("missing") },
               { href: href("done"), label: "Checked", active: view === "done" },
             ]}
           />

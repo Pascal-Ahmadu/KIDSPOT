@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 /** Last 4 characters only: the secrets themselves never leave the server. */
 const hint = (secret: string) => (secret ? `ends in ${secret.slice(-4)}` : "");
 
-export default function PaymentSettingsPage() {
-  const s = getPaymentSettings();
+export default async function PaymentSettingsPage() {
+  const s = await getPaymentSettings();
   return (
     <div className="max-w-[880px]">
       <PageHeader title="Payments" description="Connect the Moniepoint terminal and Monnify, so card and transfer payments are confirmed by the provider, not by eye." />

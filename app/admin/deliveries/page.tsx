@@ -17,12 +17,12 @@ export const dynamic = "force-dynamic";
 export default async function DeliveriesPage({ searchParams }: { searchParams: Promise<{ view?: string; page?: string }> }) {
   const sp = await searchParams;
   const view = sp.view === "unpaid" || sp.view === "paid" ? sp.view : "all";
-  const all = db
-    .select({ inv: supplierInvoices, supplier: suppliers.name })
-    .from(supplierInvoices)
-    .innerJoin(suppliers, eq(supplierInvoices.supplierId, suppliers.id))
-    .orderBy(desc(supplierInvoices.createdAt))
-    .all();
+  const all = await db
+      .select({ inv: supplierInvoices, supplier: suppliers.name })
+      .from(supplierInvoices)
+      .innerJoin(suppliers, eq(supplierInvoices.supplierId, suppliers.id))
+      .orderBy(desc(supplierInvoices.createdAt))
+      .all();
   const rows = view === "all" ? all : all.filter((r) => r.inv.status === view);
   const owedBySupplier = new Map<string, number>();
   for (const r of all) if (r.inv.status === "unpaid") owedBySupplier.set(r.supplier, (owedBySupplier.get(r.supplier) ?? 0) + r.inv.amount);

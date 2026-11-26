@@ -44,7 +44,7 @@ export async function createExpenseAction(_prev: ActionState, formData: FormData
   if (amount <= 0) return { fieldErrors: { amount: "Enter an amount above 0" } };
 
   // Cash taken from the till belongs to the open shift, so it's counted at closing.
-  const shift = d.method === "till" ? getOpenShift(me.id) : undefined;
+  const shift = d.method === "till" ? await getOpenShift(me.id) : undefined;
   if (d.method === "till" && !shift) return { fieldErrors: { method: "Open a till shift before taking cash from the till" } };
 
   let receiptUrl: string | null = null;
@@ -59,15 +59,15 @@ export async function createExpenseAction(_prev: ActionState, formData: FormData
 
   const { controls } = await getSettings();
   const needsApproval = amount > controls.expenseApprovalLimit;
-  const row = db
-    .insert(expenses)
-    .values({ amount, category: d.category, description: d.description, method: d.method, receiptUrl, spentOn: d.spentOn, staffId: me.id, shiftId: shift?.id ?? null, status: needsApproval ? "pending" : "approved" })
-    .returning({ id: expenses.id })
-    .get();
-  logActivity(me, "expense", `${me.name} recorded ${money(amount)} for ${d.category}: ${d.description} (${METHOD_LABEL[d.method]})${needsApproval ? " · waiting for approval" : ""}${receiptUrl ? "" : " · no receipt"}`, {
-    entity: "expense",
-    entityId: row.id,
-  });
+  const row = await db
+      .insert(expenses)
+      .values({ amount, category: d.category, description: d.description, method: d.method, receiptUrl, spentOn: d.spentOn, staffId: me.id, shiftId: shift?.id ?? null, status: needsApproval ? "pending" : "approved" })
+      .returning({ id: expenses.id })
+      .get();
+  await logActivity(me, "expense", `${me.name} recorded ${money(amount)} for ${d.category}: ${d.description} (${METHOD_LABEL[d.method]})${needsApproval ? " · waiting for approval" : ""}${receiptUrl ? "" : " · no receipt"}`, {
+        entity: "expense",
+        entityId: row.id,
+      });
   revalidatePath("/admin/expenses");
   revalidatePath("/admin", "layout");
   return { success: needsApproval ? `Saved. Over ${money(controls.expenseApprovalLimit)}, so a manager needs to approve it.` : "Expense saved." };
@@ -77,15 +77,15 @@ export async function createExpenseAction(_prev: ActionState, formData: FormData
 export async function reviewExpenseAction(id: number, approve: boolean): Promise<{ error?: string }> {
   const me = await getStaffSession();
   if (!me || !isManager(me.role)) return { error: "Only a manager can approve expenses." };
-  const row = db.select().from(expenses).where(eq(expenses.id, id)).get();
+  const row = await db.select().from(expenses).where(eq(expenses.id, id)).get();
   if (!row) return { error: "Expense not found." };
   if (row.status !== "pending") return { error: "This expense was already reviewed." };
   if (row.staffId === me.id && me.role !== "owner") return { error: "Someone else has to approve your own expense." };
-  db.update(expenses)
-    .set({ status: approve ? "approved" : "rejected", reviewedBy: me.id, reviewedAt: Math.floor(Date.now() / 1000) })
-    .where(eq(expenses.id, id))
-    .run();
-  logActivity(me, approve ? "expense_approve" : "expense_reject", `${me.name} ${approve ? "approved" : "rejected"} ${money(row.amount)} for ${row.category}: ${row.description}`, { entity: "expense", entityId: id });
+  await db.update(expenses)
+        .set({ status: approve ? "approved" : "rejected", reviewedBy: me.id, reviewedAt: Math.floor(Date.now() / 1000) })
+        .where(eq(expenses.id, id))
+        .run();
+  await logActivity(me, approve ? "expense_approve" : "expense_reject", `${me.name} ${approve ? "approved" : "rejected"} ${money(row.amount)} for ${row.category}: ${row.description}`, { entity: "expense", entityId: id });
   revalidatePath("/admin/expenses");
   revalidatePath("/admin", "layout");
   return {};

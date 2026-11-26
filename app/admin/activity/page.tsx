@@ -45,7 +45,7 @@ const COLORS: Record<string, string> = {
 export default async function ActivityPage({ searchParams }: { searchParams: Promise<{ group?: string; action?: string; staff?: string; q?: string; page?: string }> }) {
   const sp = await searchParams;
   const { controls } = await getSettings();
-  const flags = getFlags(controls);
+  const flags = await getFlags(controls);
 
   const conds: SQL[] = [];
   const group = sp.group && GROUPS[sp.group] ? sp.group : undefined;
@@ -53,15 +53,15 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
   if (sp.action) conds.push(eq(auditLog.action, sp.action));
   if (sp.staff) conds.push(eq(auditLog.staffId, Number(sp.staff)));
   if (sp.q) conds.push(like(auditLog.summary, `%${sp.q}%`));
-  const rows = db
-    .select()
-    .from(auditLog)
-    .where(conds.length ? and(...conds) : undefined)
-    .orderBy(desc(auditLog.createdAt), desc(auditLog.id))
-    .limit(2000)
-    .all();
+  const rows = await db
+      .select()
+      .from(auditLog)
+      .where(conds.length ? and(...conds) : undefined)
+      .orderBy(desc(auditLog.createdAt), desc(auditLog.id))
+      .limit(2000)
+      .all();
   const paged = paginate(rows, sp.page, 25);
-  const people = db.select({ id: staff.id, name: staff.name }).from(staff).orderBy(staff.name).all();
+  const people = await db.select({ id: staff.id, name: staff.name }).from(staff).orderBy(staff.name).all();
 
   const href = (patch: Record<string, string | undefined>) => {
     const q = new URLSearchParams();

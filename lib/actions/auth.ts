@@ -20,10 +20,10 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
   const f = failures.get(email);
   if (f && f.count >= 5 && f.until > Date.now()) return { error: "Too many attempts. Please wait 15 minutes and try again." };
 
-  if (!checkCredentials(email, password)) {
+  if (!await checkCredentials(email, password)) {
     const fresh = !f || f.until < Date.now();
     failures.set(email, { count: fresh ? 1 : f.count + 1, until: Date.now() + 15 * 60 * 1000 });
-    logActivity(null, "login_failed", `Failed sign-in for ${email || "(no email)"}`, { entity: "staff" });
+    await logActivity(null, "login_failed", `Failed sign-in for ${email || "(no email)"}`, { entity: "staff" });
     return { error: "Incorrect email or password." };
   }
   failures.delete(email);
@@ -39,13 +39,13 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
     store.delete(SESSION_COOKIE);
     return { error: "This account is switched off. Ask the owner to turn it back on." };
   }
-  logActivity(me, "login", `${me.name} signed in`, { entity: "staff", entityId: me.id });
+  await logActivity(me, "login", `${me.name} signed in`, { entity: "staff", entityId: me.id });
   redirect(next.startsWith("/admin") && canAccess(me.role, next) ? next : homeFor(me.role));
 }
 
 export async function logoutAction() {
   const me = await getStaffSession();
-  if (me) logActivity(me, "logout", `${me.name} signed out`, { entity: "staff", entityId: me.id });
+  if (me) await logActivity(me, "logout", `${me.name} signed out`, { entity: "staff", entityId: me.id });
   const store = await cookies();
   store.delete(SESSION_COOKIE);
   redirect("/admin/login");

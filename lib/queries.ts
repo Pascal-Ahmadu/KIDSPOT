@@ -1014,7 +1014,7 @@ export async function getWelcomeOffer() {
   const { newsletter } = await getSettings();
   const code = newsletter.welcomeCode.trim().toUpperCase();
   if (!code) return null;
-  const c = db.select().from(coupons).where(eq(coupons.code, code)).get();
+  const c = await db.select().from(coupons).where(eq(coupons.code, code)).get();
   if (!c || couponStatus(c) !== "Active") return null;
   return { code: c.code, label: couponLabel(c), minSubtotal: c.minSubtotal, type: c.type, value: c.value };
 }

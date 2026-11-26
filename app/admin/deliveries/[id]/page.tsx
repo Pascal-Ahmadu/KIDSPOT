@@ -16,16 +16,16 @@ export const dynamic = "force-dynamic";
 
 export default async function DeliveryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const inv = db.select().from(supplierInvoices).where(eq(supplierInvoices.id, Number(id))).get();
+  const inv = await db.select().from(supplierInvoices).where(eq(supplierInvoices.id, Number(id))).get();
   if (!inv) notFound();
-  const supplier = db.select().from(suppliers).where(eq(suppliers.id, inv.supplierId)).get();
-  const lines = db
-    .select({ id: supplierInvoiceItems.id, quantity: supplierInvoiceItems.quantity, unitCost: supplierInvoiceItems.unitCost, productId: products.id, name: products.name, sku: products.sku })
-    .from(supplierInvoiceItems)
-    .innerJoin(products, eq(supplierInvoiceItems.productId, products.id))
-    .where(eq(supplierInvoiceItems.invoiceId, inv.id))
-    .all();
-  const names = staffNames();
+  const supplier = await db.select().from(suppliers).where(eq(suppliers.id, inv.supplierId)).get();
+  const lines = await db
+      .select({ id: supplierInvoiceItems.id, quantity: supplierInvoiceItems.quantity, unitCost: supplierInvoiceItems.unitCost, productId: products.id, name: products.name, sku: products.sku })
+      .from(supplierInvoiceItems)
+      .innerJoin(products, eq(supplierInvoiceItems.productId, products.id))
+      .where(eq(supplierInvoiceItems.invoiceId, inv.id))
+      .all();
+  const names = await staffNames();
 
   return (
     <div className="grid max-w-[1000px] gap-6">

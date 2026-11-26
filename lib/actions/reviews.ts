@@ -32,23 +32,23 @@ export async function submitReviewAction(_prev: ReviewState, formData: FormData)
   const d = parsed.data;
   const email = d.email.toLowerCase();
 
-  const product = db.select({ id: products.id, slug: products.slug }).from(products).where(eq(products.id, d.productId)).get();
+  const product = await db.select({ id: products.id, slug: products.slug }).from(products).where(eq(products.id, d.productId)).get();
   if (!product) return { error: "That product no longer exists." };
 
-  const existing = db.select({ id: reviews.id }).from(reviews).where(and(eq(reviews.productId, d.productId), eq(reviews.email, email))).get();
+  const existing = await db.select({ id: reviews.id }).from(reviews).where(and(eq(reviews.productId, d.productId), eq(reviews.email, email))).get();
   if (existing) return { error: "You've already reviewed this product. Thank you!" };
 
-  const bought = db
-    .select({ n: sql<number>`count(*)` })
-    .from(orderItems)
-    .innerJoin(orders, eq(orderItems.orderId, orders.id))
-    .innerJoin(customers, eq(orders.customerId, customers.id))
-    .where(and(eq(orderItems.productId, d.productId), eq(customers.email, email), sql`${orders.status} != 'cancelled'`))
-    .get();
+  const bought = await db
+      .select({ n: sql<number>`count(*)` })
+      .from(orderItems)
+      .innerJoin(orders, eq(orderItems.orderId, orders.id))
+      .innerJoin(customers, eq(orders.customerId, customers.id))
+      .where(and(eq(orderItems.productId, d.productId), eq(customers.email, email), sql`${orders.status} != 'cancelled'`))
+      .get();
 
-  db.insert(reviews)
-    .values({ productId: d.productId, name: d.name, email, rating: d.rating, title: d.title || null, body: d.body, verified: (bought?.n ?? 0) > 0 })
-    .run();
+  await db.insert(reviews)
+        .values({ productId: d.productId, name: d.name, email, rating: d.rating, title: d.title || null, body: d.body, verified: (bought?.n ?? 0) > 0 })
+        .run();
 
   revalidatePath(`/products/${product.slug}`);
   return { ok: true };
@@ -60,12 +60,12 @@ async function requireAdmin() {
 
 export async function setReviewPublishedAction(id: number, isPublished: boolean) {
   await requireAdmin();
-  db.update(reviews).set({ isPublished }).where(eq(reviews.id, id)).run();
+  await db.update(reviews).set({ isPublished }).where(eq(reviews.id, id)).run();
   revalidatePath("/", "layout");
 }
 
 export async function deleteReviewAction(id: number) {
   await requireAdmin();
-  db.delete(reviews).where(eq(reviews.id, id)).run();
+  await db.delete(reviews).where(eq(reviews.id, id)).run();
   revalidatePath("/", "layout");
 }

@@ -32,7 +32,7 @@ export async function previewImportAction(fd: FormData): Promise<ImportPreview> 
   if (!(await getAdminSession())) return { ...empty, error: "Only a manager or the owner can import products." };
   const file = await readFile(fd);
   if ("error" in file) return { ...empty, error: file.error };
-  const check = checkImport(file.text);
+  const check = await checkImport(file.text);
   return {
     ok: check.fileErrors.length === 0,
     fileErrors: check.fileErrors,
@@ -48,17 +48,17 @@ export async function importProductsAction(fd: FormData): Promise<ImportResult> 
   if (!me) return { ok: false, error: "Only a manager or the owner can import products." };
   const file = await readFile(fd);
   if ("error" in file) return { ok: false, error: file.error };
-  const check = checkImport(file.text);
+  const check = await checkImport(file.text);
   if (check.fileErrors.length) return { ok: false, error: check.fileErrors[0] };
   if (check.counts.create + check.counts.update === 0) return { ok: false, error: "No rows can be imported. Fix the errors shown and try again." };
   try {
-    const res = applyImport(check, { hideMissing: fd.get("hideMissing") === "on" });
-    logActivity(
-      me,
-      "products_import",
-      `${me.name} imported ${file.name}: ${res.created} new, ${res.updated} updated${res.hidden ? `, ${res.hidden} hidden` : ""}${res.skipped ? `, ${res.skipped} skipped` : ""}; ${res.units} items of opening stock`,
-      { entity: "product", details: res },
-    );
+    const res = await applyImport(check, { hideMissing: fd.get("hideMissing") === "on" });
+    await logActivity(
+            me,
+            "products_import",
+            `${me.name} imported ${file.name}: ${res.created} new, ${res.updated} updated${res.hidden ? `, ${res.hidden} hidden` : ""}${res.skipped ? `, ${res.skipped} skipped` : ""}; ${res.units} items of opening stock`,
+            { entity: "product", details: res },
+          );
     revalidatePath("/", "layout");
     return { ok: true, ...res };
   } catch (e) {

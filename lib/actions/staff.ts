@@ -45,13 +45,13 @@ export async function saveStaffAction(_prev: ActionState, formData: FormData): P
   if (!parsed.success) return fail(parsed.error);
   const d = parsed.data;
 
-  const existing = id ? db.select().from(staff).where(eq(staff.id, id)).get() : undefined;
+  const existing = id ? await db.select().from(staff).where(eq(staff.id, id)).get() : undefined;
   if (id && !existing) return { error: "Staff member not found." };
   const isEnvOwner = existing?.email === ownerEmail();
 
   if (!id && !d.password) return { fieldErrors: { password: "Set a password for their first sign-in" } };
   if (d.role !== "cashier" && !d.pin && !existing?.pinHash) return { fieldErrors: { pin: "Managers and owners need a PIN to approve things" } };
-  const clash = db.select({ id: staff.id }).from(staff).where(eq(staff.email, d.email)).get();
+  const clash = await db.select({ id: staff.id }).from(staff).where(eq(staff.email, d.email)).get();
   if (clash && clash.id !== id) return { fieldErrors: { email: "Someone already uses this email" } };
 
   const values = {
@@ -65,17 +65,17 @@ export async function saveStaffAction(_prev: ActionState, formData: FormData): P
   };
 
   if (existing) {
-    db.update(staff).set(values).where(eq(staff.id, existing.id)).run();
+    await db.update(staff).set(values).where(eq(staff.id, existing.id)).run();
     const changes = [
       existing.role !== values.role && `role ${ROLE_LABELS[existing.role as Role]} → ${ROLE_LABELS[values.role as Role]}`,
       existing.isActive !== values.isActive && (values.isActive ? "switched on" : "switched off"),
       d.password && "password reset",
       d.pin && "PIN changed",
     ].filter(Boolean);
-    logActivity(me, "staff_update", `Updated ${values.name}${changes.length ? `: ${changes.join(", ")}` : ""}`, { entity: "staff", entityId: existing.id });
+    await logActivity(me, "staff_update", `Updated ${values.name}${changes.length ? `: ${changes.join(", ")}` : ""}`, { entity: "staff", entityId: existing.id });
   } else {
-    const row = db.insert(staff).values({ ...values, passwordHash: hashPassword(d.password) }).returning({ id: staff.id }).get();
-    logActivity(me, "staff_create", `Added ${values.name} as ${ROLE_LABELS[values.role as Role]}`, { entity: "staff", entityId: row.id });
+    const row = await db.insert(staff).values({ ...values, passwordHash: hashPassword(d.password) }).returning({ id: staff.id }).get();
+    await logActivity(me, "staff_create", `Added ${values.name} as ${ROLE_LABELS[values.role as Role]}`, { entity: "staff", entityId: row.id });
   }
   revalidatePath("/admin/staff");
   return { success: existing ? "Saved." : "Staff member added." };
@@ -112,8 +112,8 @@ export async function saveControlsAction(_prev: ActionState, formData: FormData)
     loyaltyEvery: parsed.data.loyaltyEvery,
     loyaltyReward: toMinor(parsed.data.loyaltyReward),
   };
-  saveSettingsSection("controls", v);
-  logActivity(me, "controls_update", `Shop controls updated: expenses over ₦${parsed.data.expenseApprovalLimit} need approval; hours ${v.openHour}:00–${v.closeHour}:00; loyalty ${v.loyaltyEnabled ? `₦${parsed.data.loyaltyReward} off every ${v.loyaltyEvery} purchases` : "off"}`, { entity: "settings" });
+  await saveSettingsSection("controls", v);
+  await logActivity(me, "controls_update", `Shop controls updated: expenses over ₦${parsed.data.expenseApprovalLimit} need approval; hours ${v.openHour}:00–${v.closeHour}:00; loyalty ${v.loyaltyEnabled ? `₦${parsed.data.loyaltyReward} off every ${v.loyaltyEvery} purchases` : "off"}`, { entity: "settings" });
   revalidatePath("/admin", "layout");
   return { success: "Shop controls saved." };
 }
@@ -125,17 +125,17 @@ export async function saveControlsAction(_prev: ActionState, formData: FormData)
 export async function deleteStaffAction(id: number): Promise<{ ok?: boolean; error?: string }> {
   const me = await getOwnerSession();
   if (!me) return { error: "Only the owner can delete staff." };
-  const row = db.select().from(staff).where(eq(staff.id, id)).get();
+  const row = await db.select().from(staff).where(eq(staff.id, id)).get();
   if (!row) return { error: "Staff member not found." };
   if (row.email === ownerEmail() || row.id === me.id) return { error: "You can't delete the owner account." };
   const used =
-    db.select({ id: orders.id }).from(orders).where(eq(orders.staffId, id)).get() ||
-    db.select({ id: shifts.id }).from(shifts).where(eq(shifts.staffId, id)).get() ||
-    db.select({ id: expenses.id }).from(expenses).where(eq(expenses.staffId, id)).get() ||
-    db.select({ id: stockCounts.id }).from(stockCounts).where(eq(stockCounts.staffId, id)).get();
+    await db.select({ id: orders.id }).from(orders).where(eq(orders.staffId, id)).get() ||
+    await db.select({ id: shifts.id }).from(shifts).where(eq(shifts.staffId, id)).get() ||
+    await db.select({ id: expenses.id }).from(expenses).where(eq(expenses.staffId, id)).get() ||
+    await db.select({ id: stockCounts.id }).from(stockCounts).where(eq(stockCounts.staffId, id)).get();
   if (used) return { error: `${row.name} has sales or shifts on record, so they can't be deleted. Switch their account off instead (Edit → untick "Account switched on").` };
-  db.delete(staff).where(eq(staff.id, id)).run();
-  logActivity(me, "staff_delete", `Deleted staff member ${row.name} (${row.email})`, { entity: "staff", entityId: id });
+  await db.delete(staff).where(eq(staff.id, id)).run();
+  await logActivity(me, "staff_delete", `Deleted staff member ${row.name} (${row.email})`, { entity: "staff", entityId: id });
   revalidatePath("/admin/staff");
   return { ok: true };
 }

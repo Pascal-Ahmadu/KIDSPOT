@@ -33,14 +33,14 @@ export async function sendContactMessageAction(_prev: ContactState, formData: Fo
   const email = d.email.toLowerCase();
 
   // One message per email per minute keeps accidental double-sends and simple spam out.
-  const recent = db
-    .select({ id: contactMessages.id })
-    .from(contactMessages)
-    .where(and(eq(contactMessages.email, email), gt(contactMessages.createdAt, Math.floor(Date.now() / 1000) - 60)))
-    .get();
+  const recent = await db
+      .select({ id: contactMessages.id })
+      .from(contactMessages)
+      .where(and(eq(contactMessages.email, email), gt(contactMessages.createdAt, Math.floor(Date.now() / 1000) - 60)))
+      .get();
   if (recent) return { error: "We've just received a message from you. Please wait a minute before sending another." };
 
-  db.insert(contactMessages).values({ name: d.name, email, phone: d.phone || null, subject: d.subject, message: d.message }).run();
+  await db.insert(contactMessages).values({ name: d.name, email, phone: d.phone || null, subject: d.subject, message: d.message }).run();
   revalidatePath("/admin", "layout");
   return { ok: true };
 }
@@ -51,12 +51,12 @@ async function requireAdmin() {
 
 export async function setMessageReadAction(id: number, isRead: boolean) {
   await requireAdmin();
-  db.update(contactMessages).set({ isRead }).where(eq(contactMessages.id, id)).run();
+  await db.update(contactMessages).set({ isRead }).where(eq(contactMessages.id, id)).run();
   revalidatePath("/admin", "layout");
 }
 
 export async function deleteMessageAction(id: number) {
   await requireAdmin();
-  db.delete(contactMessages).where(eq(contactMessages.id, id)).run();
+  await db.delete(contactMessages).where(eq(contactMessages.id, id)).run();
   revalidatePath("/admin", "layout");
 }

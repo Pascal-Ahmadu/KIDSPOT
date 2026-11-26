@@ -30,19 +30,19 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
   const conds = [];
   if (!manager) conds.push(eq(expenses.staffId, me.id));
   if (status) conds.push(eq(expenses.status, status));
-  const rows = db
-    .select()
-    .from(expenses)
-    .where(conds.length ? and(...conds) : undefined)
-    .orderBy(desc(expenses.spentOn), desc(expenses.createdAt))
-    .all();
-  const pendingCount =
-    db
-      .select({ n: sql<number>`count(*)` })
+  const rows = await db
+      .select()
       .from(expenses)
-      .where(manager ? eq(expenses.status, "pending") : and(eq(expenses.status, "pending"), eq(expenses.staffId, me.id)))
-      .get()?.n ?? 0;
-  const names = staffNames();
+      .where(conds.length ? and(...conds) : undefined)
+      .orderBy(desc(expenses.spentOn), desc(expenses.createdAt))
+      .all();
+  const pendingCount =
+    (await db
+            .select({ n: sql<number>`count(*)` })
+            .from(expenses)
+            .where(manager ? eq(expenses.status, "pending") : and(eq(expenses.status, "pending"), eq(expenses.staffId, me.id)))
+            .get())?.n ?? 0;
+  const names = await staffNames();
   const paged = paginate(rows, sp.page, 15);
   const { controls } = await getSettings();
 
@@ -51,11 +51,11 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
   const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const [month] = await getMonthlyFinance(1);
   const spent =
-    db
-      .select({ total: sql<number>`coalesce(sum(${expenses.amount}),0)` })
-      .from(expenses)
-      .where(and(eq(expenses.status, "approved"), like(expenses.spentOn, `${ym}%`)))
-      .get()?.total ?? 0;
+    (await db
+            .select({ total: sql<number>`coalesce(sum(${expenses.amount}),0)` })
+            .from(expenses)
+            .where(and(eq(expenses.status, "approved"), like(expenses.spentOn, `${ym}%`)))
+            .get())?.total ?? 0;
   const profit = month.revenue - month.cost - spent;
 
   const href = (s?: string, p = 1) => {
@@ -167,7 +167,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
 
       {sp.new && (
         <Modal title="New expense" description="Record money spent. Add a photo of the receipt." closeHref="/admin/expenses" width={600}>
-          <ExpenseForm categories={EXPENSE_CATEGORIES} today={today} limitLabel={money(controls.expenseApprovalLimit)} hasShift={!!getOpenShift(me.id)} />
+          <ExpenseForm categories={EXPENSE_CATEGORIES} today={today} limitLabel={money(controls.expenseApprovalLimit)} hasShift={!!await getOpenShift(me.id)} />
         </Modal>
       )}
     </div>

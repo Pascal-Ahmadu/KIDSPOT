@@ -11,8 +11,8 @@ export type OrderTransfer =
   | { ok: true; paid: boolean; accountNumber: string; accountName: string; bankName: string; amount: number; expiresAt: number; expired: boolean; message: string | null }
   | { ok: false; error: string; paid?: boolean };
 
-function orderFor(number: string) {
-  return db.select().from(orders).where(eq(orders.orderNumber, number)).get();
+async function orderFor(number: string) {
+  return await db.select().from(orders).where(eq(orders.orderNumber, number)).get();
 }
 
 function view(r: NonNullable<Awaited<ReturnType<typeof refreshPayment>>>, paid: boolean): OrderTransfer {
@@ -31,8 +31,8 @@ function view(r: NonNullable<Awaited<ReturnType<typeof refreshPayment>>>, paid: 
 
 /** Get (or reuse) a one-time account number for an unpaid online order. */
 export async function startOrderTransferAction(orderNumber: string): Promise<OrderTransfer> {
-  if (!monnifyReady(getPaymentSettings())) return { ok: false, error: "Paying by transfer here isn't available right now." };
-  const order = orderFor(orderNumber);
+  if (!monnifyReady(await getPaymentSettings())) return { ok: false, error: "Paying by transfer here isn't available right now." };
+  const order = await orderFor(orderNumber);
   if (!order || order.paymentMethod !== "bank_transfer" || order.status === "cancelled") return { ok: false, error: "This order can't be paid here." };
   if (order.paymentCheck === "received" || order.status !== "pending") return { ok: false, error: "This order is already paid.", paid: true };
   try {
@@ -45,9 +45,9 @@ export async function startOrderTransferAction(orderNumber: string): Promise<Ord
 
 /** The order page asks this every few seconds while the shopper transfers. */
 export async function checkOrderTransferAction(orderNumber: string): Promise<OrderTransfer> {
-  const order = orderFor(orderNumber);
+  const order = await orderFor(orderNumber);
   if (!order) return { ok: false, error: "Order not found." };
-  const latest = db.select().from(paymentRequests).where(eq(paymentRequests.orderId, order.id)).all().filter((r) => r.kind === "order").at(-1);
+  const latest = (await db.select().from(paymentRequests).where(eq(paymentRequests.orderId, order.id)).all()).filter((r) => r.kind === "order").at(-1);
   if (!latest) return { ok: false, error: "No transfer started." };
   const r = await refreshPayment(latest.id);
   if (!r) return { ok: false, error: "No transfer started." };

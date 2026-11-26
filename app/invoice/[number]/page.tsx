@@ -19,9 +19,9 @@ export default async function OrderInvoicePage({ params, searchParams }: { param
   const [{ number }, { t }] = await Promise.all([params, searchParams]);
   const orderNumber = decodeURIComponent(number);
   if (!verifyOrderInvoiceToken(orderNumber, t)) notFound();
-  const order = db.select().from(orders).where(eq(orders.orderNumber, orderNumber)).get();
+  const order = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber)).get();
   if (!order) notFound();
-  const items = db.select().from(orderItems).where(eq(orderItems.orderId, order.id)).all();
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id)).all();
   const [store, { store: details, delivery }] = await Promise.all([getStoreInfo(), getSettings()]);
 
   const cancelled = order.status === "cancelled";

@@ -9,7 +9,7 @@ import { validSignature } from "@/lib/providers/monnify";
  */
 export async function POST(req: Request) {
   const raw = await req.text();
-  const s = getPaymentSettings();
+  const s = await getPaymentSettings();
   if (!validSignature(s.monnify, raw, req.headers.get("monnify-signature"))) {
     return Response.json({ error: "Invalid signature" }, { status: 401 });
   }
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     return Response.json({ ok: true });
   }
   if (body.eventType === "SUCCESSFUL_TRANSACTION") {
-    const r = findByProviderRefs(body.eventData?.paymentReference, body.eventData?.transactionReference);
+    const r = await findByProviderRefs(body.eventData?.paymentReference, body.eventData?.transactionReference);
     if (r) await refreshPayment(r.id);
   }
   // Always 200 once the signature is valid, so Monnify doesn't keep retrying.

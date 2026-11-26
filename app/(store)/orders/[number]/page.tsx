@@ -95,8 +95,8 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
           <section className="card p-6">
             <h3 className="font-bold">Payment</h3>
             <p className="mt-2 text-sm text-muted">{order.paymentMethod === "bank_transfer" ? "Bank transfer" : "Pay on delivery"}</p>
-            {order.paymentMethod === "bank_transfer" && order.status === "pending" && publicPaymentSettings().transfer && <PayByTransfer orderNumber={order.orderNumber} total={order.total} />}
-            {order.paymentMethod === "bank_transfer" && order.status === "pending" && !publicPaymentSettings().transfer && (
+            {order.paymentMethod === "bank_transfer" && order.status === "pending" && (await publicPaymentSettings()).transfer && <PayByTransfer orderNumber={order.orderNumber} total={order.total} />}
+            {order.paymentMethod === "bank_transfer" && order.status === "pending" && !(await publicPaymentSettings()).transfer && (
               <p className="mt-2 rounded-[6px] bg-surface p-3 text-xs leading-5 text-muted">
                 Transfer <strong>{money(order.total)}</strong> with reference <strong>{order.orderNumber}</strong>. We&apos;ll confirm within a few hours.
               </p>

@@ -12,8 +12,8 @@ async function requireAdmin() {
   if (!(await getOwnerSession())) throw new Error("Only the owner can change settings");
 }
 
-function done(list: Banner[]) {
-  saveSettingsSection("banners", list);
+async function done(list: Banner[]) {
+  await saveSettingsSection("banners", list);
   revalidatePath("/", "layout");
 }
 
@@ -89,14 +89,14 @@ export async function saveBannerAction(_prev: ActionState, formData: FormData): 
 
   const { banners } = await getSettings();
   const exists = banners.some((b) => b.id === banner.id);
-  done(exists ? banners.map((b) => (b.id === banner.id ? banner : b)) : [...banners, banner]);
+  await done(exists ? banners.map((b) => (b.id === banner.id ? banner : b)) : [...banners, banner]);
   return { success: exists ? "Banner updated." : "Banner added." };
 }
 
 export async function toggleBannerAction(id: string) {
   await requireAdmin();
   const { banners } = await getSettings();
-  done(banners.map((b) => (b.id === id ? { ...b, enabled: !b.enabled } : b)));
+  await done(banners.map((b) => (b.id === id ? { ...b, enabled: !b.enabled } : b)));
 }
 
 export async function moveBannerAction(id: string, direction: "up" | "down") {
@@ -107,11 +107,11 @@ export async function moveBannerAction(id: string, direction: "up" | "down") {
   const j = direction === "up" ? i - 1 : i + 1;
   if (i < 0 || j < 0 || j >= list.length) return;
   [list[i], list[j]] = [list[j], list[i]];
-  done(list);
+  await done(list);
 }
 
 export async function deleteBannerAction(id: string) {
   await requireAdmin();
   const { banners } = await getSettings();
-  done(banners.filter((b) => b.id !== id));
+  await done(banners.filter((b) => b.id !== id));
 }

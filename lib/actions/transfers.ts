@@ -12,16 +12,16 @@ import { money } from "@/lib/format";
 export async function checkTransferAction(orderId: number, received: boolean): Promise<{ error?: string }> {
   const me = await getAdminSession();
   if (!me) return { error: "Only a manager can check transfers." };
-  const o = db.select().from(orders).where(eq(orders.id, orderId)).get();
+  const o = await db.select().from(orders).where(eq(orders.id, orderId)).get();
   if (!o) return { error: "Order not found." };
-  db.update(orders)
-    .set({ paymentCheck: received ? "received" : "missing", paymentCheckedBy: me.id, paymentCheckedAt: Math.floor(Date.now() / 1000) })
-    .where(eq(orders.id, orderId))
-    .run();
-  logActivity(me, received ? "transfer_ok" : "transfer_missing", `${me.name} marked the ${money(o.total)} transfer for ${o.orderNumber} as ${received ? "received in the bank" : "NOT received"}`, {
-    entity: "order",
-    entityId: orderId,
-  });
+  await db.update(orders)
+        .set({ paymentCheck: received ? "received" : "missing", paymentCheckedBy: me.id, paymentCheckedAt: Math.floor(Date.now() / 1000) })
+        .where(eq(orders.id, orderId))
+        .run();
+  await logActivity(me, received ? "transfer_ok" : "transfer_missing", `${me.name} marked the ${money(o.total)} transfer for ${o.orderNumber} as ${received ? "received in the bank" : "NOT received"}`, {
+        entity: "order",
+        entityId: orderId,
+      });
   revalidatePath("/admin/transfers");
   revalidatePath("/admin", "layout");
   return {};

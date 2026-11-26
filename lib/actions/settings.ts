@@ -59,14 +59,14 @@ export async function saveStoreDetailsAction(_prev: ActionState, formData: FormD
   });
   if (!parsed.success) return fail(parsed.error);
   const d = parsed.data;
-  saveSettingsSection("store", {
-    email: d.email,
-    hours: d.hours,
-    phones: d.phones,
-    addressLines: d.addressLines,
-    socials: { facebook: d.facebook, twitter: d.twitter, instagram: d.instagram, pinterest: d.pinterest, youtube: d.youtube },
-    bank: { bankName: d.bankName, accountName: d.accountName, accountNumber: d.accountNumber },
-  });
+  await saveSettingsSection("store", {
+        email: d.email,
+        hours: d.hours,
+        phones: d.phones,
+        addressLines: d.addressLines,
+        socials: { facebook: d.facebook, twitter: d.twitter, instagram: d.instagram, pinterest: d.pinterest, youtube: d.youtube },
+        bank: { bankName: d.bankName, accountName: d.accountName, accountNumber: d.accountNumber },
+      });
   revalidatePath("/", "layout");
   return { success: "Store details saved." };
 }
@@ -81,7 +81,7 @@ export async function saveDeliveryAction(_prev: ActionState, formData: FormData)
   await requireAdmin();
   const parsed = deliverySchema.safeParse({ note: formData.get("note") ?? "" });
   if (!parsed.success) return fail(parsed.error);
-  saveSettingsSection("delivery", { note: parsed.data.note });
+  await saveSettingsSection("delivery", { note: parsed.data.note });
   revalidatePath("/", "layout");
   return { success: "Delivery note saved." };
 }
@@ -108,7 +108,7 @@ export async function saveNewsletterAction(_prev: ActionState, formData: FormDat
     welcomeCode: formData.get("welcomeCode") ?? "",
   });
   if (!parsed.success) return fail(parsed.error);
-  saveSettingsSection("newsletter", { ...parsed.data, welcomeCode: parsed.data.welcomeCode.toUpperCase() });
+  await saveSettingsSection("newsletter", { ...parsed.data, welcomeCode: parsed.data.welcomeCode.toUpperCase() });
   revalidatePath("/", "layout");
   return { success: "Newsletter settings saved." };
 }

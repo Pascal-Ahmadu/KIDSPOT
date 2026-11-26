@@ -19,10 +19,10 @@ export const dynamic = "force-dynamic";
 
 export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const inv = db.select().from(invoices).where(eq(invoices.id, Number(id))).get();
+  const inv = await db.select().from(invoices).where(eq(invoices.id, Number(id))).get();
   if (!inv) notFound();
   const [doc, store] = await Promise.all([customerInvoiceDoc(inv), getStoreInfo()]);
-  const names = staffNames();
+  const names = await staffNames();
   const shareUrl = absolute(customerInvoicePath(inv));
   const digits = (inv.customerPhone ?? "").replace(/\D/g, "");
   const phone = digits.startsWith("0") ? `234${digits.slice(1)}` : digits;

@@ -28,12 +28,12 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
     cancelled: { label: "Cancelled", where: eq(invoices.status, "cancelled") },
   };
   const view = sp.view && views[sp.view] ? sp.view : "all";
-  const rows = db.select().from(invoices).where(views[view].where).orderBy(desc(invoices.createdAt)).all();
-  const owed = db
-    .select()
-    .from(invoices)
-    .where(and(ne(invoices.status, "paid"), ne(invoices.status, "cancelled"), ne(invoices.status, "draft")))
-    .all()
+  const rows = await db.select().from(invoices).where(views[view].where).orderBy(desc(invoices.createdAt)).all();
+  const owed = (await db
+      .select()
+      .from(invoices)
+      .where(and(ne(invoices.status, "paid"), ne(invoices.status, "cancelled"), ne(invoices.status, "draft")))
+      .all())
     .reduce((n, i) => n + i.total, 0);
   const paged = paginate(rows, sp.page, 15);
   const href = (v: string, p = 1) => {

@@ -24,8 +24,8 @@ export async function subscribeAction(_prev: NewsletterState, formData: FormData
     return { error: parsed.error.issues[0]?.message ?? "Please enter a valid email" };
   }
   const email = parsed.data.email.toLowerCase();
-  const exists = db.select({ id: subscribers.id }).from(subscribers).where(eq(subscribers.email, email)).get();
-  if (!exists) db.insert(subscribers).values({ email, source: parsed.data.source || null }).run();
+  const exists = await db.select({ id: subscribers.id }).from(subscribers).where(eq(subscribers.email, email)).get();
+  if (!exists) await db.insert(subscribers).values({ email, source: parsed.data.source || null }).run();
   revalidatePath("/admin/subscribers");
   const offer = await getWelcomeOffer();
   return { ok: true, already: !!exists, code: offer?.code ?? null, label: offer?.label ?? null };
@@ -33,6 +33,6 @@ export async function subscribeAction(_prev: NewsletterState, formData: FormData
 
 export async function deleteSubscriberAction(id: number) {
   if (!(await getAdminSession())) throw new Error("Unauthorised");
-  db.delete(subscribers).where(eq(subscribers.id, id)).run();
+  await db.delete(subscribers).where(eq(subscribers.id, id)).run();
   revalidatePath("/admin/subscribers");
 }

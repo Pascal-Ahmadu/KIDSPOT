@@ -20,7 +20,7 @@ export function invoiceStatus(inv: Pick<Invoice, "status" | "dueDate">) {
 
 /** Everything the shared InvoiceDocument needs for a customer invoice. */
 export async function customerInvoiceDoc(inv: Invoice): Promise<InvoiceDocumentProps> {
-  const items = db.select().from(invoiceItems).where(eq(invoiceItems.invoiceId, inv.id)).all();
+  const items = await db.select().from(invoiceItems).where(eq(invoiceItems.invoiceId, inv.id)).all();
   const [store, { store: details }] = await Promise.all([getStoreInfo(), getSettings()]);
   return {
     title: "Invoice",

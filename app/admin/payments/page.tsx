@@ -28,16 +28,16 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
   const view = sp.view === "attention" || sp.view === "paid" ? sp.view : "all";
   const attention = and(eq(paymentRequests.status, "paid"), eq(paymentRequests.kind, "till"), isNull(paymentRequests.orderId))!;
   const where: Record<string, SQL | undefined> = { all: undefined, paid: eq(paymentRequests.status, "paid"), attention };
-  const rows = db
-    .select({ p: paymentRequests, orderNumber: orders.orderNumber })
-    .from(paymentRequests)
-    .leftJoin(orders, eq(orders.id, paymentRequests.orderId))
-    .where(where[view])
-    .orderBy(desc(paymentRequests.createdAt))
-    .all();
-  const attentionCount = db.select({ id: paymentRequests.id }).from(paymentRequests).where(attention).all().length;
-  const names = staffNames();
-  const terminals = new Map(getPaymentSettings().moniepoint.terminals.map((t) => [t.serial, t.label]));
+  const rows = await db
+      .select({ p: paymentRequests, orderNumber: orders.orderNumber })
+      .from(paymentRequests)
+      .leftJoin(orders, eq(orders.id, paymentRequests.orderId))
+      .where(where[view])
+      .orderBy(desc(paymentRequests.createdAt))
+      .all();
+  const attentionCount = (await db.select({ id: paymentRequests.id }).from(paymentRequests).where(attention).all()).length;
+  const names = await staffNames();
+  const terminals = new Map((await getPaymentSettings()).moniepoint.terminals.map((t) => [t.serial, t.label]));
   const paged = paginate(rows, sp.page, 20);
   const href = (v: string, p = 1) => `/admin/payments${v !== "all" ? `?view=${v}` : ""}${p > 1 ? `${v !== "all" ? "&" : "?"}page=${p}` : ""}`;
 

@@ -54,7 +54,7 @@ export async function quickAddCategoryAction(rawName: string): Promise<{ categor
   const existing = await db.select({ id: categories.id, name: categories.name }).from(categories).where(eq(categories.slug, slug)).limit(1);
   if (existing[0]) return { category: existing[0] };
   try {
-    const row = db.insert(categories).values({ name, slug }).returning({ id: categories.id, name: categories.name }).get();
+    const row = await db.insert(categories).values({ name, slug }).returning({ id: categories.id, name: categories.name }).get();
     revalidatePath("/", "layout");
     return { category: row };
   } catch (e) {

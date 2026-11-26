@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 export default async function TillPage() {
   const me = (await getStaffSession())!;
-  const shift = getOpenShift(me.id);
+  const shift = await getOpenShift(me.id);
 
   if (!shift) {
     return (
@@ -34,33 +34,33 @@ export default async function TillPage() {
     );
   }
 
-  const list = db
-    .select()
-    .from(products)
-    .where(eq(products.isActive, true))
-    .orderBy(products.name)
-    .all();
-  const sales = db
-    .select({
-      id: orders.id,
-      orderNumber: orders.orderNumber,
-      total: orders.total,
-      paymentMethod: orders.paymentMethod,
-      createdAt: orders.createdAt,
-      refundedAt: orders.refundedAt,
-      customer: orders.shippingName,
-    })
-    .from(orders)
-    .where(and(eq(orders.channel, "store"), eq(orders.shiftId, shift.id)))
-    .orderBy(desc(orders.createdAt))
-    .limit(20)
-    .all();
+  const list = await db
+      .select()
+      .from(products)
+      .where(eq(products.isActive, true))
+      .orderBy(products.name)
+      .all();
+  const sales = await db
+      .select({
+        id: orders.id,
+        orderNumber: orders.orderNumber,
+        total: orders.total,
+        paymentMethod: orders.paymentMethod,
+        createdAt: orders.createdAt,
+        refundedAt: orders.refundedAt,
+        customer: orders.shippingName,
+      })
+      .from(orders)
+      .where(and(eq(orders.channel, "store"), eq(orders.shiftId, shift.id)))
+      .orderBy(desc(orders.createdAt))
+      .limit(20)
+      .all();
 
   return (
     <Till
       storeName={STORE_NAME}
       cashier={me.name}
-      payments={publicPaymentSettings()}
+      payments={await publicPaymentSettings()}
       shiftNote={`Shift since ${formatDateTime(shift.openedAt)} · ${money(shift.openingCash)} float`}
       products={list.map((p) => ({
         id: p.id,

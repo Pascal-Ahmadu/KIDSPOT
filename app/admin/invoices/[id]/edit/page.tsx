@@ -12,10 +12,10 @@ export const metadata: Metadata = { title: "Edit invoice" };
 
 export default async function EditInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const inv = db.select().from(invoices).where(eq(invoices.id, Number(id))).get();
+  const inv = await db.select().from(invoices).where(eq(invoices.id, Number(id))).get();
   if (!inv) notFound();
   if (inv.status === "paid" || inv.status === "cancelled") redirect(`/admin/invoices/${inv.id}`);
-  const items = db.select().from(invoiceItems).where(eq(invoiceItems.invoiceId, inv.id)).all();
+  const items = await db.select().from(invoiceItems).where(eq(invoiceItems.invoiceId, inv.id)).all();
   const products = await getAdminProducts({ status: "active" });
   return (
     <div className="max-w-[1000px]">

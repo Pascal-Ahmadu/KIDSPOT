@@ -19,11 +19,11 @@ export default async function ShiftsPage({ searchParams }: { searchParams: Promi
   const { page } = await searchParams;
   const me = (await getStaffSession())!;
   const manager = isManager(me.role);
-  const open = getOpenShift(me.id);
-  const rows = (manager ? db.select().from(shifts) : db.select().from(shifts).where(eq(shifts.staffId, me.id))).orderBy(desc(shifts.openedAt)).all();
-  const names = staffNames();
+  const open = await getOpenShift(me.id);
+  const rows = await (manager ? db.select().from(shifts) : db.select().from(shifts).where(eq(shifts.staffId, me.id))).orderBy(desc(shifts.openedAt)).all();
+  const names = await staffNames();
   const paged = paginate(rows, page, 15);
-  const openTotals = open ? shiftTotals(open.id) : null;
+  const openTotals = open ? await shiftTotals(open.id) : null;
 
   return (
     <div className="grid gap-6">

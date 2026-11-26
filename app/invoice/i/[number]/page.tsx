@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 /** The customer's view of an invoice (opened from the link the shop sent). */
 export default async function CustomerInvoicePage({ params, searchParams }: { params: Promise<{ number: string }>; searchParams: Promise<{ t?: string }> }) {
   const [{ number }, { t }] = await Promise.all([params, searchParams]);
-  const inv = db.select().from(invoices).where(eq(invoices.number, decodeURIComponent(number))).get();
+  const inv = await db.select().from(invoices).where(eq(invoices.number, decodeURIComponent(number))).get();
   if (!inv || !t || t !== inv.token || inv.status === "draft") notFound();
   const doc = await customerInvoiceDoc(inv);
   return (

@@ -55,3 +55,6 @@ data/private-uploads/
 
 # stray build output
 /kidstore/
+
+# local file storage (uploads, receipts, backups) when Vercel Blob is not configured
+data/files/

@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Receive a delivery" };
 
 export default async function NewDeliveryPage() {
   const products = await getAdminProducts();
-  const names = db.select({ name: suppliers.name }).from(suppliers).orderBy(suppliers.name).all();
+  const names = await db.select({ name: suppliers.name }).from(suppliers).orderBy(suppliers.name).all();
   return (
     <div className="max-w-[1000px]">
       <Breadcrumbs items={[{ label: "Catalog" }, { label: "Deliveries", href: "/admin/deliveries" }, { label: "Receive a delivery" }]} />

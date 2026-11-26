@@ -19,7 +19,7 @@ export async function checkCouponAction(code: string, subtotal: number): Promise
   const clean = normaliseCode(String(code ?? ""));
   if (!clean) return { ok: false, error: "Enter a discount code." };
   if (!Number.isFinite(subtotal) || subtotal < 0) return { ok: false, error: "Your cart is empty." };
-  const coupon = db.select().from(coupons).where(eq(coupons.code, clean)).get();
+  const coupon = await db.select().from(coupons).where(eq(coupons.code, clean)).get();
   const result = evaluateCoupon(coupon, Math.round(subtotal));
   if ("error" in result) return { ok: false, error: result.error };
   return { ok: true, code: clean, discount: result.discount, label: couponLabel(coupon!) };
@@ -62,29 +62,29 @@ export async function createCouponAction(_prev: ActionState, formData: FormData)
   if (maxUses != null && !(maxUses > 0)) return { error: "Please check the highlighted fields.", fieldErrors: { maxUses: "Enter a number above zero, or leave blank" } };
   // Date input gives YYYY-MM-DD; the code works until the end of that day.
   const expiresAt = d.expiresAt ? Math.floor(new Date(`${d.expiresAt}T23:59:59`).getTime() / 1000) : null;
-  if (db.select({ id: coupons.id }).from(coupons).where(eq(coupons.code, code)).get()) {
+  if (await db.select({ id: coupons.id }).from(coupons).where(eq(coupons.code, code)).get()) {
     return { error: "Please check the highlighted fields.", fieldErrors: { code: "That code already exists" } };
   }
-  db.insert(coupons)
-    .values({ code, type: d.type, value, minSubtotal: d.minSubtotal ? toMinor(d.minSubtotal) : 0, maxUses, expiresAt })
-    .run();
-  logActivity(me, "coupon_create", `Created discount code ${code} (${d.type === "percent" ? `${value}% off` : `${money(value)} off`})`, { entity: "coupon" });
+  await db.insert(coupons)
+        .values({ code, type: d.type, value, minSubtotal: d.minSubtotal ? toMinor(d.minSubtotal) : 0, maxUses, expiresAt })
+        .run();
+  await logActivity(me, "coupon_create", `Created discount code ${code} (${d.type === "percent" ? `${value}% off` : `${money(value)} off`})`, { entity: "coupon" });
   revalidatePath("/admin/coupons");
   return { success: `Code ${code} created.` };
 }
 
 export async function setCouponActiveAction(id: number, isActive: boolean) {
   const me = await requireAdmin();
-  const c = db.select({ code: coupons.code }).from(coupons).where(eq(coupons.id, id)).get();
-  logActivity(me, "coupon_update", `${isActive ? "Resumed" : "Paused"} discount code ${c?.code ?? `#${id}`}`, { entity: "coupon", entityId: id });
-  db.update(coupons).set({ isActive }).where(eq(coupons.id, id)).run();
+  const c = await db.select({ code: coupons.code }).from(coupons).where(eq(coupons.id, id)).get();
+  await logActivity(me, "coupon_update", `${isActive ? "Resumed" : "Paused"} discount code ${c?.code ?? `#${id}`}`, { entity: "coupon", entityId: id });
+  await db.update(coupons).set({ isActive }).where(eq(coupons.id, id)).run();
   revalidatePath("/admin/coupons");
 }
 
 export async function deleteCouponAction(id: number) {
   const me = await requireAdmin();
-  const c = db.select({ code: coupons.code }).from(coupons).where(eq(coupons.id, id)).get();
-  logActivity(me, "coupon_delete", `Deleted discount code ${c?.code ?? `#${id}`}`, { entity: "coupon", entityId: id });
-  db.delete(coupons).where(eq(coupons.id, id)).run();
+  const c = await db.select({ code: coupons.code }).from(coupons).where(eq(coupons.id, id)).get();
+  await logActivity(me, "coupon_delete", `Deleted discount code ${c?.code ?? `#${id}`}`, { entity: "coupon", entityId: id });
+  await db.delete(coupons).where(eq(coupons.id, id)).run();
   revalidatePath("/admin/coupons");
 }

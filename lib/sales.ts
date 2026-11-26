@@ -79,7 +79,7 @@ export async function prepareSale(
   const d = parsed.data;
 
   const ids = [...new Set(d.items.map((i) => i.productId))];
-  const rows = db.select().from(products).where(inArray(products.id, ids)).all();
+  const rows = await db.select().from(products).where(inArray(products.id, ids)).all();
   const byId = new Map(rows.map((p) => [p.id, p]));
 
   let subtotal = 0;
@@ -107,7 +107,7 @@ export async function prepareSale(
     discount = Math.min(discount, subtotal);
     if (discount > 0) {
       if (!d.approvalPin) return { ok: false, error: "A manager PIN is needed for discounts.", needsPin: true };
-      const check = approveWithPin(me, d.approvalPin, "discount");
+      const check = await approveWithPin(me, d.approvalPin, "discount");
       if ("error" in check) return { ok: false, error: check.error, needsPin: true };
       approver = check.approver;
     }
@@ -116,8 +116,8 @@ export async function prepareSale(
   const { controls } = await getSettings();
   let reward = 0;
   if (d.applyReward) {
-    const cid = d.customerPhone ? findCustomerIdByPhone(d.customerPhone) : null;
-    const summary = cid ? customerSummary(cid, controls) : null;
+    const cid = d.customerPhone ? await findCustomerIdByPhone(d.customerPhone) : null;
+    const summary = cid ? await customerSummary(cid, controls) : null;
     if (!summary?.rewardReady) return { ok: false, error: "This customer hasn't earned a loyalty reward yet." };
     reward = Math.min(controls.loyaltyReward, subtotal - discount);
   }
@@ -157,76 +157,76 @@ export async function prepareSale(
  * the sale is then recorded even if the shelf count is short (the customer has paid), and the
  * transfer needs no manual check.
  */
-export function recordSale(sale: PreparedSale, confirmedBy?: { ref: string }) {
+export async function recordSale(sale: PreparedSale, confirmedBy?: { ref: string }) {
   const number = newOrderNumber();
   const now = Math.floor(Date.now() / 1000);
   const wanted = new Map<number, number>();
   for (const i of sale.items) wanted.set(i.productId, (wanted.get(i.productId) ?? 0) + i.quantity);
 
-  const orderId = db.transaction((tx) => {
-    const customerId = sale.customerPhone ? findOrCreateByPhone(tx, sale.customerPhone, sale.customerName) : null;
-    const order = tx
-      .insert(orders)
-      .values({
-        orderNumber: number,
-        status: "delivered",
-        paymentMethod: sale.payment,
-        subtotal: sale.subtotal,
-        shippingFee: 0,
-        discount: sale.discount + sale.reward,
-        loyaltyReward: sale.reward,
-        total: sale.total,
-        customerId,
-        channel: "store",
-        staffId: sale.staff.id,
-        shiftId: sale.shiftId,
-        approvedBy: sale.approver?.id ?? null,
-        paymentRef: confirmedBy?.ref ?? null,
-        paymentCheck: confirmedBy && sale.payment === "transfer" ? "received" : null,
-        paymentCheckedAt: confirmedBy && sale.payment === "transfer" ? now : null,
-        shippingName: sale.customerName || "Walk-in customer",
-        shippingPhone: sale.customerPhone || "",
-        shippingAddress: "In store",
-        shippingCity: "In store",
-      })
-      .returning({ id: orders.id })
-      .get();
-    for (const item of sale.items) {
-      const options = item.size || item.color ? JSON.stringify({ size: item.size || undefined, color: item.color || undefined }) : null;
-      tx.insert(orderItems)
-        .values({ orderId: order.id, productId: item.productId, name: item.name, sku: item.sku, unitPrice: item.unitPrice, quantity: item.quantity, lineTotal: item.unitPrice * item.quantity, options })
-        .run();
-    }
-    for (const [pid, qty] of wanted) {
-      // Re-read inside the transaction so two tills can't sell the last item twice.
-      const fresh = tx.select({ stock: products.stock }).from(products).where(eq(products.id, pid)).get();
-      if (!fresh) continue;
-      if (fresh.stock < qty && !confirmedBy) throw new Error(`Only ${fresh.stock} × ${sale.items.find((i) => i.productId === pid)?.name} left.`);
-      const after = fresh.stock - qty;
-      tx.update(products).set({ stock: after, updatedAt: now }).where(eq(products.id, pid)).run();
-      tx.insert(stockMovements)
-        .values({ productId: pid, type: "sale", quantity: -qty, stockAfter: after, note: `In-store sale ${number}`, orderId: order.id })
-        .run();
-    }
-    return order.id;
-  });
+  const orderId = await db.transaction(async (tx) => {
+      const customerId = sale.customerPhone ? await findOrCreateByPhone(tx, sale.customerPhone, sale.customerName) : null;
+      const order = await tx
+              .insert(orders)
+              .values({
+                orderNumber: number,
+                status: "delivered",
+                paymentMethod: sale.payment,
+                subtotal: sale.subtotal,
+                shippingFee: 0,
+                discount: sale.discount + sale.reward,
+                loyaltyReward: sale.reward,
+                total: sale.total,
+                customerId,
+                channel: "store",
+                staffId: sale.staff.id,
+                shiftId: sale.shiftId,
+                approvedBy: sale.approver?.id ?? null,
+                paymentRef: confirmedBy?.ref ?? null,
+                paymentCheck: confirmedBy && sale.payment === "transfer" ? "received" : null,
+                paymentCheckedAt: confirmedBy && sale.payment === "transfer" ? now : null,
+                shippingName: sale.customerName || "Walk-in customer",
+                shippingPhone: sale.customerPhone || "",
+                shippingAddress: "In store",
+                shippingCity: "In store",
+              })
+              .returning({ id: orders.id })
+              .get();
+      for (const item of sale.items) {
+        const options = item.size || item.color ? JSON.stringify({ size: item.size || undefined, color: item.color || undefined }) : null;
+        await tx.insert(orderItems)
+                    .values({ orderId: order.id, productId: item.productId, name: item.name, sku: item.sku, unitPrice: item.unitPrice, quantity: item.quantity, lineTotal: item.unitPrice * item.quantity, options })
+                    .run();
+      }
+      for (const [pid, qty] of wanted) {
+        // Re-read inside the transaction so two tills can't sell the last item twice.
+        const fresh = await tx.select({ stock: products.stock }).from(products).where(eq(products.id, pid)).get();
+        if (!fresh) continue;
+        if (fresh.stock < qty && !confirmedBy) throw new Error(`Only ${fresh.stock} × ${sale.items.find((i) => i.productId === pid)?.name} left.`);
+        const after = fresh.stock - qty;
+        await tx.update(products).set({ stock: after, updatedAt: now }).where(eq(products.id, pid)).run();
+        await tx.insert(stockMovements)
+                    .values({ productId: pid, type: "sale", quantity: -qty, stockAfter: after, note: `In-store sale ${number}`, orderId: order.id })
+                    .run();
+      }
+      return order.id;
+    });
 
   const itemsCount = sale.items.reduce((n, i) => n + i.quantity, 0);
   const how = confirmedBy ? `${PAY_LABEL[sale.payment]}, confirmed by ${confirmedBy.ref.split(":")[0] === "monnify" ? "Monnify" : "Moniepoint"}` : PAY_LABEL[sale.payment];
-  logActivity(sale.staff, "sale", `${sale.staff.name} sold ${itemsCount} item${itemsCount === 1 ? "" : "s"} for ${money(sale.total)} (${how}) · ${number}`, {
-    entity: "order",
-    entityId: orderId,
-    details: { subtotal: sale.subtotal, discount: sale.discount, payment: sale.payment, customerPhone: sale.customerPhone || null, paymentRef: confirmedBy?.ref ?? null },
-  });
+  await logActivity(sale.staff, "sale", `${sale.staff.name} sold ${itemsCount} item${itemsCount === 1 ? "" : "s"} for ${money(sale.total)} (${how}) · ${number}`, {
+        entity: "order",
+        entityId: orderId,
+        details: { subtotal: sale.subtotal, discount: sale.discount, payment: sale.payment, customerPhone: sale.customerPhone || null, paymentRef: confirmedBy?.ref ?? null },
+      });
   if (sale.approver && sale.discount > 0) {
-    logActivity(sale.staff, "discount", `Discount of ${money(sale.discount)} on ${number}, approved by ${sale.approver.name}`, {
-      entity: "order",
-      entityId: orderId,
-      details: { approverId: sale.approver.id },
-    });
+    await logActivity(sale.staff, "discount", `Discount of ${money(sale.discount)} on ${number}, approved by ${sale.approver.name}`, {
+            entity: "order",
+            entityId: orderId,
+            details: { approverId: sale.approver.id },
+          });
   }
   if (sale.reward > 0) {
-    logActivity(sale.staff, "loyalty", `Loyalty reward of ${money(sale.reward)} on ${number} for ${sale.customerName || sale.customerPhone}`, { entity: "order", entityId: orderId });
+    await logActivity(sale.staff, "loyalty", `Loyalty reward of ${money(sale.reward)} on ${number} for ${sale.customerName || sale.customerPhone}`, { entity: "order", entityId: orderId });
   }
   revalidatePath("/", "layout");
   return { orderId, orderNumber: number };

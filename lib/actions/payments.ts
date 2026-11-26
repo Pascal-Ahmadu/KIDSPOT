@@ -26,9 +26,9 @@ export type TillPaymentState =
 export async function startTillPaymentAction(input: SaleInput, via: "terminal" | "transfer", terminal?: string): Promise<TillPaymentState> {
   const me = await getStaffSession();
   if (!me) return { ok: false, error: "Please sign in again." };
-  const shift = getOpenShift(me.id);
+  const shift = await getOpenShift(me.id);
   if (!shift) return { ok: false, error: "Open a till shift before selling." };
-  const s = getPaymentSettings();
+  const s = await getPaymentSettings();
   if (via === "terminal" && !moniepointReady(s)) return { ok: false, error: "The Moniepoint terminal isn't set up. Ask the owner (Settings → Payments)." };
   if (via === "transfer" && !monnifyReady(s)) return { ok: false, error: "Monnify transfers aren't set up. Ask the owner (Settings → Payments)." };
 
@@ -37,20 +37,20 @@ export async function startTillPaymentAction(input: SaleInput, via: "terminal" |
   if (prepared.sale.total <= 0) return { ok: false, error: "Nothing to pay. Record this one as cash." };
   try {
     const row = via === "terminal" ? await startTerminalPayment(prepared.sale, terminal ?? "") : await startTillTransfer(prepared.sale);
-    return { ok: true, payment: toView(row) };
+    return { ok: true, payment: await toView(row) };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Couldn't start the payment." };
   }
 }
 
-function mine(id: number, staffId: number) {
-  const r = db.select().from(paymentRequests).where(eq(paymentRequests.id, id)).get();
+async function mine(id: number, staffId: number) {
+  const r = await db.select().from(paymentRequests).where(eq(paymentRequests.id, id)).get();
   return r && r.kind === "till" && r.staffId === staffId ? r : undefined;
 }
 
-function withSale(view: PaymentView, payload: string | null): TillPaymentState {
+async function withSale(view: PaymentView, payload: string | null): Promise<TillPaymentState> {
   if (view.status !== "paid" || !view.orderId) return { ok: true, payment: view };
-  const order = db.select({ orderNumber: orders.orderNumber, total: orders.total, discount: orders.discount }).from(orders).where(eq(orders.id, view.orderId)).get();
+  const order = await db.select({ orderNumber: orders.orderNumber, total: orders.total, discount: orders.discount }).from(orders).where(eq(orders.id, view.orderId)).get();
   if (!order) return { ok: true, payment: view };
   const sale = JSON.parse(payload ?? "{}") as PreparedSale;
   return {
@@ -64,20 +64,20 @@ function withSale(view: PaymentView, payload: string | null): TillPaymentState {
 export async function checkTillPaymentAction(id: number): Promise<TillPaymentState> {
   const me = await getStaffSession();
   if (!me) return { ok: false, error: "Please sign in again." };
-  if (!mine(id, me.id)) return { ok: false, error: "Payment not found." };
+  if (!await mine(id, me.id)) return { ok: false, error: "Payment not found." };
   const r = await refreshPayment(id);
   if (!r) return { ok: false, error: "Payment not found." };
-  return withSale(toView(r), r.payload);
+  return await withSale(await toView(r), r.payload);
 }
 
 export async function cancelTillPaymentAction(id: number): Promise<TillPaymentState> {
   const me = await getStaffSession();
   if (!me) return { ok: false, error: "Please sign in again." };
-  if (!mine(id, me.id)) return { ok: false, error: "Payment not found." };
+  if (!await mine(id, me.id)) return { ok: false, error: "Payment not found." };
   const r = await cancelPayment(id);
   if (!r) return { ok: false, error: "Payment not found." };
-  if (r.status === "cancelled") logActivity(me, "payment_cancel", `${me.name} cancelled a ${r.provider === "monnify" ? "transfer" : "terminal"} payment at the till (${r.reference})`, { entity: "payment", entityId: r.id });
-  return withSale(toView(r), r.payload);
+  if (r.status === "cancelled") await logActivity(me, "payment_cancel", `${me.name} cancelled a ${r.provider === "monnify" ? "transfer" : "terminal"} payment at the till (${r.reference})`, { entity: "payment", entityId: r.id });
+  return await withSale(await toView(r), r.payload);
 }
 
 /* ------------------------------------------------------------------ */
@@ -91,7 +91,7 @@ const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 export async function savePaymentSettingsAction(_prev: PaymentSettingsState, fd: FormData): Promise<PaymentSettingsState> {
   const me = await getOwnerSession();
   if (!me) return { error: "Only the owner can change payment settings." };
-  const old = getPaymentSettings();
+  const old = await getPaymentSettings();
 
   const terminals: Terminal[] = [];
   const serials = fd.getAll("terminalSerial").map((v) => String(v).trim());
@@ -125,12 +125,12 @@ export async function savePaymentSettingsAction(_prev: PaymentSettingsState, fd:
   if (next.moniepoint.enabled && !moniepointReady(next)) return { error: "To switch on the Moniepoint terminal, fill in the client ID, client secret and at least one terminal serial number." };
   if (next.monnify.enabled && !monnifyReady(next)) return { error: "To switch on Monnify, fill in the API key, secret key and contract code." };
 
-  savePaymentSettings(next);
-  logActivity(
-    me,
-    "payments_update",
-    `Payment settings updated: Moniepoint terminal ${next.moniepoint.enabled ? `on (${terminals.length} terminal${terminals.length === 1 ? "" : "s"})` : "off"}; Monnify ${next.monnify.enabled ? `on (${next.monnify.mode})` : "off"}; manual card/transfer ${next.allowManual ? "allowed" : "off"}`,
-  );
+  await savePaymentSettings(next);
+  await logActivity(
+        me,
+        "payments_update",
+        `Payment settings updated: Moniepoint terminal ${next.moniepoint.enabled ? `on (${terminals.length} terminal${terminals.length === 1 ? "" : "s"})` : "off"}; Monnify ${next.monnify.enabled ? `on (${next.monnify.mode})` : "off"}; manual card/transfer ${next.allowManual ? "allowed" : "off"}`,
+      );
   revalidatePath("/admin/settings/payments");
   revalidatePath("/admin/pos");
   return { ok: true, message: "Payment settings saved." };
@@ -140,7 +140,7 @@ export async function savePaymentSettingsAction(_prev: PaymentSettingsState, fd:
 export async function testTerminalAction(serial: string): Promise<PaymentSettingsState> {
   const me = await getOwnerSession();
   if (!me) return { error: "Only the owner can test payments." };
-  const s = getPaymentSettings();
+  const s = await getPaymentSettings();
   if (!s.moniepoint.clientId || !s.moniepoint.clientSecret) return { error: "Save the client ID and secret first." };
   if (!s.moniepoint.terminals.some((t) => t.serial === serial)) return { error: "Save the terminal first." };
   try {
@@ -155,7 +155,7 @@ export async function testTerminalAction(serial: string): Promise<PaymentSetting
 export async function testMonnifyAction(): Promise<PaymentSettingsState> {
   const me = await getOwnerSession();
   if (!me) return { error: "Only the owner can test payments." };
-  const s = getPaymentSettings();
+  const s = await getPaymentSettings();
   if (!monnifyReady({ ...s, monnify: { ...s.monnify, enabled: true } })) return { error: "Save the API key, secret key and contract code first." };
   try {
     const a = await createTransferAccount(s.monnify, {

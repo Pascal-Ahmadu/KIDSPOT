@@ -69,7 +69,7 @@ type Section = keyof Settings;
 
 /** All settings, saved values merged over the defaults. Cached per request. */
 export const getSettings = cache(async (): Promise<Settings> => {
-  const rows = db.select().from(settings).all();
+  const rows = await db.select().from(settings).all();
   const saved = Object.fromEntries(
     rows.map((r) => {
       try {
@@ -92,12 +92,12 @@ export const getSettings = cache(async (): Promise<Settings> => {
   };
 });
 
-export function saveSettingsSection<S extends Section>(section: S, value: Settings[S]) {
+export async function saveSettingsSection<S extends Section>(section: S, value: Settings[S]) {
   const json = JSON.stringify(value);
   const now = Math.floor(Date.now() / 1000);
-  const exists = db.select({ key: settings.key }).from(settings).where(eq(settings.key, section)).get();
-  if (exists) db.update(settings).set({ value: json, updatedAt: now }).where(eq(settings.key, section)).run();
-  else db.insert(settings).values({ key: section, value: json, updatedAt: now }).run();
+  const exists = await db.select({ key: settings.key }).from(settings).where(eq(settings.key, section)).get();
+  if (exists) await db.update(settings).set({ value: json, updatedAt: now }).where(eq(settings.key, section)).run();
+  else await db.insert(settings).values({ key: section, value: json, updatedAt: now }).run();
 }
 
 /** Public contact details for the storefront (same shape as the old STORE_INFO). */

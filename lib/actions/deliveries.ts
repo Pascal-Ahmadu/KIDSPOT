@@ -64,7 +64,7 @@ export async function receiveDeliveryAction(formData: FormData): Promise<Deliver
   }
 
   const ids = [...new Set(d.lines.map((l) => l.productId))];
-  const rows = db.select().from(products).where(inArray(products.id, ids)).all();
+  const rows = await db.select().from(products).where(inArray(products.id, ids)).all();
   if (rows.length !== ids.length) return { ok: false, error: "One of the products no longer exists." };
   const byId = new Map(rows.map((p) => [p.id, p]));
   const amount = d.lines.reduce((n, l) => n + toMinor(l.unitCost.replace(/,/g, "")) * l.quantity, 0);
@@ -72,43 +72,43 @@ export async function receiveDeliveryAction(formData: FormData): Promise<Deliver
 
   let id: number;
   try {
-    id = db.transaction((tx) => {
-      let supplier = tx.select().from(suppliers).where(eq(suppliers.name, d.supplierName)).get();
-      if (!supplier) supplier = tx.insert(suppliers).values({ name: d.supplierName, phone: d.supplierPhone || null }).returning().get();
-      const dup = tx
-        .select({ id: supplierInvoices.id })
-        .from(supplierInvoices)
-        .where(and(eq(supplierInvoices.supplierId, supplier.id), eq(supplierInvoices.invoiceNo, d.invoiceNo)))
-        .get();
-      if (dup) throw new Error(`Invoice ${d.invoiceNo} from ${supplier.name} was already received.`);
-      const inv = tx
-        .insert(supplierInvoices)
-        .values({ supplierId: supplier.id, invoiceNo: d.invoiceNo, invoiceDate: d.invoiceDate, amount, photoUrl, notes: d.notes || null, createdBy: me.id })
-        .returning({ id: supplierInvoices.id })
-        .get();
-      for (const l of d.lines) {
-        const unitCost = toMinor(l.unitCost.replace(/,/g, ""));
-        tx.insert(supplierInvoiceItems).values({ invoiceId: inv.id, productId: l.productId, quantity: l.quantity, unitCost }).run();
-        const p = tx.select({ stock: products.stock }).from(products).where(eq(products.id, l.productId)).get()!;
-        const after = p.stock + l.quantity;
-        tx.update(products)
-          .set({ stock: after, updatedAt: now, ...(d.updateCost ? { costPrice: unitCost } : {}) })
-          .where(eq(products.id, l.productId))
-          .run();
-        tx.insert(stockMovements).values({ productId: l.productId, type: "restock", quantity: l.quantity, stockAfter: after, note: `Delivery ${d.invoiceNo} from ${supplier.name}` }).run();
-      }
-      return inv.id;
-    });
+    id = await db.transaction(async (tx) => {
+          let supplier = await tx.select().from(suppliers).where(eq(suppliers.name, d.supplierName)).get();
+          if (!supplier) supplier = await tx.insert(suppliers).values({ name: d.supplierName, phone: d.supplierPhone || null }).returning().get();
+          const dup = await tx
+                      .select({ id: supplierInvoices.id })
+                      .from(supplierInvoices)
+                      .where(and(eq(supplierInvoices.supplierId, supplier.id), eq(supplierInvoices.invoiceNo, d.invoiceNo)))
+                      .get();
+          if (dup) throw new Error(`Invoice ${d.invoiceNo} from ${supplier.name} was already received.`);
+          const inv = await tx
+                      .insert(supplierInvoices)
+                      .values({ supplierId: supplier.id, invoiceNo: d.invoiceNo, invoiceDate: d.invoiceDate, amount, photoUrl, notes: d.notes || null, createdBy: me.id })
+                      .returning({ id: supplierInvoices.id })
+                      .get();
+          for (const l of d.lines) {
+            const unitCost = toMinor(l.unitCost.replace(/,/g, ""));
+            await tx.insert(supplierInvoiceItems).values({ invoiceId: inv.id, productId: l.productId, quantity: l.quantity, unitCost }).run();
+            const p = (await tx.select({ stock: products.stock }).from(products).where(eq(products.id, l.productId)).get())!;
+            const after = p.stock + l.quantity;
+            await tx.update(products)
+                            .set({ stock: after, updatedAt: now, ...(d.updateCost ? { costPrice: unitCost } : {}) })
+                            .where(eq(products.id, l.productId))
+                            .run();
+            await tx.insert(stockMovements).values({ productId: l.productId, type: "restock", quantity: l.quantity, stockAfter: after, note: `Delivery ${d.invoiceNo} from ${supplier.name}` }).run();
+          }
+          return inv.id;
+        });
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Couldn't save the delivery." };
   }
 
   const units = d.lines.reduce((n, l) => n + l.quantity, 0);
-  logActivity(me, "delivery", `${me.name} received ${units} items from ${d.supplierName} (invoice ${d.invoiceNo}, ${money(amount)})${photoUrl ? "" : " · no invoice photo"}`, {
-    entity: "delivery",
-    entityId: id,
-    details: { lines: d.lines.map((l) => ({ product: byId.get(l.productId)?.name, qty: l.quantity, cost: l.unitCost })) },
-  });
+  await logActivity(me, "delivery", `${me.name} received ${units} items from ${d.supplierName} (invoice ${d.invoiceNo}, ${money(amount)})${photoUrl ? "" : " · no invoice photo"}`, {
+        entity: "delivery",
+        entityId: id,
+        details: { lines: d.lines.map((l) => ({ product: byId.get(l.productId)?.name, qty: l.quantity, cost: l.unitCost })) },
+      });
   revalidatePath("/", "layout");
   return { ok: true, id };
 }
@@ -116,12 +116,12 @@ export async function receiveDeliveryAction(formData: FormData): Promise<Deliver
 export async function markSupplierInvoicePaidAction(id: number, method: "transfer" | "cash" | "card"): Promise<{ error?: string }> {
   const me = await getAdminSession();
   if (!me) return { error: "Only a manager can do this." };
-  const inv = db.select().from(supplierInvoices).where(eq(supplierInvoices.id, id)).get();
+  const inv = await db.select().from(supplierInvoices).where(eq(supplierInvoices.id, id)).get();
   if (!inv) return { error: "Delivery not found." };
   if (inv.status === "paid") return { error: "Already marked as paid." };
-  db.update(supplierInvoices).set({ status: "paid", paidAt: Math.floor(Date.now() / 1000), paidMethod: method, paidBy: me.id }).where(eq(supplierInvoices.id, id)).run();
-  const sup = db.select({ name: suppliers.name }).from(suppliers).where(eq(suppliers.id, inv.supplierId)).get();
-  logActivity(me, "supplier_paid", `${me.name} paid ${sup?.name ?? "supplier"} ${money(inv.amount)} for invoice ${inv.invoiceNo} (${method})`, { entity: "delivery", entityId: id });
+  await db.update(supplierInvoices).set({ status: "paid", paidAt: Math.floor(Date.now() / 1000), paidMethod: method, paidBy: me.id }).where(eq(supplierInvoices.id, id)).run();
+  const sup = await db.select({ name: suppliers.name }).from(suppliers).where(eq(suppliers.id, inv.supplierId)).get();
+  await logActivity(me, "supplier_paid", `${me.name} paid ${sup?.name ?? "supplier"} ${money(inv.amount)} for invoice ${inv.invoiceNo} (${method})`, { entity: "delivery", entityId: id });
   revalidatePath("/admin/deliveries");
   return {};
 }

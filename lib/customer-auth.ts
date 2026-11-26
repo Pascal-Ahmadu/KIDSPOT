@@ -47,7 +47,7 @@ export async function getCustomer() {
   const store = await cookies();
   const id = verifyCustomerToken(store.get(CUSTOMER_COOKIE)?.value);
   if (!id) return null;
-  const row = db.select({ id: accounts.id, name: accounts.name, email: accounts.email, createdAt: accounts.createdAt }).from(accounts).where(eq(accounts.id, id)).get();
+  const row = await db.select({ id: accounts.id, name: accounts.name, email: accounts.email, createdAt: accounts.createdAt }).from(accounts).where(eq(accounts.id, id)).get();
   return row ?? null;
 }
 

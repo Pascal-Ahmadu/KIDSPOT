@@ -38,8 +38,8 @@ export const DEFAULT_PAYMENTS: PaymentSettings = {
 
 const KEY = "payments";
 
-export function getPaymentSettings(): PaymentSettings {
-  const row = db.select().from(settings).where(eq(settings.key, KEY)).get();
+export async function getPaymentSettings(): Promise<PaymentSettings> {
+  const row = await db.select().from(settings).where(eq(settings.key, KEY)).get();
   let saved: Partial<PaymentSettings> = {};
   try {
     saved = row ? JSON.parse(row.value) : {};
@@ -53,20 +53,20 @@ export function getPaymentSettings(): PaymentSettings {
   };
 }
 
-export function savePaymentSettings(value: PaymentSettings) {
+export async function savePaymentSettings(value: PaymentSettings) {
   const json = JSON.stringify(value);
   const now = Math.floor(Date.now() / 1000);
-  const exists = db.select({ key: settings.key }).from(settings).where(eq(settings.key, KEY)).get();
-  if (exists) db.update(settings).set({ value: json, updatedAt: now }).where(eq(settings.key, KEY)).run();
-  else db.insert(settings).values({ key: KEY, value: json, updatedAt: now }).run();
+  const exists = await db.select({ key: settings.key }).from(settings).where(eq(settings.key, KEY)).get();
+  if (exists) await db.update(settings).set({ value: json, updatedAt: now }).where(eq(settings.key, KEY)).run();
+  else await db.insert(settings).values({ key: KEY, value: json, updatedAt: now }).run();
 }
 
 export const moniepointReady = (s: PaymentSettings) => s.moniepoint.enabled && !!s.moniepoint.clientId && !!s.moniepoint.clientSecret && s.moniepoint.terminals.length > 0;
 export const monnifyReady = (s: PaymentSettings) => s.monnify.enabled && !!s.monnify.apiKey && !!s.monnify.secretKey && !!s.monnify.contractCode;
 
 /** What the till and the shop may know: no keys. */
-export function publicPaymentSettings() {
-  const s = getPaymentSettings();
+export async function publicPaymentSettings() {
+  const s = await getPaymentSettings();
   return {
     terminal: moniepointReady(s),
     terminals: moniepointReady(s) ? s.moniepoint.terminals : [],
@@ -74,4 +74,4 @@ export function publicPaymentSettings() {
     allowManual: s.allowManual,
   };
 }
-export type PublicPayments = ReturnType<typeof publicPaymentSettings>;
+export type PublicPayments = Awaited<ReturnType<typeof publicPaymentSettings>>;

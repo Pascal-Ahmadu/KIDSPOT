@@ -19,7 +19,7 @@ const ROLE_COLORS: Record<Role, string> = { owner: TAG.purple, manager: TAG.teal
 
 export default async function StaffPage({ searchParams }: { searchParams: Promise<{ new?: string; edit?: string }> }) {
   const sp = await searchParams;
-  const rows = db.select().from(staff).orderBy(desc(staff.isActive), staff.name).all();
+  const rows = await db.select().from(staff).orderBy(desc(staff.isActive), staff.name).all();
   const ownerEmail = (process.env.ADMIN_EMAIL ?? "admin@kidstore.local").toLowerCase();
   const editing = sp.edit ? rows.find((r) => r.id === Number(sp.edit)) : undefined;
   return (

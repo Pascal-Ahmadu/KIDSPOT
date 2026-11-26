@@ -75,7 +75,7 @@ function colorKeys(raw: string, notes: string[]) {
 }
 
 /** Read the CSV into rows and check every one against the catalogue. Nothing is saved. */
-export function checkImport(text: string): ImportCheck {
+export async function checkImport(text: string): Promise<ImportCheck> {
   const fileErrors: string[] = [];
   const table = parseCsv(text);
   if (table.length < 2) return { rows: [], fileErrors: ["The file is empty, or has headings but no products."], newCategories: [], counts: { create: 0, update: 0, error: 0, hiddenNoPrice: 0 } };
@@ -86,8 +86,8 @@ export function checkImport(text: string): ImportCheck {
   for (const required of ["name", "price"]) if (col(required) < 0) fileErrors.push(`Missing the "${required}" column. Download the template to see the headings.`);
   if (fileErrors.length) return { rows: [], fileErrors, newCategories: [], counts: { create: 0, update: 0, error: 0, hiddenNoPrice: 0 } };
 
-  const existing = new Map(db.select({ id: products.id, sku: products.sku }).from(products).all().map((p) => [p.sku.toUpperCase(), p.id]));
-  const cats = db.select({ name: categories.name, slug: categories.slug }).from(categories).all();
+  const existing = new Map((await db.select({ id: products.id, sku: products.sku }).from(products).all()).map((p) => [p.sku.toUpperCase(), p.id]));
+  const cats = await db.select({ name: categories.name, slug: categories.slug }).from(categories).all();
   const knownCat = (name: string) => cats.some((c) => c.name.toLowerCase() === name.toLowerCase() || c.slug === slugify(name));
   const newCategories: string[] = [];
   const seen = new Set<string>();
@@ -195,7 +195,7 @@ export function checkImport(text: string): ImportCheck {
 }
 
 /** Save the checked rows. Rows with errors are skipped. Returns what changed. */
-export function applyImport(check: ImportCheck, opts: { hideMissing: boolean }) {
+export async function applyImport(check: ImportCheck, opts: { hideMissing: boolean }) {
   const now = Math.floor(Date.now() / 1000);
   const good = check.rows.filter((r) => r.action !== "error");
   let created = 0;
@@ -203,90 +203,90 @@ export function applyImport(check: ImportCheck, opts: { hideMissing: boolean }) 
   let hidden = 0;
   let units = 0;
 
-  db.transaction((tx) => {
-    // Categories, created on first use.
-    const catId = new Map<string, number>();
-    for (const c of tx.select().from(categories).all()) {
-      catId.set(c.name.toLowerCase(), c.id);
-      catId.set(c.slug, c.id);
-    }
-    const categoryFor = (name: string | null) => {
-      if (!name) return null;
-      const found = catId.get(name.toLowerCase()) ?? catId.get(slugify(name));
-      if (found) return found;
-      const row = tx.insert(categories).values({ name, slug: slugify(name), emoji: "" }).returning({ id: categories.id }).get();
-      catId.set(name.toLowerCase(), row.id);
-      catId.set(slugify(name), row.id);
-      return row.id;
-    };
-
-    const slugs = new Set(tx.select({ slug: products.slug }).from(products).all().map((p) => p.slug));
-    const uniqueSlug = (name: string, own?: string) => {
-      const base = slugify(name) || "product";
-      if (own && own === base) return own;
-      let slug = base;
-      for (let n = 2; slugs.has(slug) && slug !== own; n++) slug = `${base}-${n}`;
-      slugs.add(slug);
-      return slug;
-    };
-
-    for (const r of good) {
-      const values = {
-        name: r.name,
-        brand: r.brand,
-        categoryId: categoryFor(r.category),
-        price: r.price,
-        colors: encodeList(r.colors),
-        sizes: encodeList(r.sizes),
-        audience: r.audience,
-        description: r.description,
-        isActive: r.isActive,
-        ...(r.details != null ? { details: r.details } : {}),
-        ...(r.compareAtPrice != null ? { compareAtPrice: r.compareAtPrice } : {}),
-        ...(r.costPrice != null ? { costPrice: r.costPrice } : {}),
-        ...(r.ageRange != null ? { ageRange: r.ageRange } : {}),
-        ...(r.lowStockThreshold != null ? { lowStockThreshold: r.lowStockThreshold } : {}),
-        updatedAt: now,
-      };
-      const current = tx.select({ id: products.id, slug: products.slug }).from(products).where(eq(products.sku, r.sku)).get();
-      if (current) {
-        tx.update(products).set({ ...values, slug: uniqueSlug(r.name, current.slug) }).where(eq(products.id, current.id)).run();
-        updated++;
-      } else {
-        const row = tx
-          .insert(products)
-          .values({ ...values, sku: r.sku, slug: uniqueSlug(r.name), stock: r.stock })
-          .returning({ id: products.id })
-          .get();
-        if (r.stock > 0) {
-          tx.insert(stockMovements).values({ productId: row.id, type: "initial", quantity: r.stock, stockAfter: r.stock, note: "Opening stock from CSV import" }).run();
-          units += r.stock;
+  await db.transaction(async (tx) => {
+        // Categories, created on first use.
+        const catId = new Map<string, number>();
+        for (const c of await tx.select().from(categories).all()) {
+          catId.set(c.name.toLowerCase(), c.id);
+          catId.set(c.slug, c.id);
         }
-        created++;
-      }
-    }
+        const categoryFor = async (name: string | null) => {
+          if (!name) return null;
+          const found = catId.get(name.toLowerCase()) ?? catId.get(slugify(name));
+          if (found) return found;
+          const row = await tx.insert(categories).values({ name, slug: slugify(name), emoji: "" }).returning({ id: categories.id }).get();
+          catId.set(name.toLowerCase(), row.id);
+          catId.set(slugify(name), row.id);
+          return row.id;
+        };
 
-    if (opts.hideMissing && good.length) {
-      const keep = good.map((r) => r.sku);
-      const toHide = tx.select({ id: products.id }).from(products).where(notInArray(products.sku, keep)).all().map((p) => p.id);
-      if (toHide.length) {
-        tx.update(products).set({ isActive: false, updatedAt: now }).where(inArray(products.id, toHide)).run();
-        hidden = toHide.length;
-      }
-    }
-  });
+        const slugs = new Set((await tx.select({ slug: products.slug }).from(products).all()).map((p) => p.slug));
+        const uniqueSlug = (name: string, own?: string) => {
+          const base = slugify(name) || "product";
+          if (own && own === base) return own;
+          let slug = base;
+          for (let n = 2; slugs.has(slug) && slug !== own; n++) slug = `${base}-${n}`;
+          slugs.add(slug);
+          return slug;
+        };
+
+        for (const r of good) {
+          const values = {
+            name: r.name,
+            brand: r.brand,
+            categoryId: await categoryFor(r.category),
+            price: r.price,
+            colors: encodeList(r.colors),
+            sizes: encodeList(r.sizes),
+            audience: r.audience,
+            description: r.description,
+            isActive: r.isActive,
+            ...(r.details != null ? { details: r.details } : {}),
+            ...(r.compareAtPrice != null ? { compareAtPrice: r.compareAtPrice } : {}),
+            ...(r.costPrice != null ? { costPrice: r.costPrice } : {}),
+            ...(r.ageRange != null ? { ageRange: r.ageRange } : {}),
+            ...(r.lowStockThreshold != null ? { lowStockThreshold: r.lowStockThreshold } : {}),
+            updatedAt: now,
+          };
+          const current = await tx.select({ id: products.id, slug: products.slug }).from(products).where(eq(products.sku, r.sku)).get();
+          if (current) {
+            await tx.update(products).set({ ...values, slug: uniqueSlug(r.name, current.slug) }).where(eq(products.id, current.id)).run();
+            updated++;
+          } else {
+            const row = await tx
+                          .insert(products)
+                          .values({ ...values, sku: r.sku, slug: uniqueSlug(r.name), stock: r.stock })
+                          .returning({ id: products.id })
+                          .get();
+            if (r.stock > 0) {
+              await tx.insert(stockMovements).values({ productId: row.id, type: "initial", quantity: r.stock, stockAfter: r.stock, note: "Opening stock from CSV import" }).run();
+              units += r.stock;
+            }
+            created++;
+          }
+        }
+
+        if (opts.hideMissing && good.length) {
+          const keep = good.map((r) => r.sku);
+          const toHide = (await tx.select({ id: products.id }).from(products).where(notInArray(products.sku, keep)).all()).map((p) => p.id);
+          if (toHide.length) {
+            await tx.update(products).set({ isActive: false, updatedAt: now }).where(inArray(products.id, toHide)).run();
+            hidden = toHide.length;
+          }
+        }
+      });
 
   return { created, updated, hidden, skipped: check.rows.length - good.length, units };
 }
 
 /** Product rows for the export / template, in the import format. */
-export function exportRows() {
-  const cats = new Map(db.select().from(categories).all().map((c) => [c.id, c.name]));
-  return db
-    .select()
-    .from(products)
-    .orderBy(products.sku)
-    .all()
+export async function exportRows() {
+  const cats = new Map((await db.select().from(categories).all()).map((c) => [c.id, c.name]));
+  return (await db
+      .select()
+      .from(products)
+      .orderBy(products.sku)
+      .all())
     .map((p) => [
       p.sku,
       p.name,

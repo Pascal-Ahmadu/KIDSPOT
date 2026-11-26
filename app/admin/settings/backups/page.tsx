@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { TableCard, TableEmpty, tdClass as td, thClass as th, trClass } from "@/components/admin/data-table";
 import { PageHeader } from "@/components/admin/ui";
 import { backupNowAction } from "@/lib/actions/backup";
-import { BACKUP_DIR, listBackups } from "@/lib/backup";
+import { BACKUP_LOCATION, listBackups } from "@/lib/backup";
 import { cn, formatDateTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Backups" };
@@ -11,15 +11,15 @@ export const dynamic = "force-dynamic";
 
 const size = (b: number) => (b > 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.round(b / 1024)} KB`);
 
-export default function BackupsPage() {
-  const files = listBackups();
+export default async function BackupsPage() {
+  const files = await listBackups();
   return (
     <div className="grid gap-6">
       <PageHeader title="Backups" description="A full copy of the shop's data is made automatically once a day. The newest 30 are kept." />
       <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-4 text-sm leading-6 text-[#525252]">
         <p>
-          Backups are saved in <code className="rounded bg-surface px-1.5 py-0.5 text-xs">{BACKUP_DIR}</code>. If the server&apos;s disk fails, backups on the same disk go with it, so download one
-          regularly or set <code className="rounded bg-surface px-1.5 py-0.5 text-xs">BACKUP_DIR</code> to a synced folder (Google Drive, Dropbox) or another disk.
+          Each backup is a complete copy of the shop&apos;s data as a .sql file, saved in {BACKUP_LOCATION}. Download one now and then and keep it somewhere else
+          (Google Drive, a USB stick). The database host, Turso, also keeps its own restore points.
         </p>
       </section>
       <TableCard
