@@ -56,10 +56,10 @@ export default async function ReceiptPage({
       <style>{`@media print { @page { margin: 0; } html, body { background: #fff !important; margin: 0 !important; min-height: 0 !important; } }`}</style>
       <AutoPrint auto={sp.print === "1"} />
       {/* Same 72mm width on screen and on paper (the XP-80's printable width), so the measured length matches the print. */}
-      <div className="mx-auto w-fit bg-white px-3 py-2 print:p-0">
+      <div className="mx-auto w-fit bg-white px-3 py-2 print:w-full print:p-0">
         <article
           id="receipt"
-          className="mx-auto w-[72mm] bg-white py-2 font-mono text-[12px] leading-[16px] text-black"
+          className="mx-auto w-[68mm] bg-white py-2 font-mono text-[12px] leading-[16px] text-black print:w-full print:px-[3mm] print:text-[11px] print:leading-[15px]"
         >
           <header className="text-center">
             <p className="text-[16px] font-bold leading-5">{store.name}</p>
