@@ -261,10 +261,13 @@ export function AdminSidebar({
       {/* Logo row (+ collapse toggle on desktop) */}
       <div className={cn("flex items-center", compact ? "flex-col gap-3" : "justify-between gap-2")}>
         <Link href="/admin" onClick={() => setOpen(false)} className="flex items-center gap-1" aria-label={compact ? `${STORE_NAME} admin` : undefined}>
-          <span className="grid h-10 w-10 place-items-center rounded-[8px] p-1">
-            <Image src="/brand/bear-badge.png" alt="" width={32} height={32} className="h-8 w-8 rounded-full" />
-          </span>
-          {!compact && <span className="font-logo text-lg font-semibold leading-7 text-ink">{STORE_NAME}</span>}
+          {compact ? (
+            <span className="grid h-10 w-10 place-items-center">
+              <Image src="/brand/kidspot-mark.png" alt="" width={36} height={36} className="h-9 w-9" />
+            </span>
+          ) : (
+            <Image src="/brand/kidspot-logo.png" alt={STORE_NAME} width={113} height={40} className="h-10 w-auto" />
+          )}
         </Link>
         {desktop && (
           <button
@@ -343,10 +346,7 @@ export function AdminSidebar({
           </Link>
         )}
         <Link href="/admin" className="flex items-center gap-2">
-          <span className="grid h-10 w-10 place-items-center rounded-[8px] p-1">
-            <Image src="/brand/bear-badge.png" alt="" width={32} height={32} className="h-8 w-8 rounded-full" />
-          </span>
-          <span className="font-logo text-lg font-semibold leading-7 text-ink">{STORE_NAME}</span>
+          <Image src="/brand/kidspot-logo.png" alt={STORE_NAME} width={102} height={36} className="h-9 w-auto" />
         </Link>
         <button onClick={() => setOpen((v) => !v)} className="grid h-[34px] w-[34px] place-items-center rounded-[4px] text-ink transition hover:bg-surface" aria-label="Menu" aria-expanded={open}>
           {open ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}

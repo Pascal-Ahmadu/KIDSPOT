@@ -29,8 +29,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <section className="flex min-h-screen flex-col">
         <header className="flex h-24 items-start p-8">
           <Link href="/" className="flex items-center gap-2" aria-label={`${STORE_NAME} home`}>
-            <Image src="/brand/bear-badge.png" alt="" width={32} height={32} priority className="h-8 w-8 rounded-full" />
-            <span className="font-logo text-xl font-semibold leading-8 text-brand">{STORE_NAME}</span>
+            <Image src="/brand/kidspot-logo.png" alt={STORE_NAME} width={113} height={40} priority className="h-10 w-auto" />
           </Link>
         </header>
 

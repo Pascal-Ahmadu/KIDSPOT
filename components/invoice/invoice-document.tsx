@@ -34,7 +34,7 @@ export function InvoiceDocument(p: InvoiceDocumentProps) {
       <style>{`@media print { @page { size: A4; margin: 12mm; } }`}</style>
       <header className="flex flex-wrap items-start justify-between gap-6 border-b border-[#DCDCDC] pb-6">
         <div className="flex items-center gap-3">
-          <Image src="/brand/bear-badge.png" alt="" width={48} height={48} className="h-12 w-12 rounded-full" />
+          <Image src="/brand/kidspot-logo.png" alt="" width={136} height={48} className="h-12 w-auto" />
           <div>
             <p className="font-logo text-2xl font-semibold leading-7">{p.store.name}</p>
             <p className="text-xs leading-5 text-[#7C7C7C]">
