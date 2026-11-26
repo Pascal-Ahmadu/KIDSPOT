@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   CameraIcon,
+  ChevronUpIcon,
   MagnifyingGlassIcon,
   MinusIcon,
   PlusIcon,
@@ -119,6 +120,7 @@ export function Till({
   const [pending, start] = useTransition();
   const [scanning, setScanning] = useState(false);
   const [open, setOpen] = useState(false);
+  const [showItems, setShowItems] = useState(true);
   // Card goes to the Moniepoint terminal and transfers get a Monnify account number, when set up.
   const [manual, setManual] = useState(false);
   const [terminal, setTerminal] = useState(payments.terminals[0]?.serial ?? "");
@@ -182,6 +184,7 @@ export function Till({
 
   function add(p: TillProduct) {
     setError(null);
+    setShowItems(true);
     if (p.price <= 0) {
       setError(
         `${p.name} has no price yet. Ask a manager to add one in Products.`,
@@ -403,6 +406,94 @@ export function Till({
 
   const itemCount = lines.reduce((n, l) => n + l.quantity, 0);
 
+  /** Basket lines with size, − qty +, line total and remove; shown in the bottom bar and at checkout. */
+  const basketList = (
+    <ul className="divide-y divide-line">
+      {lines.map((l) => {
+        const p = byId.get(l.productId)!;
+        return (
+          <li key={l.key} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2">
+            <div className="flex min-w-[220px] flex-1 items-center justify-between gap-3">
+              <span className="text-sm leading-5 text-ink">{p.name}</span>
+              <span className="text-sm font-semibold text-ink">
+                {money(p.price * l.quantity)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {p.sizes.length > 0 && (
+                <select
+                  aria-label="Size"
+                  value={l.size}
+                  onChange={(e) =>
+                    setLines((ls) =>
+                      ls.map((x) =>
+                        x.key === l.key ? { ...x, size: e.target.value } : x,
+                      ),
+                    )
+                  }
+                  className="h-8 rounded-[6px] border border-line bg-white px-2 text-xs"
+                >
+                  {p.sizes.map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              )}
+              <div className="ml-auto flex items-center rounded-[6px] border border-line">
+                <button
+                  type="button"
+                  aria-label="One less"
+                  onClick={() =>
+                    setLines((ls) =>
+                      ls
+                        .map((x) =>
+                          x.key === l.key
+                            ? { ...x, quantity: x.quantity - 1 }
+                            : x,
+                        )
+                        .filter((x) => x.quantity > 0),
+                    )
+                  }
+                  className="grid h-8 w-8 place-items-center"
+                >
+                  <MinusIcon className="h-4 w-4" />
+                </button>
+                <span className="w-8 text-center text-sm">{l.quantity}</span>
+                <button
+                  type="button"
+                  aria-label="One more"
+                  onClick={() =>
+                    inBasket(p.id) < p.stock
+                      ? setLines((ls) =>
+                          ls.map((x) =>
+                            x.key === l.key
+                              ? { ...x, quantity: x.quantity + 1 }
+                              : x,
+                          ),
+                        )
+                      : setError(`Only ${p.stock} × ${p.name} in stock.`)
+                  }
+                  className="grid h-8 w-8 place-items-center"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                </button>
+              </div>
+              <button
+                type="button"
+                aria-label="Remove"
+                onClick={() =>
+                  setLines((ls) => ls.filter((x) => x.key !== l.key))
+                }
+                className="grid h-8 w-8 place-items-center text-[#7C7C7C] hover:text-accent"
+              >
+                <TrashIcon className="h-4 w-4" />
+              </button>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
   /** Close the basket; after a sale this also starts the next one. */
   function closeBasket() {
     if (waiting) return; // finish or cancel the payment first
@@ -480,12 +571,12 @@ export function Till({
                     <ProductImage src={p.imageUrl} alt="" />
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="truncate text-sm leading-5 text-ink">
+                    <span className="text-sm leading-5 text-ink">
                       {p.name}
                     </span>
                     {(p.description || p.brand) && (
                       <span
-                        className="truncate text-xs leading-5 text-[#7C7C7C]"
+                        className="text-xs leading-[18px] text-[#7C7C7C]"
                         title={p.description ?? undefined}
                       >
                         {[p.brand, p.description].filter(Boolean).join(" · ")}
@@ -525,43 +616,67 @@ export function Till({
       <RecentSales sales={recent} />
 
       {/* Basket bar: always in view at the bottom */}
-      <div className="sticky bottom-4 z-30 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-[12px] border border-line bg-[#FDFDFD] px-5 py-3 shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-ink">
-            {itemCount
-              ? `${itemCount} item${itemCount === 1 ? "" : "s"} in basket`
-              : "Basket is empty"}
-          </p>
-          {error && !open ? (
-            <p className="truncate text-xs text-accent" role="alert">
-              {error}
+      <div className="sticky bottom-4 z-30 rounded-[12px] border border-line bg-[#FDFDFD] shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
+        {lines.length > 0 && showItems && (
+          <div className="max-h-[38vh] overflow-y-auto border-b border-line px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {basketList}
+          </div>
+        )}
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3">
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+              {itemCount
+                ? `${itemCount} item${itemCount === 1 ? "" : "s"} in basket`
+                : "Basket is empty"}
+              {lines.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowItems((v) => !v)}
+                  aria-expanded={showItems}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+                >
+                  {showItems ? "Hide items" : "Show items"}
+                  <ChevronUpIcon
+                    className={cn(
+                      "h-3.5 w-3.5 transition",
+                      !showItems && "rotate-180",
+                    )}
+                    aria-hidden="true"
+                  />
+                </button>
+              )}
             </p>
-          ) : (
-            <p className="truncate text-xs text-[#7C7C7C]">
-              {shiftNote} ·{" "}
-              <Link
-                href="/admin/shifts"
-                className="font-medium text-brand hover:underline"
-              >
-                Close shift
-              </Link>
+            {error && !open ? (
+              <p className="truncate text-xs text-accent" role="alert">
+                {error}
+              </p>
+            ) : (
+              <p className="truncate text-xs text-[#7C7C7C]">
+                {shiftNote} ·{" "}
+                <Link
+                  href="/admin/shifts"
+                  className="font-medium text-brand hover:underline"
+                >
+                  Close shift
+                </Link>
+              </p>
+            )}
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-[#7C7C7C]">Total</p>
+            <p className="text-lg font-semibold leading-6 text-ink">
+              {money(total)}
             </p>
-          )}
+          </div>
+          <button
+            type="button"
+            onClick={() => (setError(null), setOpen(true))}
+            disabled={lines.length === 0}
+            className="btn btn-primary h-11 px-8"
+          >
+            Checkout
+          </button>
         </div>
-        <div className="text-right">
-          <p className="text-xs text-[#7C7C7C]">Total</p>
-          <p className="text-lg font-semibold leading-6 text-ink">
-            {money(total)}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => (setError(null), setOpen(true))}
-          disabled={lines.length === 0}
-          className="btn btn-primary h-11 px-8"
-        >
-          Checkout
-        </button>
       </div>
 
       {/* Basket / checkout */}
@@ -663,100 +778,7 @@ export function Till({
                     The basket is empty. Close this and tap a product to add it.
                   </p>
                 ) : (
-                  <ul className="divide-y divide-line">
-                    {lines.map((l) => {
-                      const p = byId.get(l.productId)!;
-                      return (
-                        <li key={l.key} className="flex flex-col gap-2 py-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <span className="text-sm leading-5 text-ink">
-                              {p.name}
-                            </span>
-                            <span className="text-sm font-semibold text-ink">
-                              {money(p.price * l.quantity)}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {p.sizes.length > 0 && (
-                              <select
-                                aria-label="Size"
-                                value={l.size}
-                                onChange={(e) =>
-                                  setLines((ls) =>
-                                    ls.map((x) =>
-                                      x.key === l.key
-                                        ? { ...x, size: e.target.value }
-                                        : x,
-                                    ),
-                                  )
-                                }
-                                className="h-8 rounded-[6px] border border-line bg-white px-2 text-xs"
-                              >
-                                {p.sizes.map((s) => (
-                                  <option key={s}>{s}</option>
-                                ))}
-                              </select>
-                            )}
-                            <div className="ml-auto flex items-center rounded-[6px] border border-line">
-                              <button
-                                type="button"
-                                aria-label="One less"
-                                onClick={() =>
-                                  setLines((ls) =>
-                                    ls
-                                      .map((x) =>
-                                        x.key === l.key
-                                          ? { ...x, quantity: x.quantity - 1 }
-                                          : x,
-                                      )
-                                      .filter((x) => x.quantity > 0),
-                                  )
-                                }
-                                className="grid h-8 w-8 place-items-center"
-                              >
-                                <MinusIcon className="h-4 w-4" />
-                              </button>
-                              <span className="w-8 text-center text-sm">
-                                {l.quantity}
-                              </span>
-                              <button
-                                type="button"
-                                aria-label="One more"
-                                onClick={() =>
-                                  inBasket(p.id) < p.stock
-                                    ? setLines((ls) =>
-                                        ls.map((x) =>
-                                          x.key === l.key
-                                            ? { ...x, quantity: x.quantity + 1 }
-                                            : x,
-                                        ),
-                                      )
-                                    : setError(
-                                        `Only ${p.stock} × ${p.name} in stock.`,
-                                      )
-                                }
-                                className="grid h-8 w-8 place-items-center"
-                              >
-                                <PlusIcon className="h-4 w-4" />
-                              </button>
-                            </div>
-                            <button
-                              type="button"
-                              aria-label="Remove"
-                              onClick={() =>
-                                setLines((ls) =>
-                                  ls.filter((x) => x.key !== l.key),
-                                )
-                              }
-                              className="grid h-8 w-8 place-items-center text-[#7C7C7C] hover:text-accent"
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  basketList
                 )}
 
                 {/* Discount (needs a manager PIN) */}
