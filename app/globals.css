@@ -96,6 +96,27 @@ body {
   background: var(--background);
 }
 
+/* Compact admin on computer screens: everything at 90% so cards, tables and the till fit
+   comfortably on laptops (most Windows laptops run at 125-150% display scaling).
+   Full-height pieces are stretched back so they still reach the bottom of the window. */
+@media (min-width: 1024px) {
+  .admin-surface {
+    zoom: 0.9;
+  }
+  .admin-surface.min-h-screen,
+  .admin-surface .min-h-screen {
+    min-height: calc(100vh / 0.9);
+  }
+  .admin-surface .h-screen {
+    height: calc(100vh / 0.9);
+  }
+}
+@media print {
+  .admin-surface {
+    zoom: 1;
+  }
+}
+
 /* Thin scrollbars by default. In the base layer so a "hide the scrollbar" utility
    ([scrollbar-width:none]) on a menu, tab bar or dropdown can override it. */
 @layer base {
