@@ -581,12 +581,15 @@ export function Till({
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="text-sm leading-5 text-ink">{p.name}</span>
-                    {(p.description || p.brand) && (
-                      <span
-                        className="text-xs leading-[18px] text-[#7C7C7C]"
-                        title={p.description ?? undefined}
-                      >
-                        {[p.brand, p.description].filter(Boolean).join(" · ")}
+                    {/* The shop's own first column (brand / supplier, as written in the stock sheet). */}
+                    {p.brand && (
+                      <span className="text-xs font-semibold leading-[18px] text-brand">
+                        {p.brand}
+                      </span>
+                    )}
+                    {p.description && (
+                      <span className="text-xs leading-[18px] text-[#7C7C7C]">
+                        {p.description}
                       </span>
                     )}
                     <span className="flex items-center justify-between gap-2 text-xs leading-5">
