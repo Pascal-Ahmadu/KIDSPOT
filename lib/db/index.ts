@@ -15,17 +15,24 @@ export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
 const globalForDb = globalThis as unknown as { __kidstoreLibsql?: { db: Db; client: Client } };
 
+/**
+ * The live services (Turso, Vercel Blob) are used in production. Local development (`npm run dev`) uses
+ * the local SQLite file even when `vercel env pull` has put the Turso keys in .env.local, so testing on
+ * your computer never changes the real shop. Set USE_LIVE_SERVICES=1 to point a dev server at them on purpose.
+ */
+export const useLiveServices = process.env.NODE_ENV === "production" || process.env.USE_LIVE_SERVICES === "1";
+
 function connectionUrl() {
-  if (process.env.TURSO_DATABASE_URL) return process.env.TURSO_DATABASE_URL;
+  if (useLiveServices && process.env.TURSO_DATABASE_URL) return process.env.TURSO_DATABASE_URL;
   const file = process.env.DATABASE_URL ?? "./data/kidstore.db";
   return file.startsWith("file:") || file.includes("://") ? file : `file:${file}`;
 }
 
 /** True when the data lives in a local SQLite file (development), not on Turso. */
-export const isLocalDatabase = !process.env.TURSO_DATABASE_URL;
+export const isLocalDatabase = !(useLiveServices && process.env.TURSO_DATABASE_URL);
 
 function connect() {
-  const client = createClient({ url: connectionUrl(), authToken: process.env.TURSO_AUTH_TOKEN });
+  const client = createClient({ url: connectionUrl(), authToken: isLocalDatabase ? undefined : process.env.TURSO_AUTH_TOKEN });
   return { client, db: drizzle(client, { schema }) };
 }
 

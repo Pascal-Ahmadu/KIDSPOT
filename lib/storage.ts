@@ -8,7 +8,9 @@ import { del, get, list, put } from "@vercel/blob";
  * requests). Without Blob credentials (local development) files go to data/files on disk.
  * Everything is private: images are served through /media/…, receipts and backups only to staff.
  */
-export const usesBlob = !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+// Same rule as the database: live storage in production (or with USE_LIVE_SERVICES=1), local files in development.
+export const usesBlob =
+  (process.env.NODE_ENV === "production" || process.env.USE_LIVE_SERVICES === "1") && !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
 
 const LOCAL_ROOT = path.join(process.cwd(), "data", "files");
 
