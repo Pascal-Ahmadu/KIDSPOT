@@ -1,0 +1,415 @@
+@import "tailwindcss";
+
+:root {
+  /* Kid's Spot design tokens (from Figma) */
+  --brand: #9f86d9; /* Brand/Brand-1 */
+  --brand-dark: #8a6fcb;
+  --brand-light: #f1ecfb;
+  --pink: #ff82b3;
+  --pink-light: #ffaacb;
+  --sky: #34b5e1;
+  --sky-light: #5bd6fd;
+  --n900: #1c1d1d;
+  --n500: #646667;
+  --n200: #dbe2e6;
+  --n100: #eff2f3;
+  --n0: #ffffff;
+  --topbar: #eae1d1; /* Background/Background-1 */
+  --accent: #e35946; /* Brand/Brand-3 */
+  --hero-panel: #e3cee3; /* Background/Background-4 */
+  --deal-tag: #bfddde; /* Background/Background-3 */
+  --brand-2: #eda62a; /* Brand/Brand-2 */
+  /* Logo colours (from the Kid's Spot logo) */
+  --logo-blue: #0050ac;
+  --logo-pink: #f63e80;
+  --logo-star: #feb307;
+
+  --background: var(--n0);
+  --foreground: var(--n900);
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-light: var(--brand-light);
+  --color-pink: var(--pink);
+  --color-pink-light: var(--pink-light);
+  --color-sky: var(--sky);
+  --color-sky-light: var(--sky-light);
+  --color-ink: var(--n900);
+  --color-muted: var(--n500);
+  --color-line: var(--n200);
+  --color-surface: var(--n100);
+  --color-card: var(--n0);
+  --color-topbar: var(--topbar);
+  --color-accent: var(--accent);
+  --color-hero-panel: var(--hero-panel);
+  --color-deal-tag: var(--deal-tag);
+  --color-brand-2: var(--brand-2);
+  --color-logo-blue: var(--logo-blue);
+  --color-logo-pink: var(--logo-pink);
+  --color-logo-star: var(--logo-star);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-mulish), var(--font-dm-sans), ui-sans-serif, sans-serif;
+  --font-logo: var(--font-logo), ui-rounded, sans-serif;
+  --font-script: var(--font-lobster), cursive;
+
+  --shadow-soft: 0 6px 24px -10px rgb(28 29 29 / 0.14);
+
+  --animate-fade-up: fade-up 0.4s ease-out both;
+  --animate-slide-in: slide-in 0.25s ease-out;
+
+  @keyframes slide-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+.font-logo {
+  font-family: var(--font-logo);
+}
+
+/* Admin surface */
+.admin-surface {
+  --background: #fdfdfd; /* Dashboard overview design */
+  background: var(--background);
+}
+
+/* Thin scrollbars by default. In the base layer so a "hide the scrollbar" utility
+   ([scrollbar-width:none]) on a menu, tab bar or dropdown can override it. */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--n200) transparent;
+  }
+}
+
+/* No focus outlines or rings anywhere (the owner finds them distracting). Keyboard users still get a
+   cue: links underline and buttons/options darken slightly when reached with Tab. Inputs keep their
+   purple focus border from the Inputs design. */
+@layer base {
+  *:focus,
+  *:focus-visible {
+    outline: none;
+  }
+  a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  [role="option"]:focus-visible,
+  [role="combobox"]:focus-visible,
+  summary:focus-visible {
+    filter: brightness(0.94);
+  }
+}
+
+/* Reusable utility classes */
+@utility container-x {
+  width: 100%;
+  max-width: 1434px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (min-width: 640px) {
+    padding-inline: 1.5rem;
+  }
+}
+
+@utility section-title {
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--brand);
+  text-align: center;
+  @media (max-width: 640px) {
+    font-size: 1.5rem;
+  }
+}
+
+@utility section-sub {
+  font-size: 1.125rem;
+  line-height: 1.67;
+  color: var(--n500);
+  text-align: center;
+  max-width: 505px;
+  margin-inline: auto;
+}
+
+@utility card {
+  background: var(--n0);
+  border: 1px solid var(--n200);
+  border-radius: 8px;
+}
+
+@utility input {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--n200);
+  background: #fff;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.925rem;
+  color: var(--n900);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  &:focus {
+    border-color: var(--brand);
+  }
+  &::placeholder {
+    color: #9aa0a3;
+  }
+  &:disabled {
+    background: var(--n100);
+    color: #8a8a8a;
+  }
+  /* Admin "Inputs" design: #BDBDBD border, 8px radius, xs shadow, 4px focus ring; danger + disabled states.
+     :where() keeps specificity low so per-field utilities (text-xs, bg-surface, p-1…) still win. */
+  :where(.admin-surface) & {
+    border-color: #bdbdbd;
+    border-radius: 8px;
+    color: #525252;
+    box-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
+    &::placeholder {
+      color: #bdbdbd;
+    }
+    &:focus {
+      border-color: var(--brand);
+    }
+    &:disabled {
+      background: #f6f6f6;
+      border-color: #dcdcdc;
+      color: #bdbdbd;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    &[aria-invalid="true"] {
+      border-color: var(--accent);
+      &:focus {
+        border-color: var(--accent);
+      }
+    }
+  }
+}
+
+/* Admin field helper text (12px grey) and error text (danger colour). */
+@utility field-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #7c7c7c;
+}
+/* Checkbox design: 18px, 2px #DCDCDC border, 4px corners (add `checkbox-round` for a circle).
+   Unchecked hover = pale tint; checked = filled with a white tick; checked hover = darker; disabled = grey.
+   Colour comes from --cb / --cb-hover / --cb-tint (store purple by default; see checkbox-green etc.). */
+@utility checkbox {
+  --cb: var(--brand);
+  --cb-hover: #8a6dd0;
+  --cb-tint: var(--brand-light);
+  appearance: none;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 2px solid #dcdcdc;
+  border-radius: 4px;
+  background: #fdfdfd center / 12px 12px no-repeat;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+  &:hover {
+    background-color: var(--cb-tint);
+  }
+  &:checked {
+    background-color: var(--cb);
+    border-color: var(--cb);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 6.2 4.8 9 10 3' stroke='%23FDFDFD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  &:checked:hover {
+    background-color: var(--cb-hover);
+    border-color: var(--cb-hover);
+  }
+  &:focus-visible {
+    border-color: var(--cb);
+  }
+  &:disabled,
+  &:disabled:hover {
+    background-color: #f1f1f1;
+    border-color: #dcdcdc;
+    cursor: not-allowed;
+  }
+  &:disabled:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 6.2 4.8 9 10 3' stroke='%23DCDCDC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+}
+@utility checkbox-round {
+  border-radius: 80px;
+}
+/* Colour options from the design, mapped to the store palette. */
+@utility checkbox-green {
+  --cb: #10a957;
+  --cb-hover: #0d8c48;
+  --cb-tint: #effef5;
+}
+@utility checkbox-danger {
+  --cb: var(--accent);
+  --cb-hover: #c94534;
+  --cb-tint: #fff0f0;
+}
+@utility checkbox-gold {
+  --cb: var(--brand-2);
+  --cb-hover: #d48f17;
+  --cb-tint: #fff7ed;
+}
+@utility checkbox-gray {
+  --cb: #bdbdbd;
+  --cb-hover: #7c7c7c;
+  --cb-tint: #f6f6f6;
+}
+
+@utility field-error {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--accent);
+}
+
+@utility label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--n900);
+  /* Admin "Inputs" design: 14px label, 4px above the field. */
+  :where(.admin-surface) & {
+    margin-bottom: 4px;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    color: #292929;
+  }
+}
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  font-size: 0.925rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s, border-color 0.15s, opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+  &:active {
+    transform: translateY(1px);
+  }
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+@utility btn-primary {
+  background: var(--brand);
+  color: #fff;
+  &:hover:not(:disabled) {
+    background: var(--brand-dark);
+  }
+}
+
+@utility btn-secondary {
+  background: var(--n900);
+  color: #fff;
+  &:hover:not(:disabled) {
+    background: #333;
+  }
+}
+
+@utility btn-ghost {
+  background: transparent;
+  color: var(--n900);
+  border: 1px solid var(--n200);
+  &:hover:not(:disabled) {
+    border-color: var(--n900);
+  }
+}
+
+@utility btn-outline {
+  background: transparent;
+  color: var(--brand);
+  border: 1.5px solid var(--brand);
+  &:hover:not(:disabled) {
+    background: var(--brand);
+    color: #fff;
+  }
+}
+
+@utility btn-sm {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8rem;
+}
+
+@utility badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 4px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+@utility footer-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.375rem;
+  line-height: 1.25;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--n900);
+}
+
+/* Invoices: print just the document on clean A4. */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .invoice-doc {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+}
