@@ -98,11 +98,13 @@ export function Select({
     return () => form.removeEventListener("reset", reset);
   }, [controlled, defaultValue]);
 
-  const enabled = (i: number) => i >= 0 && i < options.length && !options[i].disabled;
+  const enabled = (i: number) =>
+    i >= 0 && i < options.length && !options[i].disabled;
 
   /** The next enabled option from `from`, moving by `step`; stays put at either end. */
   function move(from: number, step: 1 | -1) {
-    for (let i = from + step; i >= 0 && i < options.length; i += step) if (enabled(i)) return i;
+    for (let i = from + step; i >= 0 && i < options.length; i += step)
+      if (enabled(i)) return i;
     return enabled(from) ? from : -1;
   }
   const first = () => move(-1, 1);
@@ -125,7 +127,9 @@ export function Select({
 
   function typeAhead(char: string) {
     const now = Date.now();
-    const text = (now - typed.current.at > 700 ? "" : typed.current.text) + char.toLowerCase();
+    const text =
+      (now - typed.current.at > 700 ? "" : typed.current.text) +
+      char.toLowerCase();
     typed.current = { text, at: now };
     const start = open ? active : selectedIndex;
     // A repeated single letter steps through the options that start with it.
@@ -153,7 +157,11 @@ export function Select({
       setActive(key === "Home" ? first() : last());
     } else if (key === "Enter" || key === " ") {
       // Space while typing a name is part of the name, not a choice.
-      if (key === " " && typed.current.text && Date.now() - typed.current.at < 700) {
+      if (
+        key === " " &&
+        typed.current.text &&
+        Date.now() - typed.current.at < 700
+      ) {
         e.preventDefault();
         typeAhead(" ");
         return;
@@ -173,7 +181,14 @@ export function Select({
   }
 
   return (
-    <div ref={rootRef} className={cn("relative", variant === "text" ? "inline-block" : "w-full", wrapperClassName)}>
+    <div
+      ref={rootRef}
+      className={cn(
+        "relative",
+        variant === "text" ? "inline-block" : "w-full min-w-0",
+        wrapperClassName,
+      )}
+    >
       <button
         ref={buttonRef}
         id={buttonId}
@@ -182,7 +197,9 @@ export function Select({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
-        aria-activedescendant={open && active >= 0 ? `${listId}-${active}` : undefined}
+        aria-activedescendant={
+          open && active >= 0 ? `${listId}-${active}` : undefined
+        }
         aria-label={ariaLabel}
         aria-required={required || undefined}
         disabled={disabled}
@@ -190,13 +207,27 @@ export function Select({
         onKeyDown={onKeyDown}
         className={cn(
           "flex cursor-pointer items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60",
-          variant === "field" ? "input" : "bg-transparent text-sm leading-[21px] text-ink outline-none focus-visible:underline",
+          // A long option label is cut short ("…") instead of stretching the field and its form.
+          variant === "field"
+            ? "input w-full min-w-0"
+            : "bg-transparent text-sm leading-[21px] text-ink outline-none focus-visible:underline",
           className,
         )}
       >
-        <span className={cn("min-w-0 truncate", !selected && variant === "field" && "text-muted")}>{selected ? selected.label : placeholder}</span>
+        <span
+          className={cn(
+            "min-w-0 truncate",
+            !selected && variant === "field" && "text-muted",
+          )}
+        >
+          {selected ? selected.label : placeholder}
+        </span>
         <ChevronDownIcon
-          className={cn("h-4 w-4 shrink-0 stroke-2 transition-transform", variant === "text" ? "text-muted" : "text-ink", open && "rotate-180")}
+          className={cn(
+            "h-4 w-4 shrink-0 stroke-2 transition-transform",
+            variant === "text" ? "text-muted" : "text-ink",
+            open && "rotate-180",
+          )}
           aria-hidden="true"
         />
       </button>
@@ -251,7 +282,12 @@ export function Select({
                 )}
               >
                 <span className="min-w-0 truncate">{o.label}</span>
-                {isSelected && <CheckIcon className="h-4 w-4 shrink-0 stroke-2" aria-hidden="true" />}
+                {isSelected && (
+                  <CheckIcon
+                    className="h-4 w-4 shrink-0 stroke-2"
+                    aria-hidden="true"
+                  />
+                )}
               </li>
             );
           })}
