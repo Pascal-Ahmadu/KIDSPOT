@@ -22,8 +22,14 @@ export function verifyOrderInvoiceToken(orderNumber: string, token: string | und
 export const orderInvoicePath = (orderNumber: string) => `/invoice/${encodeURIComponent(orderNumber)}?t=${orderInvoiceToken(orderNumber)}`;
 export const customerInvoicePath = (inv: { number: string; token: string }) => `/invoice/i/${encodeURIComponent(inv.number)}?t=${inv.token}`;
 
+/** The site's public address: NEXT_PUBLIC_SITE_URL, else the Vercel production domain, else localhost. */
+export function siteUrl() {
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  return (process.env.NEXT_PUBLIC_SITE_URL || (vercel ? `https://${vercel}` : "http://localhost:3000")).replace(/\/$/, "");
+}
+
 /** Full link for sharing (WhatsApp / email). */
 export function absolute(pathname: string) {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const base = siteUrl();
   return `${base}${pathname}`;
 }
