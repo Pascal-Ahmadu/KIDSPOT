@@ -260,3 +260,24 @@ function friendlyDbError(e: unknown) {
   if (msg.includes("UNIQUE") && msg.includes("slug")) return "A product with that URL slug already exists. Change the name or slug.";
   return msg;
 }
+
+/** Quick photo upload from the Inventory / Products lists: sets the product's main photo. */
+export async function setProductPhotoAction(productId: number, formData: FormData): Promise<{ error?: string }> {
+  const me = await getAdminSession();
+  if (!me) return { error: "Only a manager or the owner can change photos." };
+  const file = formData.get("photo");
+  if (!(file instanceof File) || file.size === 0) return { error: "Choose a photo." };
+  const product = await db.select({ id: products.id, name: products.name }).from(products).where(eq(products.id, productId)).get();
+  if (!product) return { error: "Product not found." };
+  let url: string;
+  try {
+    url = await saveImageFile(file);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't save the photo." };
+  }
+  await db.update(products).set({ imageUrl: url, updatedAt: Math.floor(Date.now() / 1000) }).where(eq(products.id, productId)).run();
+  await logActivity(me, "product_photo", `${me.name} added a photo to ${product.name}`, { entity: "product", entityId: productId });
+  revalidateStore();
+  revalidatePath("/admin", "layout");
+  return {};
+}

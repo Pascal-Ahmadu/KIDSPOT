@@ -6,7 +6,7 @@ import { HeaderButton, Modal } from "@/components/admin/modal";
 import { TableFooter } from "@/components/admin/pagination";
 import { StockAdjustForm } from "@/components/admin/stock-adjust-form";
 import { PageHeader, StatCard, StockTag, TAG, Tag } from "@/components/admin/ui";
-import { ProductImage } from "@/components/store/product-image";
+import { PhotoUpload } from "@/components/admin/photo-upload";
 import { cn, formatDateTime, money } from "@/lib/format";
 import { paginate } from "@/lib/paginate";
 import { getAdminProducts, getInventorySummary, getStockMovements } from "@/lib/queries";
@@ -100,9 +100,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
                   <tr key={p.id} className={trClass}>
                     <td className={td}>
                       <div className="flex items-center gap-2">
-                        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-[6px] bg-surface">
-                          <ProductImage src={p.imageUrl} alt={p.name} />
-                        </div>
+                        <PhotoUpload productId={p.id} imageUrl={p.imageUrl} name={p.name} />
                         <span className="min-w-0">
                           <Link href={`/admin/products/${p.id}`} className="block max-w-[320px] truncate text-[#525252] hover:text-brand">
                             {p.name}

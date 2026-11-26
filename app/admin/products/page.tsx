@@ -13,7 +13,7 @@ import {
 import { TableFooter } from "@/components/admin/pagination";
 import { ProductRowActions } from "@/components/admin/product-actions";
 import { Flash, PageHeader, StockTag, TAG, Tag } from "@/components/admin/ui";
-import { ProductImage } from "@/components/store/product-image";
+import { PhotoUpload } from "@/components/admin/photo-upload";
 import { cn, formatDate, money } from "@/lib/format";
 import { paginate } from "@/lib/paginate";
 import {
@@ -182,15 +182,7 @@ export default async function ProductsPage({
                   <tr key={p.id} className={trClass}>
                     <td className={td}>
                       <div className="flex items-center gap-2">
-                        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-[6px] bg-surface">
-                          <ProductImage
-                            src={p.imageUrl}
-                            alt={p.name}
-                            emoji={p.category?.emoji}
-                            color={p.category?.color}
-                            emojiClassName="text-base"
-                          />
-                        </div>
+                        <PhotoUpload productId={p.id} imageUrl={p.imageUrl} name={p.name} />
                         <span className="min-w-0">
                           <Link
                             href={`/admin/products/${p.id}`}
