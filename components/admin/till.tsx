@@ -38,6 +38,8 @@ export type TillProduct = {
   sizes: string[];
   imageUrl: string | null;
   slug: string;
+  brand: string | null;
+  description: string | null;
 };
 export type TillSale = {
   id: number;
@@ -135,13 +137,19 @@ export function Till({
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = q
-      ? products.filter(
-          (p) =>
-            p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q),
-        )
+    // Search the name, SKU, brand and the shop's own description; every word must match.
+    const words = q.split(/\s+/).filter(Boolean);
+    const list = words.length
+      ? products.filter((p) => {
+          const hay =
+            `${p.name} ${p.sku} ${p.brand ?? ""} ${p.description ?? ""}`.toLowerCase();
+          return words.every((w) => hay.includes(w));
+        })
       : products;
-    return list.slice(0, 24);
+    // Items with a price first; the ones still waiting for a price at the end.
+    return [...list].sort(
+      (a, b) => Number(a.price === 0) - Number(b.price === 0),
+    );
   }, [query, products]);
 
   const subtotal = lines.reduce(
@@ -174,6 +182,12 @@ export function Till({
 
   function add(p: TillProduct) {
     setError(null);
+    if (p.price <= 0) {
+      setError(
+        `${p.name} has no price yet. Ask a manager to add one in Products.`,
+      );
+      return;
+    }
     if (inBasket(p.id) >= p.stock) {
       setError(`Only ${p.stock} × ${p.name} in stock.`);
       return;
@@ -454,7 +468,12 @@ export function Till({
                 <button
                   type="button"
                   onClick={() => add(p)}
-                  disabled={left <= 0}
+                  disabled={left <= 0 || p.price <= 0}
+                  title={
+                    p.price <= 0
+                      ? "No price yet: a manager can add one in Products"
+                      : undefined
+                  }
                   className="flex w-full items-center gap-3 rounded-[8px] border border-line bg-white p-2 text-left transition hover:border-brand disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="block h-12 w-12 shrink-0 overflow-hidden rounded-[6px] bg-surface">
@@ -464,6 +483,14 @@ export function Till({
                     <span className="truncate text-sm leading-5 text-ink">
                       {p.name}
                     </span>
+                    {(p.description || p.brand) && (
+                      <span
+                        className="truncate text-xs leading-5 text-[#7C7C7C]"
+                        title={p.description ?? undefined}
+                      >
+                        {[p.brand, p.description].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
                     <span className="flex items-center justify-between gap-2 text-xs leading-5">
                       <span className="font-mono text-[#BDBDBD]">{p.sku}</span>
                       <span
@@ -473,8 +500,15 @@ export function Till({
                       </span>
                     </span>
                   </span>
-                  <span className="shrink-0 text-sm font-semibold text-ink">
-                    {money(p.price)}
+                  <span
+                    className={cn(
+                      "shrink-0 text-sm font-semibold",
+                      p.price > 0
+                        ? "text-ink"
+                        : "text-xs font-medium text-accent",
+                    )}
+                  >
+                    {p.price > 0 ? money(p.price) : "No price yet"}
                   </span>
                 </button>
               </li>

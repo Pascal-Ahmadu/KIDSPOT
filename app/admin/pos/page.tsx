@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, or } from "drizzle-orm";
 import type { Metadata } from "next";
 import { OpenShiftForm } from "@/components/admin/shift-forms";
 import { Till } from "@/components/admin/till";
@@ -35,26 +35,27 @@ export default async function TillPage() {
   }
 
   const list = await db
-      .select()
-      .from(products)
-      .where(eq(products.isActive, true))
-      .orderBy(products.name)
-      .all();
+    .select()
+    .from(products)
+    // Everything on sale, plus items still waiting for a price (shown greyed out so staff know they exist).
+    .where(or(eq(products.isActive, true), eq(products.price, 0)))
+    .orderBy(products.name)
+    .all();
   const sales = await db
-      .select({
-        id: orders.id,
-        orderNumber: orders.orderNumber,
-        total: orders.total,
-        paymentMethod: orders.paymentMethod,
-        createdAt: orders.createdAt,
-        refundedAt: orders.refundedAt,
-        customer: orders.shippingName,
-      })
-      .from(orders)
-      .where(and(eq(orders.channel, "store"), eq(orders.shiftId, shift.id)))
-      .orderBy(desc(orders.createdAt))
-      .limit(20)
-      .all();
+    .select({
+      id: orders.id,
+      orderNumber: orders.orderNumber,
+      total: orders.total,
+      paymentMethod: orders.paymentMethod,
+      createdAt: orders.createdAt,
+      refundedAt: orders.refundedAt,
+      customer: orders.shippingName,
+    })
+    .from(orders)
+    .where(and(eq(orders.channel, "store"), eq(orders.shiftId, shift.id)))
+    .orderBy(desc(orders.createdAt))
+    .limit(20)
+    .all();
 
   return (
     <Till
@@ -66,6 +67,8 @@ export default async function TillPage() {
         id: p.id,
         name: p.name,
         sku: p.sku,
+        brand: p.brand,
+        description: p.description,
         price: p.price,
         stock: p.stock,
         sizes: decodeList(p.sizes),
