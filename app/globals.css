@@ -99,7 +99,7 @@ body {
 /* Compact admin on computer screens: everything at 90% so cards, tables and the till fit
    comfortably on laptops (most Windows laptops run at 125-150% display scaling).
    Full-height pieces are stretched back so they still reach the bottom of the window. */
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
   .admin-surface {
     zoom: 0.9;
   }
