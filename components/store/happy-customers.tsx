@@ -29,7 +29,7 @@ export function HappyCustomers({ reviews }: { reviews: HappyReview[] }) {
             <li
               key={r.id}
               title={`Review of ${r.productName}`}
-              className={`flex min-h-[270px] w-full max-w-[458px] flex-col items-center gap-4 rounded-[8px] bg-white px-5 pb-8 pt-[39px] text-center shadow-[0_10px_42px_rgba(1,9,20,0.06)] sm:px-[41px] ${i === 2 ? "md:max-lg:hidden" : ""}`}
+              className={`flex min-h-[270px] w-full max-w-[458px] flex-col items-center gap-4 rounded-[8px] bg-card px-5 pb-8 pt-[39px] text-center shadow-[0_10px_42px_rgba(1,9,20,0.06)] sm:px-[41px] ${i === 2 ? "md:max-lg:hidden" : ""}`}
             >
               <Stars value={r.rating} size={12} />
               <blockquote className="line-clamp-5 min-h-[105px] max-w-[376px] text-sm leading-[21px] text-ink">&ldquo;{r.body}&rdquo;</blockquote>

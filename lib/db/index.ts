@@ -20,7 +20,8 @@ const globalForDb = globalThis as unknown as { __kidstoreLibsql?: { db: Db; clie
  * the local SQLite file even when `vercel env pull` has put the Turso keys in .env.local, so testing on
  * your computer never changes the real shop. Set USE_LIVE_SERVICES=1 to point a dev server at them on purpose.
  */
-export const useLiveServices = process.env.NODE_ENV === "production" || process.env.USE_LIVE_SERVICES === "1";
+export const useLiveServices =
+  (process.env.NODE_ENV === "production" || process.env.USE_LIVE_SERVICES === "1") && process.env.USE_LOCAL_DATA !== "1"; // USE_LOCAL_DATA=1: local preview of a production build
 
 function connectionUrl() {
   if (useLiveServices && process.env.TURSO_DATABASE_URL) return process.env.TURSO_DATABASE_URL;

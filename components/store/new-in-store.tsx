@@ -26,7 +26,7 @@ export function NewInStore({ tabs, trendingIds }: { tabs: NewInStoreTab[]; trend
   return (
     <section className="container-x mt-16 lg:mt-[91px]" aria-labelledby={`${id}-heading`}>
       <div className="flex flex-col items-center gap-[9px]">
-        <h2 id={`${id}-heading`} className="text-xl font-normal uppercase leading-8 text-brand-2">
+        <h2 id={`${id}-heading`} className="text-xl font-normal uppercase leading-8 text-logo-blue">
           New in store
         </h2>
         <div role="tablist" aria-label="Product groups" className="flex justify-center gap-x-[18px] sm:flex-wrap sm:gap-x-[30px] sm:gap-y-2" onKeyDown={onKeyDown}>

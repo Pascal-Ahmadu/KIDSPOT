@@ -104,11 +104,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
       {/* Stat cards row (design: four 150px cards, 20px apart) */}
       <div className="mb-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="Orders" value={String(stats.orders30)} icon={ShoppingBagIcon} trend={change(stats.orders30, stats.ordersPrev30)} href="/admin/orders" linkLabel="View orders" />
-        <StatTile label="Total sales" value={money(stats.revenue30)} icon={BanknotesIcon} trend={change(stats.revenue30, stats.revenuePrev30)} href="/admin/orders" linkLabel="View orders" />
-        <StatTile label="Items sold" value={String(cards.units30)} icon={CubeIcon} trend={change(cards.units30, cards.unitsPrev30)} href="/admin/products" linkLabel="View products" />
+        <StatTile tone="blue" label="Orders" value={String(stats.orders30)} icon={ShoppingBagIcon} trend={change(stats.orders30, stats.ordersPrev30)} href="/admin/orders" linkLabel="View orders" />
+        <StatTile tone="orange" label="Total sales" value={money(stats.revenue30)} icon={BanknotesIcon} trend={change(stats.revenue30, stats.revenuePrev30)} href="/admin/orders" linkLabel="View orders" />
+        <StatTile tone="yellow" label="Items sold" value={String(cards.units30)} icon={CubeIcon} trend={change(cards.units30, cards.unitsPrev30)} href="/admin/products" linkLabel="View products" />
         <StatTile
-          label="Customers"
+          tone="pink" label="Customers"
           value={String(cards.customersTotal)}
           icon={UserGroupIcon}
           tag={cards.newCustomers30 ? `+${cards.newCustomers30} new` : undefined}

@@ -83,7 +83,7 @@ export function StoreHeader({ shopMenu }: { shopMenu?: ShopMenuData }) {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white">
+    <header className="sticky top-0 z-40 bg-card">
       <TopBar />
 
       <div className="border-b border-line">
@@ -172,7 +172,7 @@ export function StoreHeader({ shopMenu }: { shopMenu?: ShopMenuData }) {
 
           {/* Search panel */}
           {searchOpen && (
-            <form onSubmit={submitSearch} className="absolute inset-x-0 top-full z-50 border-b border-line bg-white py-4 shadow-soft">
+            <form onSubmit={submitSearch} className="absolute inset-x-0 top-full z-50 border-b border-line bg-card py-4 shadow-soft">
               <div className="container-x flex items-center gap-3">
                 <MagnifyingGlassIcon className="h-6 w-6 shrink-0 text-muted" />
                 <input

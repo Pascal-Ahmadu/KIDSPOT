@@ -57,7 +57,7 @@ export function MobileDrawer({ open, onClose, links }: { open: boolean; onClose:
         aria-modal="true"
         aria-label="Menu"
         inert={!open}
-        className={`absolute inset-y-0 left-0 flex w-[min(380px,88vw)] flex-col overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ease-out ${open ? "translate-x-0" : "-translate-x-full"}`}
+        className={`absolute inset-y-0 left-0 flex w-[min(380px,88vw)] flex-col overflow-y-auto bg-card shadow-2xl transition-transform duration-300 ease-out ${open ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex h-[77px] shrink-0 items-center justify-between border-b border-line px-[43px] max-sm:px-6">
           {/* Logo is already a link home; close the drawer when it's tapped. */}

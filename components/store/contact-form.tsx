@@ -6,7 +6,7 @@ import { sendContactMessageAction, type ContactState } from "@/lib/actions/conta
 import { CONTACT_SUBJECTS } from "@/lib/attributes";
 import { cn } from "@/lib/format";
 
-const box = "h-[51px] w-full rounded-[4px] border bg-white px-[18px] text-sm text-ink outline-none placeholder:text-muted focus:border-brand";
+const box = "h-[51px] w-full rounded-[4px] border bg-card px-[18px] text-sm text-ink outline-none placeholder:text-muted focus:border-brand";
 
 /** "Get in Touch" form from the Contact page design. */
 export function ContactForm() {
@@ -69,7 +69,7 @@ export function ContactForm() {
       </div>
       <div>
         <label htmlFor="c-message" className="sr-only">Your message</label>
-        <textarea id="c-message" {...bind("message")} name="message" required rows={7} placeholder="Write a message *" className={cn("w-full rounded-[4px] border bg-white p-[18px] text-sm text-ink outline-none placeholder:text-muted focus:border-brand", border("message"))} />
+        <textarea id="c-message" {...bind("message")} name="message" required rows={7} placeholder="Write a message *" className={cn("w-full rounded-[4px] border bg-card p-[18px] text-sm text-ink outline-none placeholder:text-muted focus:border-brand", border("message"))} />
         {err("message")}
       </div>
       {state.error && <p className="text-sm font-semibold text-accent" role="alert">{state.error}</p>}

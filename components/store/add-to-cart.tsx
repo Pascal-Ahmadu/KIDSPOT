@@ -71,7 +71,7 @@ export function AddToCart({ product, size = "sm", showQuantity = false, classNam
   return (
     <div className={cn("flex items-center gap-3", className)}>
       {showQuantity && !out && (
-        <div className="flex items-center rounded-full border-2 border-line bg-white">
+        <div className="flex items-center rounded-full border-2 border-line bg-card">
           <button
             type="button"
             className="grid h-11 w-11 place-items-center rounded-full text-ink hover:bg-surface"

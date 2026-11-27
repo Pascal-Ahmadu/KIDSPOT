@@ -8,7 +8,7 @@ import { loginAction, registerAction, type AuthState } from "@/lib/actions/accou
 import { cn } from "@/lib/format";
 import { useAccount, type AuthTab } from "@/lib/store/account";
 
-const input = "h-[51px] w-full rounded-[4px] border bg-white px-[18px] text-sm text-ink outline-none placeholder:text-muted focus:border-brand";
+const input = "h-[51px] w-full rounded-[4px] border bg-card px-[18px] text-sm text-ink outline-none placeholder:text-muted focus:border-brand";
 
 /** Phone-with-password illustration for the peach header band. */
 function LoginArt() {
@@ -155,11 +155,11 @@ export function AuthModal() {
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-ink/50 p-4" onMouseDown={(e) => e.target === e.currentTarget && closeAuth()}>
-      <div ref={dialog} role="dialog" aria-modal="true" aria-label={tab === "login" ? "Login" : "Register"} className="relative my-auto w-full max-w-[482px] overflow-hidden rounded-[4px] bg-white shadow-2xl">
+      <div ref={dialog} role="dialog" aria-modal="true" aria-label={tab === "login" ? "Login" : "Register"} className="relative my-auto w-full max-w-[482px] overflow-hidden rounded-[4px] bg-card shadow-2xl">
         <div className="flex h-[180px] items-end justify-start bg-[#FFF5F2] pl-3 pt-6 sm:h-[253px] sm:pl-[11px] sm:pt-[33px]">
           <LoginArt />
         </div>
-        <button type="button" onClick={closeAuth} aria-label="Close" className="absolute right-[25px] top-[24px] grid h-[31px] w-[31px] place-items-center rounded-full border border-ink bg-white text-ink transition hover:bg-ink hover:text-white">
+        <button type="button" onClick={closeAuth} aria-label="Close" className="absolute right-[25px] top-[24px] grid h-[31px] w-[31px] place-items-center rounded-full border border-ink bg-card text-ink transition hover:bg-ink hover:text-white">
           <XMarkIcon className="h-4 w-4 stroke-2" />
         </button>
 

@@ -16,7 +16,7 @@ export function OrderStatusBadge({ status, className }: { status: string; classN
 /** Store-palette colour per order status, for the outlined "Tag" pill. */
 const STATUS_TAG_COLORS: Record<string, string> = {
   pending: "#EDA62A",
-  paid: "#3E8C8E",
+  paid: "#0A72E8",
   processing: "#F37021",
   shipped: "#525252",
   delivered: "#10A957",
@@ -37,7 +37,7 @@ export function Tag({ color, children, className }: { color: string; children: R
 }
 
 /** Tag colours from the store palette. */
-export const TAG = { green: "#10A957", gold: "#EDA62A", coral: "#E35946", orange: "#F37021", teal: "#3E8C8E", grey: "#7C7C7C" } as const;
+export const TAG = { green: "#10A957", gold: "#D99500", coral: "#E35946", orange: "#F37021", teal: "#0A72E8", pink: "#EC1A73", grey: "#7C7C7C" } as const;
 
 export function OrderStatusTag({ status, className }: { status: string; className?: string }) {
   return (
@@ -67,13 +67,22 @@ export function PageHeader({ title, description, action }: { title: string; desc
   );
 }
 
-export function StatCard({ label, value, hint, trend, icon }: { label: string; value: string; hint?: string; trend?: number; icon?: React.ReactNode }) {
+/** Icon tile colours from the KIDSPOT logo, so a row of stat cards reads at a glance. */
+export const TONES = {
+  blue: "bg-logo-blue/10 text-logo-blue",
+  orange: "bg-brand-light text-brand",
+  yellow: "bg-logo-star/20 text-[#B07800]",
+  pink: "bg-logo-pink/10 text-logo-pink",
+} as const;
+export type Tone = keyof typeof TONES;
+
+export function StatCard({ label, value, hint, trend, icon, tone = "orange" }: { label: string; value: string; hint?: string; trend?: number; icon?: React.ReactNode; tone?: Tone }) {
   const up = trend != null && trend >= 0;
   return (
     <div className="card p-5">
       <div className="flex items-start justify-between gap-3">
         <span className="text-sm font-semibold text-muted">{label}</span>
-        {icon && <span className="grid h-9 w-9 place-items-center rounded-md bg-brand-light text-brand">{icon}</span>}
+        {icon && <span className={cn("grid h-9 w-9 place-items-center rounded-md", TONES[tone])}>{icon}</span>}
       </div>
       <div className="mt-2 text-2xl font-bold tracking-tight">{value}</div>
       <div className="mt-1 flex items-center gap-2 text-xs text-muted">

@@ -55,7 +55,7 @@ export function InstagramStrip({ photos }: { photos: { src: string; href: string
         href={profile}
         target="_blank"
         rel="noreferrer"
-        className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-[4px] bg-white px-[14px] py-[3px] text-center shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition hover:-translate-y-[52%]"
+        className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-[4px] bg-card px-[14px] py-[3px] text-center shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition hover:-translate-y-[52%]"
       >
         <span className="text-base font-bold leading-7 text-brand">FOLLOW US ON INSTAGRAM</span>
         <span className="-mt-1 text-sm leading-[21px] text-muted">@{STORE_HANDLE}</span>

@@ -12,7 +12,7 @@ export function ToyBanners() {
     <section className="container-x mt-20 lg:mt-[91px]" aria-label="Toy collections">
       <div className="grid gap-[30px] lg:grid-cols-[877fr_527fr]">
         {/* Banner 3 */}
-        <article className="relative h-[230px] overflow-hidden border-[3px] border-[#9dd2d8] bg-white">
+        <article className="relative h-[230px] overflow-hidden border-[3px] border-[#9dd2d8] bg-card">
           <div
             aria-hidden="true"
             className="absolute inset-0"

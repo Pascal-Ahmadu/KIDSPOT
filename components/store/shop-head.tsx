@@ -63,7 +63,7 @@ export function ShopHead({
                   aria-current={t.active ? "true" : undefined}
                   className={cn(
                     "inline-flex h-[31px] items-center rounded-[36px] border px-[18px] text-sm leading-[21px] transition",
-                    t.active ? "border-brand bg-brand text-white" : "border-line bg-white text-ink hover:border-brand hover:text-brand",
+                    t.active ? "border-brand bg-brand text-white" : "border-line bg-card text-ink hover:border-brand hover:text-brand",
                   )}
                 >
                   {t.label}

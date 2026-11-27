@@ -63,7 +63,7 @@ function Photo({ image }: { image: NonNullable<Props["image"]> }) {
   return (
     <div className="relative hidden aspect-square w-[260px] shrink-0 sm:block lg:absolute lg:right-0 lg:top-1/2 lg:w-[320px] lg:-translate-y-1/2 xl:right-[40px] xl:w-[380px]">
       <div className="absolute inset-0 rounded-[46%_54%_42%_58%/55%_45%_55%_45%] bg-[#e7d0c6]" />
-      <div className="absolute inset-[22px] overflow-hidden rounded-full border-[6px] border-white bg-white shadow-soft">
+      <div className="absolute inset-[22px] overflow-hidden rounded-full border-[6px] border-white bg-card shadow-soft">
         <Image src={image.src} alt={image.alt} fill sizes="380px" className="object-cover" />
       </div>
     </div>

@@ -100,7 +100,7 @@ function Slide({ slide, active, priority, position }: { slide: HeroSlide; active
       </div>
 
       {/* Lilac panel */}
-      <div className="absolute inset-x-0 bottom-0 top-[min(62vw,520px)] bg-white lg:inset-y-0 lg:bg-hero-panel lg:left-auto lg:right-0 lg:top-0 lg:w-[40.45%]">
+      <div className="absolute inset-x-0 bottom-0 top-[min(62vw,520px)] bg-card lg:inset-y-0 lg:bg-hero-panel lg:left-auto lg:right-0 lg:top-0 lg:w-[40.45%]">
         <Leaf className="pointer-events-none absolute bottom-6 right-6 hidden h-16 w-16 lg:block lg:bottom-[67px] lg:right-[44px] lg:h-[98px] lg:w-[101px]" />
       </div>
 
@@ -143,8 +143,8 @@ function Slide({ slide, active, priority, position }: { slide: HeroSlide; active
 function OffsetButton({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link href={href} className="group relative inline-block pb-1.5 pl-1.5">
-      <span aria-hidden="true" className="absolute bottom-0 left-0 right-1.5 top-1.5 rounded-[4px] border-2 border-ink bg-white" />
-      <span className="relative block rounded-[4px] border-2 border-ink bg-white px-4 py-2.5 text-sm font-bold sm:px-[23px] sm:py-[13px] sm:text-lg leading-[23px] text-ink transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:bg-brand group-hover:text-white group-active:translate-x-0 group-active:translate-y-0">
+      <span aria-hidden="true" className="absolute bottom-0 left-0 right-1.5 top-1.5 rounded-[4px] border-2 border-ink bg-card" />
+      <span className="relative block rounded-[4px] border-2 border-ink bg-card px-4 py-2.5 text-sm font-bold sm:px-[23px] sm:py-[13px] sm:text-lg leading-[23px] text-ink transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:bg-brand group-hover:text-white group-active:translate-x-0 group-active:translate-y-0">
         {children}
       </span>
     </Link>

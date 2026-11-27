@@ -358,13 +358,13 @@ export default async function InventoryPage({
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Units on hand"
+          tone="blue" label="Units on hand"
           value={summary.totalUnits.toLocaleString("en-NG")}
           hint={`${summary.totalProducts} products`}
           icon={<ArchiveBoxIcon className="h-5 w-5" />}
         />
         <StatCard
-          label="Stock value (cost)"
+          tone="orange" label="Stock value (cost)"
           value={money(summary.stockValue)}
           hint={
             summary.withoutCost
@@ -374,13 +374,13 @@ export default async function InventoryPage({
           icon={<BanknotesIcon className="h-5 w-5" />}
         />
         <StatCard
-          label="Low stock"
+          tone="yellow" label="Low stock"
           value={String(summary.lowStock ?? 0)}
           hint="At or below alert level"
           icon={<ExclamationTriangleIcon className="h-5 w-5" />}
         />
         <StatCard
-          label="Out of stock"
+          tone="pink" label="Out of stock"
           value={String(summary.outOfStock ?? 0)}
           hint="Hidden from “add to cart”"
           icon={<ArchiveBoxXMarkIcon className="h-5 w-5" />}

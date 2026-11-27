@@ -54,7 +54,7 @@ export function ShopMegaMenu({
       onMouseLeave={onLeave}
       className={`absolute inset-x-0 top-full z-40 hidden px-4 transition lg:block ${open ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0"}`}
     >
-      <div id="shop-menu" className="relative mx-auto flex h-[464px] max-w-[1433px] overflow-hidden bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+      <div id="shop-menu" className="relative mx-auto flex h-[464px] max-w-[1433px] overflow-hidden bg-card shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
         <div className="flex flex-1 gap-0 px-[26px] pt-[37px]">
           <Column title="Categories" links={data.categories.map((c) => ({ label: c.name, href: `/products?category=${c.slug}` }))} onNavigate={onNavigate} />
           <Column title="Shop For" links={SHOP_FOR} onNavigate={onNavigate} />
@@ -64,7 +64,7 @@ export function ShopMegaMenu({
         </div>
         <Link href="/products" onClick={onNavigate} className="group relative hidden w-[572px] shrink-0 xl:block" aria-label="Shop all products">
           <Image src="/hero/winter-knits.webp" alt="" fill sizes="572px" className="object-cover transition duration-500 group-hover:scale-105" />
-          <span className="absolute bottom-8 left-8 rounded-[4px] bg-white px-5 py-3 text-sm font-bold uppercase text-ink shadow-sm transition group-hover:bg-brand group-hover:text-white">Shop all</span>
+          <span className="absolute bottom-8 left-8 rounded-[4px] bg-card px-5 py-3 text-sm font-bold uppercase text-ink shadow-sm transition group-hover:bg-brand group-hover:text-white">Shop all</span>
         </Link>
       </div>
     </div>

@@ -32,7 +32,7 @@ export default function WishlistPage() {
                 </Link>
                 <button
                   onClick={() => remove(item.productId)}
-                  className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white text-ink shadow-sm hover:text-rose-600"
+                  className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-card text-ink shadow-sm hover:text-rose-600"
                   aria-label={`Remove ${item.name}`}
                 >
                   <TrashIcon className="h-5 w-5" />

@@ -100,7 +100,7 @@ function CartRow({ item, items }: { item: CartItem; items: CartItem[] }) {
       </td>
       <td className="hidden text-base leading-7 text-ink md:table-cell md:py-6">{money(item.price)}</td>
       <td className="md:py-6">
-        <div className="flex h-11 w-[120px] items-center justify-between rounded-[4px] border border-line bg-white px-3 md:h-12 md:w-[136px] md:px-4">
+        <div className="flex h-11 w-[120px] items-center justify-between rounded-[4px] border border-line bg-card px-3 md:h-12 md:w-[136px] md:px-4">
           <button type="button" aria-label={`Decrease quantity of ${item.name}`} onClick={() => setQuantity(item.key, item.quantity - 1)} className="text-ink hover:text-brand">
             <MinusIcon className="h-5 w-5 stroke-2" />
           </button>

@@ -13,10 +13,10 @@ function badgeFor(product: ProductWithCategory, trending: boolean, trendingStyle
   if (product.stock <= 0) return { label: "Sold out", className: "bg-ink" };
   if (product.compareAtPrice && product.compareAtPrice > product.price) {
     const pct = Math.round((1 - product.price / product.compareAtPrice) * 100);
-    return { label: `-${pct}%`, className: "bg-brand-2" };
+    return { label: `-${pct}%`, className: "bg-logo-pink" };
   }
-  if (trending) return trendingStyle === "hot" ? { label: "Hot", className: "bg-brand-2" } : { label: "Trending", className: "bg-brand" };
-  if (product.isFeatured) return { label: "Hot", className: "bg-accent" };
+  if (trending) return trendingStyle === "hot" ? { label: "Hot", className: "bg-brand" } : { label: "Trending", className: "bg-logo-blue" };
+  if (product.isFeatured) return { label: "Hot", className: "bg-brand" };
   return null;
 }
 
@@ -45,8 +45,8 @@ export function ProductCard({ product, index = 0, trending = false, trendingStyl
   const href = `/products/${product.slug}`;
 
   return (
-    <article className={cn("group flex flex-col gap-4 animate-fade-up", boxed && "border border-line bg-white p-5", className)} style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}>
-      <div className={cn("relative overflow-hidden", boxed ? "aspect-[296/274] bg-white" : "aspect-[336/397] bg-surface")}>
+    <article className={cn("group flex flex-col gap-4 animate-fade-up", boxed && "border border-line bg-card p-5", className)} style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}>
+      <div className={cn("relative overflow-hidden", boxed ? "aspect-[296/274] bg-card" : "aspect-[336/397] bg-surface")}>
         <Link href={href} className="absolute inset-0 block" tabIndex={-1} aria-hidden="true">
           <ProductImage
             src={product.imageUrl}
@@ -67,7 +67,7 @@ export function ProductCard({ product, index = 0, trending = false, trendingStyl
         <div className={cn("absolute right-[21px] top-[21px] flex flex-col gap-3", reveal)}>
           <Link
             href={href}
-            className="grid h-[42px] w-[42px] place-items-center rounded-full bg-white text-ink shadow-sm transition hover:text-brand"
+            className="grid h-[42px] w-[42px] place-items-center rounded-full bg-card text-ink shadow-sm transition hover:text-brand"
             aria-label={`View ${product.name}`}
           >
             <EyeIcon className="h-[18px] w-[18px] stroke-[1.75]" />

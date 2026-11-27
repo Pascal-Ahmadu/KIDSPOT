@@ -12,7 +12,7 @@ export function NewsletterBanner({ offerLabel, source }: { offerLabel: string | 
   const [state, action, pending] = useActionState<NewsletterState, FormData>(subscribeAction, {});
 
   return (
-    <section aria-labelledby="newsletter-title" className="relative overflow-hidden rounded-[4px] border-2 border-dashed border-brand-2 bg-[#FFF6EA] px-6 py-8 sm:px-[46px] lg:py-[38px]">
+    <section aria-labelledby="newsletter-title" className="relative overflow-hidden rounded-[4px] border-2 border-dashed border-logo-pink/60 bg-card px-6 py-8 sm:px-[46px] lg:py-[38px]">
       {/* Decorative shapes */}
       <svg className="pointer-events-none absolute -left-8 -top-10 h-40 w-40 text-brand/40" viewBox="0 0 100 100" aria-hidden="true">
         <path fill="currentColor" d="M0 0h70c-6 8-2 16-10 22s-18 0-24 8 2 18-6 24-20-2-30 6z" />
@@ -24,7 +24,7 @@ export function NewsletterBanner({ offerLabel, source }: { offerLabel: string | 
 
       <div className="relative grid items-end gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)] lg:gap-12">
         <div className="lg:pl-0">
-          <h2 id="newsletter-title" className="max-w-[420px] font-script text-2xl font-bold leading-8 text-brand-2 sm:text-[28px] sm:leading-9">
+          <h2 id="newsletter-title" className="max-w-[420px] font-script text-2xl font-bold leading-8 text-logo-pink sm:text-[28px] sm:leading-9">
             {offerLabel ? (
               <>
                 Sign up and get <span className="text-accent">{offerLabel}</span> your first purchase
@@ -40,7 +40,7 @@ export function NewsletterBanner({ offerLabel, source }: { offerLabel: string | 
         </div>
 
         {state.ok ? (
-          <div className="rounded-[4px] bg-white px-4 py-3 text-sm text-ink shadow-sm" role="status">
+          <div className="rounded-[4px] bg-card px-4 py-3 text-sm text-ink shadow-sm" role="status">
             <p className="font-bold">{state.already ? "You're already on our list. Thank you!" : "You're subscribed. Thank you!"}</p>
             {state.code && (
               <p className="mt-1">
@@ -54,7 +54,7 @@ export function NewsletterBanner({ offerLabel, source }: { offerLabel: string | 
             <div className="absolute -left-[9999px]" aria-hidden="true">
               <label>Website <input name="website" tabIndex={-1} autoComplete="off" /></label>
             </div>
-            <div className="flex h-10 overflow-hidden rounded-[4px] bg-white">
+            <div className="flex h-10 overflow-hidden rounded-[4px] bg-card">
               <label htmlFor="nl-email" className="sr-only">Email address</label>
               <input id="nl-email" name="email" type="email" required autoComplete="email" placeholder="Enter your email" className="min-w-0 flex-1 bg-transparent px-3 text-xs text-ink outline-none placeholder:text-muted" />
               <button type="submit" disabled={pending} className="shrink-0 bg-brand px-6 text-xs font-bold text-white transition hover:bg-brand-dark disabled:opacity-60">

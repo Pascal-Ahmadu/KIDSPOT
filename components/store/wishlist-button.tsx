@@ -28,7 +28,7 @@ export function WishlistButton({ product, className }: { product: ProductWithCat
           color: product.category?.color ?? "#FFD166",
         })
       }
-      className={cn("grid h-9 w-9 place-items-center rounded-full bg-white text-ink shadow-sm transition hover:text-brand", className)}
+      className={cn("grid h-9 w-9 place-items-center rounded-full bg-card text-ink shadow-sm transition hover:text-brand", className)}
     >
       {saved ? <HeartSolid className="h-5 w-5 text-brand" /> : <HeartIcon className="h-5 w-5" />}
     </button>

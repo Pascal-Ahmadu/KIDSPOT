@@ -36,16 +36,16 @@ export default async function NotFound() {
         </div>
 
         {/* Illustration card */}
-        <div className="relative mx-auto grid aspect-square w-full max-w-[446px] place-items-center overflow-hidden rounded-[4px] bg-white" aria-hidden="true">
+        <div className="relative mx-auto grid aspect-square w-full max-w-[446px] place-items-center overflow-hidden rounded-[4px] bg-card" aria-hidden="true">
           <Heart className="absolute left-[14%] top-[54%] h-6 w-6 text-[#F5D5D9]" />
           <Heart className="absolute right-[12%] top-[34%] h-5 w-5 text-[#F5D5D9]" />
           <Heart className="absolute right-[24%] top-[60%] h-4 w-4 text-[#F5D5D9]" />
-          <div className="absolute left-1/2 top-[11%] -translate-x-[30%] rotate-[8deg] rounded-[6px] border-2 border-ink/80 bg-white px-6 py-2 text-center shadow-sm">
+          <div className="absolute left-1/2 top-[11%] -translate-x-[30%] rotate-[8deg] rounded-[6px] border-2 border-ink/80 bg-card px-6 py-2 text-center shadow-sm">
             <span className="absolute -top-3 left-1/2 h-3 w-px -translate-x-1/2 bg-ink/60" />
             <span className="block text-5xl font-bold leading-none tracking-wide text-ink">404</span>
             <span className="block text-lg font-semibold tracking-[0.2em] text-ink">ERROR</span>
           </div>
-          <div className="absolute left-[16%] top-[30%] grid h-14 w-14 place-items-center rounded-full border-2 border-ink/70 bg-white">
+          <div className="absolute left-[16%] top-[30%] grid h-14 w-14 place-items-center rounded-full border-2 border-ink/70 bg-card">
             <Heart className="h-6 w-6 text-accent" />
           </div>
           <div className="absolute bottom-[8%] left-1/2 w-[58%] -translate-x-1/2">

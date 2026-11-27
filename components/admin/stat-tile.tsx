@@ -1,5 +1,6 @@
 import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { TONES, type Tone } from "@/components/admin/ui";
 import { cn } from "@/lib/format";
 
 /**
@@ -15,6 +16,7 @@ export function StatTile({
   tag,
   href,
   linkLabel,
+  tone = "orange",
 }: {
   label: string;
   value: string;
@@ -25,14 +27,15 @@ export function StatTile({
   tag?: string;
   href: string;
   linkLabel: string;
+  tone?: Tone;
 }) {
   const up = (trend ?? 0) >= 0;
   const TrendIcon = up ? ArrowTrendingUpIcon : ArrowTrendingDownIcon;
   return (
     <section className="flex min-h-[150px] flex-1 flex-col gap-1 rounded-[8px] border border-line bg-card px-5 pb-4 pt-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="grid h-10 w-10 place-items-center rounded-[8px] p-1" aria-hidden="true">
-          <Icon className="h-8 w-8 text-ink" />
+        <span className={cn("grid h-10 w-10 place-items-center rounded-[8px]", TONES[tone])} aria-hidden="true">
+          <Icon className="h-6 w-6" />
         </span>
         <Link href={href} aria-label={linkLabel} title={linkLabel} className="grid h-8 w-8 place-items-center rounded-[4px] text-ink transition hover:bg-surface hover:text-brand">
           <EllipsisHorizontalIcon className="h-6 w-6" />

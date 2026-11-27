@@ -129,7 +129,7 @@ export function ProductPurchase({ product }: { product: ProductWithCategory }) {
       <div className="flex flex-col gap-[13px]">
         <span className="text-sm leading-[21px] text-ink">Quantity</span>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex h-12 w-[136px] items-center justify-between rounded-[4px] border border-line bg-white px-4">
+          <div className="flex h-12 w-[136px] items-center justify-between rounded-[4px] border border-line bg-card px-4">
             <button type="button" aria-label="Decrease quantity" disabled={qty <= 1 || out} onClick={() => setQty((q) => Math.max(1, q - 1))} className="disabled:opacity-30">
               <MinusIcon className="h-5 w-5 stroke-2" />
             </button>
@@ -149,7 +149,7 @@ export function ProductPurchase({ product }: { product: ProductWithCategory }) {
                 setTimeout(() => setAdded(false), 1500);
               }
             }}
-            className="inline-flex h-12 min-w-[132px] items-center justify-center gap-1.5 rounded-[4px] border border-brand bg-white px-[26px] text-xs font-bold uppercase leading-[18px] text-brand transition hover:bg-brand-light disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-12 min-w-[132px] items-center justify-center gap-1.5 rounded-[4px] border border-brand bg-card px-[26px] text-xs font-bold uppercase leading-[18px] text-brand transition hover:bg-brand-light disabled:cursor-not-allowed disabled:opacity-50"
           >
             {out ? "Sold out" : added ? (<><CheckIcon className="h-4 w-4 stroke-[3]" /> Added</>) : "Add to cart"}
           </button>

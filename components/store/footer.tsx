@@ -115,7 +115,7 @@ function PaymentBadge({
 }) {
   return (
     <span
-      className="grid h-8 w-[46px] place-items-center rounded-[5px] border border-[#D9D9D9] bg-white"
+      className="grid h-8 w-[46px] place-items-center rounded-[5px] border border-[#D9D9D9] bg-card"
       aria-label={label}
       title={label}
     >
@@ -134,7 +134,7 @@ export async function StoreFooter({ categories }: { categories: Category[] }) {
     { label: "Youtube", icon: YoutubeIcon, href: STORE.socials.youtube },
   ].filter((s) => s.href);
   return (
-    <footer className="mt-20 bg-white">
+    <footer className="mt-20 bg-card">
       <div className="container-x">
         <div className="grid gap-10 pb-12 sm:grid-cols-2 lg:grid-cols-[261px_repeat(4,minmax(0,1fr))] lg:gap-16">
           {/* Contact */}

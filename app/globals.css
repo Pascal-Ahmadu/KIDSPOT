@@ -11,20 +11,20 @@
   --sky-light: #5bd6fd;
   --n900: #1c1d1d;
   --n500: #646667;
-  --n200: #dbe2e6;
-  --n100: #eff2f3;
-  --n0: #ffffff;
-  --topbar: #eae1d1; /* Background/Background-1 */
+  --n200: #f2dfcf; /* warm borders (was #dbe2e6) */
+  --n100: #fdeee2; /* soft orange surfaces (was grey #eff2f3) */
+  --n0: #fffaf5; /* warm almost-white cards and panels */
+  --topbar: #0a72e8; /* Background/Background-1: logo blue announcement bar */
   --accent: #e35946; /* Brand/Brand-3 */
   --hero-panel: #fde3cf; /* Background/Background-4 (peach; was lilac #e3cee3) */
-  --deal-tag: #bfddde; /* Background/Background-3 */
-  --brand-2: #eda62a; /* Brand/Brand-2 */
+  --deal-tag: #dcebff; /* Background/Background-3: light logo blue */
+  --brand-2: #f5a400; /* Brand/Brand-2: logo gold, readable on light backgrounds */
   /* Logo colours (from the Kid's Spot logo) */
-  --logo-blue: #0050ac;
-  --logo-pink: #f63e80;
-  --logo-star: #feb307;
+  --logo-blue: #0a72e8; /* KIDSPOT blue: information, trending, links */
+  --logo-pink: #ec1a73; /* splash pink: sales, discounts, offers */
+  --logo-star: #ffc21a; /* star yellow: highlights, low stock */
 
-  --background: var(--n0);
+  --background: #fff3e8; /* light orange page background */
   --foreground: var(--n900);
 }
 
@@ -92,12 +92,12 @@ body {
 
 /* Admin surface */
 .admin-surface {
-  --background: #fff6ee; /* Light orange page background */
+  --background: #fdebdc; /* Orange page background (sidebar and top bar too) */
   /* Warm admin palette: cards/tables a lighter orange than the page, table headers and grey
      buttons soft orange, borders warm instead of blue-grey. */
-  --n0: #fffbf7;
-  --n100: #fdeee2;
-  --n200: #f2dfcf;
+  --n0: #fff6ee;
+  --n100: #fbdcc2;
+  --n200: #efcfb4;
   background: var(--background);
 }
 

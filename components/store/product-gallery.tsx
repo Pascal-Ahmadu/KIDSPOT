@@ -65,7 +65,7 @@ export function ProductGallery({ images, alt, emoji, color, badge }: Props) {
               type="button"
               onClick={() => go(index + 1)}
               aria-label="Next photo"
-              className="absolute bottom-[44px] left-1/2 hidden h-[42px] w-[42px] -translate-x-1/2 place-items-center rounded-full bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] sm:grid"
+              className="absolute bottom-[44px] left-1/2 hidden h-[42px] w-[42px] -translate-x-1/2 place-items-center rounded-full bg-card shadow-[0_4px_20px_rgba(0,0,0,0.05)] sm:grid"
             >
               <ChevronDownIcon className="h-[22px] w-[22px] stroke-[1.8]" />
             </button>
@@ -91,7 +91,7 @@ export function ProductGallery({ images, alt, emoji, color, badge }: Props) {
             type="button"
             onClick={() => setZoom(true)}
             aria-label="Zoom photo"
-            className="absolute right-[14px] top-[28px] grid h-[42px] w-[42px] place-items-center rounded-full bg-white text-ink shadow-sm transition hover:text-brand"
+            className="absolute right-[14px] top-[28px] grid h-[42px] w-[42px] place-items-center rounded-full bg-card text-ink shadow-sm transition hover:text-brand"
           >
             <ArrowsPointingOutIcon className="h-[18px] w-[18px] stroke-2" />
           </button>
@@ -102,7 +102,7 @@ export function ProductGallery({ images, alt, emoji, color, badge }: Props) {
               type="button"
               onClick={() => go(index - 1)}
               aria-label="Previous photo"
-              className="pointer-events-auto grid h-[42px] w-[42px] place-items-center rounded-full bg-white text-ink shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition hover:bg-surface"
+              className="pointer-events-auto grid h-[42px] w-[42px] place-items-center rounded-full bg-card text-ink shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition hover:bg-surface"
             >
               <ChevronLeftIcon className="h-[22px] w-[22px] stroke-[1.8]" />
             </button>
@@ -123,15 +123,15 @@ export function ProductGallery({ images, alt, emoji, color, badge }: Props) {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/90 p-4" role="dialog" aria-modal="true" aria-label={`${alt} photos`} onClick={() => setZoom(false)}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={current} alt={alt} className="max-h-full max-w-full object-contain" onClick={(e) => e.stopPropagation()} />
-          <button type="button" onClick={() => setZoom(false)} aria-label="Close" className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25">
+          <button type="button" onClick={() => setZoom(false)} aria-label="Close" className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-card/15 text-white hover:bg-card/25">
             <XMarkIcon className="h-6 w-6" />
           </button>
           {count > 1 && (
             <>
-              <button type="button" aria-label="Previous photo" onClick={(e) => (e.stopPropagation(), go(index - 1))} className="absolute left-4 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25">
+              <button type="button" aria-label="Previous photo" onClick={(e) => (e.stopPropagation(), go(index - 1))} className="absolute left-4 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-card/15 text-white hover:bg-card/25">
                 <ChevronLeftIcon className="h-6 w-6" />
               </button>
-              <button type="button" aria-label="Next photo" onClick={(e) => (e.stopPropagation(), go(index + 1))} className="absolute right-4 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25">
+              <button type="button" aria-label="Next photo" onClick={(e) => (e.stopPropagation(), go(index + 1))} className="absolute right-4 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-card/15 text-white hover:bg-card/25">
                 <ChevronRightIcon className="h-6 w-6" />
               </button>
               <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/80">

@@ -89,9 +89,9 @@ export function NewsletterPopup({ offerLabel, delayMs = 6000, snoozeDays = 14 }:
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-ink/50 p-4" onMouseDown={(e) => e.target === e.currentTarget && close()}>
-      <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby="nl-popup-title" className="relative w-full max-w-[946px] rounded-[4px] bg-white p-3 shadow-2xl sm:p-[21px]">
+      <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby="nl-popup-title" className="relative w-full max-w-[946px] rounded-[4px] bg-card p-3 shadow-2xl sm:p-[21px]">
         <div className="relative overflow-hidden border-2 border-dashed border-accent px-5 pb-10 pt-12 text-center sm:px-10 sm:pb-[64px] sm:pt-[40px]">
-          <button type="button" onClick={close} aria-label="Close" className="absolute right-3 top-3 grid h-[31px] w-[31px] place-items-center rounded-full border border-ink bg-white text-ink transition hover:bg-ink hover:text-white sm:right-[17px] sm:top-[14px]">
+          <button type="button" onClick={close} aria-label="Close" className="absolute right-3 top-3 grid h-[31px] w-[31px] place-items-center rounded-full border border-ink bg-card text-ink transition hover:bg-ink hover:text-white sm:right-[17px] sm:top-[14px]">
             <XMarkIcon className="h-4 w-4 stroke-2" />
           </button>
 
@@ -125,7 +125,7 @@ export function NewsletterPopup({ offerLabel, delayMs = 6000, snoozeDays = 14 }:
                 <p className="font-bold">{state.already ? "You're already subscribed. Thank you!" : "You're subscribed. Thank you!"}</p>
                 {state.code && (
                   <p className="mt-1 text-sm">
-                    Use code <b className="rounded bg-white px-1.5 py-0.5 font-mono text-brand">{state.code}</b> at checkout for {state.label}.
+                    Use code <b className="rounded bg-card px-1.5 py-0.5 font-mono text-brand">{state.code}</b> at checkout for {state.label}.
                   </p>
                 )}
                 <button type="button" onClick={close} className="mt-3 text-sm font-semibold text-brand underline">Continue shopping</button>

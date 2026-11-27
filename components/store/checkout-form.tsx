@@ -85,7 +85,7 @@ export function CheckoutForm() {
       <label className="mb-2 block text-sm leading-[21px] text-ink" htmlFor={key}>{label}</label>
       <input
         id={key}
-        className={cn("h-12 w-full rounded-[4px] border bg-white px-[19px] text-base text-ink outline-none placeholder:text-muted focus:border-brand", fieldErrors[key] ? "border-accent" : "border-line")}
+        className={cn("h-12 w-full rounded-[4px] border bg-card px-[19px] text-base text-ink outline-none placeholder:text-muted focus:border-brand", fieldErrors[key] ? "border-accent" : "border-line")}
         value={values[key] as string}
         onChange={(e) => update(key, e.target.value as never)}
         {...props}

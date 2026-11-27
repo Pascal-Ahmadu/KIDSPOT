@@ -33,7 +33,7 @@ export function CartDrawer() {
     <div className="fixed inset-0 z-50 flex justify-end">
       <button aria-label="Close cart" className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" onClick={close} />
       <aside className="relative flex h-full w-full max-w-md flex-col bg-surface shadow-2xl animate-slide-in">
-        <header className="flex items-center justify-between border-b border-line bg-white px-5 py-4">
+        <header className="flex items-center justify-between border-b border-line bg-card px-5 py-4">
           <h2 className="font-heading text-2xl font-semibold">
             Your cart <span className="text-muted text-base font-sans font-bold">({count})</span>
           </h2>
@@ -70,7 +70,7 @@ export function CartDrawer() {
                     </div>
                     {optionsLabel(item.options, colorLabel) && <div className="text-xs text-muted">{optionsLabel(item.options, colorLabel)}</div>}
                     <div className="mt-auto flex items-center justify-between pt-2">
-                      <div className="flex items-center rounded-full border border-line bg-white">
+                      <div className="flex items-center rounded-full border border-line bg-card">
                         <button className="grid h-8 w-8 place-items-center rounded-full hover:bg-surface" onClick={() => setQuantity(item.key, item.quantity - 1)} aria-label="Decrease">
                           <Minus size={14} />
                         </button>
@@ -90,7 +90,7 @@ export function CartDrawer() {
                 </li>
               ))}
             </ul>
-            <footer className="space-y-3 border-t border-line bg-white p-5">
+            <footer className="space-y-3 border-t border-line bg-card p-5">
               <div className="flex justify-between text-sm font-semibold text-muted">
                 <span>Subtotal</span>
                 <span className="text-ink">{money(subtotal)}</span>
