@@ -8,14 +8,14 @@ type SideBanner = { title: string; text: string; href: string; bg: string; image
 const BANNERS: SideBanner[] = [
   {
     title: "Kids Dress",
-    text: "Get an extra 30% discount",
+    text: "Pretty prints for every day",
     href: "/products?category=clothing&audience=girls",
     bg: "#f9d3df",
     image: { src: "/dresses/lilac-floral-print-dress.webp", alt: "Lilac floral print girls' dress" },
   },
   {
-    title: "Girls Apparels",
-    text: "Get an extra 50% discount",
+    title: "Party Wear",
+    text: "Dress-up looks for celebrations",
     href: "/products?category=clothing&audience=girls",
     bg: "#cde6f7",
     image: { src: "/dresses/cream-flower-hem-dress.webp", alt: "Cream girls' dress with a flower hem" },

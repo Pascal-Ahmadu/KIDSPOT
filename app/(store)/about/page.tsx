@@ -39,7 +39,7 @@ const PROMISES = [
 const GALLERY = {
   left: { src: "/store/shop-floor.webp", alt: "Kids' outfits on mannequins and party dresses on the rails in our shop" },
   middle: [
-    { src: "/store/shop-floor-wide.webp", alt: "The shop floor: clothes, shoes, toys and baby essentials" },
+    { src: "/store/toys-and-school-bags.webp", alt: "Toys, games and school bags on the shelves in our shop" },
     { src: "/store/baby-sets-wall.webp", alt: "Newborn gift sets hanging on the wall" },
   ],
   right: { src: "/store/nursery-corner.webp", alt: "Baby swings, strollers and bedding in the nursery corner" },
@@ -88,7 +88,7 @@ export default async function AboutPage() {
         </header>
 
         <div className="relative mx-auto mt-8 aspect-[16/9] w-full max-w-[1190px] overflow-hidden rounded-[4px] bg-surface sm:aspect-[1190/570] lg:mt-[68px]">
-          <Image src="/store/shop-floor-wide.webp" alt={`Inside the ${STORE_NAME} shop`} fill priority sizes="(min-width: 1240px) 1190px, 100vw" className="object-cover object-[center_60%]" />
+          <Image src="/store/toys-and-school-bags.webp" alt={`Toys and school bags on the shelves at ${STORE_NAME}`} fill priority sizes="(min-width: 1240px) 1190px, 100vw" className="object-cover object-center" />
         </div>
       </div>
 

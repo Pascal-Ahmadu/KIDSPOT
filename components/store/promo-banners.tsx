@@ -20,8 +20,8 @@ export type PromoCard = {
 
 const DEFAULT_CARDS: PromoCard[] = [
   {
-    title: "Girls Apparels",
-    text: "Get an extra 50% discount on premium quality baby clothes. Shop now!",
+    title: "Girls' Dresses",
+    text: "Party and everyday dresses in every colour. Shop now!",
     href: "/products?category=clothing&audience=girls",
     tint: "#FFF8EE",
     image: { src: "/dresses/yellow-pleated-dress.webp", alt: "Yellow pleated girls' dress with white shoulder bows" },
@@ -29,9 +29,9 @@ const DEFAULT_CARDS: PromoCard[] = [
     star: "gold",
   },
   {
-    title: "Grand launching",
-    text: "New Brand Fashion on this Summer. Sale off up to 35%",
-    href: "/products?category=clothing&audience=boys",
+    title: "New in store",
+    text: "Fresh styles just arrived at Guzape Mall, Abuja",
+    href: "/products",
     tint: "#EAEEFF",
     image: { src: "/dresses/red-rose-button-dress.webp", alt: "Red girls' dress with rose buttons" },
     blend: true,

@@ -44,7 +44,7 @@ export default async function ContactPage() {
                 referrerPolicy="no-referrer-when-downgrade"
               />
             ) : (
-              <Image src="/store/shop-floor-wide.webp" alt={`Inside the ${STORE.name} shop`} fill priority sizes="(min-width: 1240px) 1190px, 100vw" className="object-cover object-[center_60%]" />
+              <Image src="/store/toys-and-school-bags.webp" alt={`Toys and school bags on the shelves at ${STORE.name}`} fill priority sizes="(min-width: 1240px) 1190px, 100vw" className="object-cover object-center" />
             )}
           </div>
 

@@ -20,14 +20,13 @@ export const DEFAULT_BANNERS: Banner[] = [
   {
     id: "winter",
     enabled: true,
-    eyebrow: "Winter",
-    title: "Sale Off",
+    eyebrow: "Welcome to",
+    title: "Kidspot",
     subtitle: "Anything for your baby",
     image: "/dresses/banner-sale-v2.webp",
     imageAlt: "Three girls' dresses: a yellow pleated dress, a red dress with rose buttons and a gold and white striped party dress",
-    dealPercent: 70,
-    primary: { label: "View All Deals", href: "/products?sale=1" },
-    secondary: { label: "Learn More", href: "/support#delivery" },
+    primary: { label: "Shop Now", href: "/products" },
+    secondary: { label: "Visit Us", href: "/contact" },
   },
   {
     id: "knit-sets",
@@ -48,7 +47,7 @@ export const DEFAULT_BANNERS: Banner[] = [
     subtitle: "Dress-up looks for every celebration",
     image: "/dresses/banner-occasion-v2.webp",
     imageAlt: "A lilac ruffle top with floral trousers, a lilac floral print dress and a red dress with a navy panel",
-    primary: { label: "Shop Accessories", href: "/products?category=accessories" },
+    primary: { label: "Shop Clothing", href: "/products?category=clothing" },
     secondary: { label: "See All", href: "/products" },
   },
 ];
