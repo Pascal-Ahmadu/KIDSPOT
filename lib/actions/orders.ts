@@ -1,7 +1,7 @@
 "use server";
 
 import { logActivity } from "@/lib/audit";
-import { phoneKey } from "@/lib/phone";
+import { PHONE_ERROR, phoneKey } from "@/lib/phone";
 import { money } from "@/lib/format";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -18,7 +18,7 @@ import type { ActionState } from "./products";
 const checkoutSchema = z.object({
   name: z.string().trim().min(2, "Please enter your full name"),
   email: z.string().trim().email("Please enter a valid email"),
-  phone: z.string().trim().min(7, "Please enter a valid phone number"),
+  phone: z.string().trim().refine((v) => !!phoneKey(v), PHONE_ERROR),
   address: z.string().trim().min(5, "Please enter your delivery address"),
   city: z.string().trim().min(2, "Please enter your city"),
   notes: z.string().trim().optional(),

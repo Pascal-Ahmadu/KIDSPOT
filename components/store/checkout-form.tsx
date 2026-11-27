@@ -101,7 +101,7 @@ export function CheckoutForm() {
           <h2 className="text-xl font-bold leading-7 text-ink">Contact Details</h2>
           <div className="grid gap-5 sm:grid-cols-2">
             {field("name", "Full name *", { placeholder: "Adaeze Okafor", autoComplete: "name" })}
-            {field("phone", "Phone number *", { placeholder: "0803 123 4567", autoComplete: "tel", type: "tel" })}
+            {field("phone", "Phone number *", { placeholder: "0803 123 4567", autoComplete: "tel", type: "tel", inputMode: "tel", maxLength: 20 })}
             <div className="sm:col-span-2">{field("email", "Email address *", { placeholder: "you@example.com", autoComplete: "email", type: "email" })}</div>
           </div>
         </section>

@@ -30,6 +30,7 @@ import type { PublicPayments } from "@/lib/payments-config";
 import { ProductImage } from "@/components/store/product-image";
 import { cn, formatDateTime, money } from "@/lib/format";
 import { CASH_ACCEPTED } from "@/lib/till-options";
+import { PHONE_ERROR, phoneInput, phoneKey } from "@/lib/phone";
 
 export type TillProduct = {
   id: number;
@@ -101,11 +102,12 @@ export function Till({
   const lookupTimer = useRef<number | undefined>(undefined);
 
   /** Look the customer up a moment after the phone number is complete. */
-  function onPhone(phone: string) {
+  function onPhone(typed: string) {
+    const phone = phoneInput(typed);
     setCustomer((c) => ({ ...c, phone }));
     setApplyReward(false);
     window.clearTimeout(lookupTimer.current);
-    if (phone.replace(/\D/g, "").length < 10) {
+    if (!phoneKey(phone)) {
       setLookup(null);
       return;
     }
@@ -116,6 +118,11 @@ export function Till({
         setCustomer((c) => (c.name ? c : { ...c, name: res.customer.name }));
     }, 350);
   }
+  // The phone is optional, but a typed one must be a real number before the sale can be charged.
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const phoneBad = !!customer.phone.trim() && !phoneKey(customer.phone);
+  const showPhoneError =
+    phoneBad && (phoneTouched || customer.phone.replace(/\D/g, "").length >= 11);
   const [error, setError] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<
     | (Extract<SaleResult, { ok: true }> & {
@@ -363,6 +370,7 @@ export function Till({
     setDiscountOpen(false);
     setTendered("");
     setCustomer({ name: "", phone: "" });
+    setPhoneTouched(false);
     setLookup(null);
     setApplyReward(false);
     setManual(false);
@@ -886,10 +894,13 @@ export function Till({
                       <input
                         value={customer.phone}
                         onChange={(e) => onPhone(e.target.value)}
-                        placeholder="Customer phone"
+                        onBlur={() => setPhoneTouched(true)}
+                        placeholder="Customer phone (0803 123 4567)"
                         aria-label="Customer phone"
+                        aria-invalid={showPhoneError}
                         inputMode="tel"
-                        className="input"
+                        maxLength={20}
+                        className={cn("input", showPhoneError && "border-accent")}
                       />
                       <input
                         value={customer.name}
@@ -953,9 +964,7 @@ export function Till({
                         </p>
                       )
                     )}
-                    {lookup && !lookup.found && !lookup.valid && (
-                      <p className="field-error">Check the phone number.</p>
-                    )}
+                    {showPhoneError && <p className="field-error">{PHONE_ERROR}</p>}
                   </div>
                 )}
 
@@ -1100,6 +1109,7 @@ export function Till({
                   disabled={
                     pending ||
                     lines.length === 0 ||
+                    phoneBad ||
                     (payment === "cash" && !!tendered && change < 0)
                   }
                   className="btn btn-primary h-12 text-base"

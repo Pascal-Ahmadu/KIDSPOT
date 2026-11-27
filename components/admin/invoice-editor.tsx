@@ -81,7 +81,7 @@ export function InvoiceEditor({ products, draft }: { products: Product[]; draft?
             <label className="label" htmlFor="customerPhone">
               Phone <span className="font-normal text-[#7C7C7C]">(for WhatsApp)</span>
             </label>
-            <input id="customerPhone" className="input" inputMode="tel" value={c.customerPhone} onChange={set("customerPhone")} placeholder="0803 123 4567" />
+            <input id="customerPhone" className="input" inputMode="tel" maxLength={20} value={c.customerPhone} onChange={set("customerPhone")} placeholder="0803 123 4567" />
           </div>
           <div>
             <label className="label" htmlFor="customerEmail">

@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 import { eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { PHONE_ERROR, phoneKey } from "@/lib/phone";
 import { logActivity } from "@/lib/audit";
 import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -20,7 +21,7 @@ const naira = z
 const schema = z.object({
   id: z.number().int().positive().optional(),
   customerName: z.string().trim().min(2, "Who is the invoice for?").max(80),
-  customerPhone: z.string().trim().max(20).optional(),
+  customerPhone: z.string().trim().max(20).refine((v) => !v || !!phoneKey(v), PHONE_ERROR).optional(),
   customerEmail: z.union([z.literal(""), z.string().trim().email("Enter a valid email")]).optional(),
   customerAddress: z.string().trim().max(200).optional(),
   dueDate: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).optional(),

@@ -8,7 +8,7 @@ import { customerSummary, findCustomerIdByPhone, findOrCreateByPhone } from "@/l
 import { db } from "@/lib/db";
 import { orderItems, orders, products, stockMovements } from "@/lib/db/schema";
 import { money, toMinor } from "@/lib/format";
-import { phoneKey } from "@/lib/phone";
+import { PHONE_ERROR, phoneKey } from "@/lib/phone";
 import { getSettings } from "@/lib/settings";
 
 /**
@@ -121,7 +121,7 @@ export async function prepareSale(
     if (!summary?.rewardReady) return { ok: false, error: "This customer hasn't earned a loyalty reward yet." };
     reward = Math.min(controls.loyaltyReward, subtotal - discount);
   }
-  if (d.customerPhone && !phoneKey(d.customerPhone)) return { ok: false, error: "Check the customer's phone number." };
+  if (d.customerPhone && !phoneKey(d.customerPhone)) return { ok: false, error: PHONE_ERROR };
   const total = subtotal - discount - reward;
   let change = 0;
   if (d.payment === "cash" && d.cashTendered) {
