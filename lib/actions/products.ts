@@ -11,7 +11,8 @@ import { barcodeList, barcodeOwner, parseBarcodes } from "@/lib/barcodes";
 import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { products, stockMovements } from "@/lib/db/schema";
-import { COLORS, SIZES, encodeList } from "@/lib/attributes";
+import { COLORS, SIZES, colorLabel, encodeList } from "@/lib/attributes";
+import { parseColorImages } from "@/lib/color-images";
 import { slugify, toMinor } from "@/lib/format";
 
 export type ActionState = { error?: string; success?: string; fieldErrors?: Record<string, string> };
@@ -295,6 +296,42 @@ export async function setProductPhotoAction(productId: number, formData: FormDat
   }
   await db.update(products).set({ imageUrl: url, updatedAt: Math.floor(Date.now() / 1000) }).where(eq(products.id, productId)).run();
   await logActivity(me, "product_photo", `${me.name} added a photo to ${product.name}`, { entity: "product", entityId: productId });
+  revalidateStore();
+  revalidatePath("/admin", "layout");
+  return {};
+}
+
+/** Photo for one colour of a product (Products → edit → Photos by colour). */
+export async function setColorPhotoAction(productId: number, color: string, formData: FormData): Promise<{ error?: string }> {
+  const me = await getAdminSession();
+  if (!me) return { error: "Only a manager or the owner can change photos." };
+  if (!COLORS.some((c) => c.key === color)) return { error: "Unknown colour." };
+  const file = formData.get("photo");
+  if (!(file instanceof File) || file.size === 0) return { error: "Choose a photo." };
+  const product = await db.select({ id: products.id, name: products.name, colorImages: products.colorImages }).from(products).where(eq(products.id, productId)).get();
+  if (!product) return { error: "Product not found." };
+  let url: string;
+  try {
+    url = await saveImageFile(file);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't save the photo." };
+  }
+  const images = { ...parseColorImages(product.colorImages), [color]: url };
+  await db.update(products).set({ colorImages: JSON.stringify(images), updatedAt: Math.floor(Date.now() / 1000) }).where(eq(products.id, productId)).run();
+  await logActivity(me, "product_photo", `${me.name} added a ${colorLabel(color).toLowerCase()} photo to ${product.name}`, { entity: "product", entityId: productId });
+  revalidateStore();
+  revalidatePath("/admin", "layout");
+  return {};
+}
+
+export async function removeColorPhotoAction(productId: number, color: string): Promise<{ error?: string }> {
+  const me = await getAdminSession();
+  if (!me) return { error: "Only a manager or the owner can change photos." };
+  const product = await db.select({ name: products.name, colorImages: products.colorImages }).from(products).where(eq(products.id, productId)).get();
+  if (!product) return { error: "Product not found." };
+  const images = parseColorImages(product.colorImages);
+  delete images[color];
+  await db.update(products).set({ colorImages: Object.keys(images).length ? JSON.stringify(images) : null, updatedAt: Math.floor(Date.now() / 1000) }).where(eq(products.id, productId)).run();
   revalidateStore();
   revalidatePath("/admin", "layout");
   return {};

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { mainPhoto } from "@/lib/color-images";
 import { money } from "@/lib/format";
 import type { ProductWithCategory } from "@/lib/queries";
 import { ProductImage } from "./product-image";
@@ -32,7 +33,7 @@ function RecommendedCard({ product }: { product: ProductWithCategory }) {
     <article className="group flex flex-col gap-2">
       <Link href={href} className="block aspect-square w-full overflow-hidden bg-line" tabIndex={-1} aria-hidden="true">
         <ProductImage
-          src={product.imageUrl}
+          src={mainPhoto(product)}
           alt=""
           emoji={product.category?.emoji}
           color={product.category?.color}

@@ -36,6 +36,8 @@ export const products = sqliteTable("products", {
   stockNote: text("stock_note"),
   /** Barcodes printed on the packaging, comma-wrapped (",5012345678900,"), for scanning at the till. */
   barcodes: text("barcodes"),
+  /** A photo per colour as JSON, e.g. {"pink":"/media/uploads/…","blue":"…"}: the shop switches photo with the colour. */
+  colorImages: text("color_images"),
   /** Longer "Details & Care" text shown in the product page tab. */
   details: text("details"),
   /** Extra photos as a JSON array of URLs (imageUrl stays the main photo). */

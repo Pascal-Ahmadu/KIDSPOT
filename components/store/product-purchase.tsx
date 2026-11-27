@@ -9,6 +9,7 @@ import { COLORS, decodeList } from "@/lib/attributes";
 import { cn } from "@/lib/format";
 import type { ProductWithCategory } from "@/lib/queries";
 import { unitsInCart, useCart, useHydrated } from "@/lib/store/cart";
+import { useColorChoice } from "@/lib/store/color-choice";
 import { useWishlist } from "@/lib/store/wishlist";
 
 /** ProductSingle colours / size / quantity / ADD TO CART / BUY NOW / Add to Wish list. */
@@ -25,7 +26,12 @@ export function ProductPurchase({ product }: { product: ProductWithCategory }) {
     .filter((c): c is (typeof COLORS)[number] => !!c);
   const sizes = decodeList(product.sizes);
 
-  const [color, setColor] = useState<string | undefined>(colors[0]?.key);
+  const choice = useColorChoice();
+  const [ownColor, setOwnColor] = useState<string | undefined>(colors[0]?.key);
+  const color = choice ? choice.color : ownColor;
+  const setColor = choice ? choice.setColor : setOwnColor;
+  const colorPhotos = choice?.images ?? {};
+  const hasColorPhotos = Object.keys(colorPhotos).length > 0;
   const [size, setSize] = useState<string | undefined>(sizes.length === 1 ? sizes[0] : undefined);
   const [qty, setQty] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +58,7 @@ export function ProductPurchase({ product }: { product: ProductWithCategory }) {
         name: product.name,
         slug: product.slug,
         price: product.price,
-        imageUrl: product.imageUrl,
+        imageUrl: (color && colorPhotos[color]) || product.imageUrl,
         emoji: product.category?.emoji ?? "🧸",
         color: product.category?.color ?? "#FFD166",
         maxStock: product.stock,
@@ -70,6 +76,9 @@ export function ProductPurchase({ product }: { product: ProductWithCategory }) {
           <legend className="mb-1.5 text-sm leading-[21px] text-ink">
             Color: <b className="font-bold">{colors.find((c) => c.key === color)?.label}</b>
           </legend>
+          {hasColorPhotos && color && !colorPhotos[color] && (
+            <p className="-mt-1 mb-1 text-xs text-muted">No photo of this colour yet; the picture shows another colour.</p>
+          )}
           <div className="flex flex-wrap gap-3">
             {colors.map((c) => {
               const on = c.key === color;

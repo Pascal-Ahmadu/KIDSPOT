@@ -13,7 +13,9 @@ import { ReviewForm } from "@/components/store/review-form";
 import { ReviewList, ReviewSummaryPanel, Stars } from "@/components/store/reviews";
 import { RecommendedForYou } from "@/components/store/recommended-for-you";
 import { TrackRecentlyViewed } from "@/components/store/recently-viewed";
-import { colorLabel, decodeList } from "@/lib/attributes";
+import { COLORS, colorLabel, decodeList } from "@/lib/attributes";
+import { parseColorImages } from "@/lib/color-images";
+import { ColorChoiceProvider } from "@/lib/store/color-choice";
 import { STORE_HANDLE, money } from "@/lib/format";
 import { getCustomersAlsoViewed, getProductBySlug, getProductOrderCount, getProductReviews, getReviewSummary } from "@/lib/queries";
 
@@ -94,6 +96,7 @@ export default async function ProductPage({ params }: Params) {
           <span className="line-clamp-1 text-muted" aria-current="page">{product.name}</span>
         </nav>
 
+        <ColorChoiceProvider initial={decodeList(product.colors).find((k) => COLORS.some((c) => c.key === k))} images={parseColorImages(product.colorImages)}>
         <div className="grid gap-10 lg:grid-cols-[minmax(0,570px)_minmax(0,610px)] lg:gap-10 xl:grid-cols-[minmax(0,570px)_minmax(0,610px)_171px] xl:justify-between xl:gap-6">
           <ProductGallery
             images={images}
@@ -163,6 +166,7 @@ export default async function ProductPage({ params }: Params) {
             <RecommendedForYou products={recommended} />
           </div>
         </div>
+        </ColorChoiceProvider>
         <div id="reviews" className="mt-14 grid scroll-mt-24 gap-10 lg:mt-20 lg:grid-cols-[minmax(0,1004px)_336px] lg:justify-between lg:gap-[100px]">
           <ProductTabs
             tabs={[

@@ -3,6 +3,7 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useId, useState } from "react";
+import { mainPhoto } from "@/lib/color-images";
 import { cn, money } from "@/lib/format";
 import type { ProductWithCategory } from "@/lib/queries";
 import { ProductImage } from "./product-image";
@@ -67,7 +68,7 @@ function CompactCard({ product }: { product: ProductWithCategory }) {
     <article className="group flex items-start gap-[26px] animate-fade-up">
       <Link href={href} className="relative block h-[120px] w-[120px] shrink-0 overflow-hidden border border-line bg-card sm:h-[158px] sm:w-[158px]" tabIndex={-1} aria-hidden="true">
         <ProductImage
-          src={product.imageUrl}
+          src={mainPhoto(product)}
           alt=""
           emoji={product.category?.emoji}
           color={product.category?.color}

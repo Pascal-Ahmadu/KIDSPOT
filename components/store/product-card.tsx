@@ -1,5 +1,6 @@
 import { EyeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { mainPhoto } from "@/lib/color-images";
 import { cn, money } from "@/lib/format";
 import type { ProductWithCategory } from "@/lib/queries";
 import { AddToCart } from "./add-to-cart";
@@ -49,7 +50,7 @@ export function ProductCard({ product, index = 0, trending = false, trendingStyl
       <div className={cn("relative overflow-hidden", boxed ? "aspect-[296/274] bg-card" : "aspect-[336/397] bg-surface")}>
         <Link href={href} className="absolute inset-0 block" tabIndex={-1} aria-hidden="true">
           <ProductImage
-            src={product.imageUrl}
+            src={mainPhoto(product)}
             alt=""
             emoji={product.category?.emoji}
             color={product.category?.color}

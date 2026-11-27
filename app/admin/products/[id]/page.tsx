@@ -4,7 +4,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TableCard, TableEmpty, tdClass as td, thClass as th, trClass } from "@/components/admin/data-table";
 import { DeleteProductButton } from "@/components/admin/product-actions";
+import { ColorPhotos } from "@/components/admin/color-photos";
 import { ProductForm } from "@/components/admin/product-form";
+import { COLORS, decodeList } from "@/lib/attributes";
+import { parseColorImages } from "@/lib/color-images";
 import { PageHeader } from "@/components/admin/ui";
 import { cn, formatDateTime } from "@/lib/format";
 import { getCategories, getProductById, getStockMovements } from "@/lib/queries";
@@ -34,6 +37,14 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         }
       />
       <ProductForm categories={categories} product={product} />
+      <ColorPhotos
+        productId={product.id}
+        colors={decodeList(product.colors)
+          .map((k) => COLORS.find((c) => c.key === k))
+          .filter((c): c is (typeof COLORS)[number] => !!c)
+          .map((c) => ({ key: c.key, label: c.label, hex: c.hex }))}
+        images={parseColorImages(product.colorImages)}
+      />
 
       <div className="mt-8">
         <TableCard

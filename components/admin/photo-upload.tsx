@@ -8,7 +8,7 @@ import { setProductPhotoAction } from "@/lib/actions/products";
 import { cn } from "@/lib/format";
 
 /** Shrinks a photo in the browser (max 1600px, JPEG) so phone pictures upload fast and under the size limit. */
-async function shrink(file: File): Promise<File> {
+export async function shrink(file: File): Promise<File> {
   if (!file.type.startsWith("image/") || file.type === "image/gif") return file;
   const bitmap = await createImageBitmap(file).catch(() => null);
   if (!bitmap) return file;

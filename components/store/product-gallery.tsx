@@ -3,13 +3,26 @@
 import { ArrowsPointingOutIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/format";
+import { useColorChoice } from "@/lib/store/color-choice";
 import { ProductImage } from "./product-image";
 
 type Props = { images: string[]; alt: string; emoji?: string | null; color?: string | null; badge?: React.ReactNode };
 
 /** ProductSingle "img": thumbnail column + main photo with arrows and a zoom (full-screen) button. */
-export function ProductGallery({ images, alt, emoji, color, badge }: Props) {
+export function ProductGallery({ images: baseImages, alt, emoji, color, badge }: Props) {
+  const choice = useColorChoice();
+  const colorPhotos = choice?.images ?? {};
+  // The chosen colour's photo first, then the rest (main photo, gallery, other colours).
+  const chosenPhoto = choice?.color ? colorPhotos[choice.color] : undefined;
+  const images = Array.from(new Set([...(chosenPhoto ? [chosenPhoto] : []), ...baseImages, ...Object.values(colorPhotos)]));
+  const colorOf = (src: string) => Object.entries(colorPhotos).find(([, u]) => u === src)?.[0];
   const [index, setIndex] = useState(0);
+  // A new colour picked: show its photo (it's first in the list).
+  const [shownFor, setShownFor] = useState(choice?.color);
+  if (shownFor !== choice?.color) {
+    setShownFor(choice?.color);
+    setIndex(0);
+  }
   const [zoom, setZoom] = useState(false);
   const thumbs = useRef<HTMLDivElement>(null);
   const touchX = useRef<number | null>(null);
@@ -48,7 +61,12 @@ export function ProductGallery({ images, alt, emoji, color, badge }: Props) {
                 key={src}
                 type="button"
                 data-thumb={i}
-                onClick={() => setIndex(i)}
+                onClick={() => {
+                  const c = colorOf(src);
+                  // A colour's photo also picks that colour (so the cart gets the right one).
+                  if (c && choice && c !== choice.color) choice.setColor(c);
+                  else setIndex(i);
+                }}
                 aria-label={`Show photo ${i + 1}`}
                 aria-current={i === index}
                 className={cn(
