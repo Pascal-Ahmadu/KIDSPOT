@@ -235,7 +235,8 @@ export function AdminSidebar({
             <span className="ml-[22px] mr-2 w-px shrink-0 bg-line" aria-hidden="true" />
             <ul className="flex flex-1 flex-col gap-1">
               {g.items.map((c) => {
-                const active = isActive(c.href);
+                // The most specific match wins (Print labels, not also Products).
+                const active = isActive(c.href) && !g.items.some((o) => o.href.length > c.href.length && o.href.startsWith(c.href) && pathname.startsWith(o.href));
                 return (
                   <li key={c.href}>
                     <Link

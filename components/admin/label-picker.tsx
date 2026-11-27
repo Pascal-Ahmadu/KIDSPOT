@@ -1,8 +1,9 @@
 "use client";
 
-import { PrinterIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { MinusIcon, PlusIcon, PrinterIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useMemo, useState } from "react";
 import { FieldHint } from "@/components/admin/field";
+import { Select } from "@/components/ui/select";
 import { cn, money } from "@/lib/format";
 import { LABEL_FORMATS, encodeLabelItems, type LabelFormat } from "@/lib/labels";
 
@@ -43,25 +44,21 @@ export function LabelPicker({ products, categories }: { products: P[]; categorie
       <section className="grid content-start gap-4 rounded-[8px] border border-line bg-card p-5">
         <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search a product name, brand or SKU" aria-label="Find products to label" className="input" />
-          <select
-            className="input w-full sm:w-[240px]"
+          <Select
             value=""
+            placeholder="Add a whole category…"
             aria-label="Add a whole category"
-            onChange={(e) => {
-              const id = Number(e.target.value);
+            wrapperClassName="w-full sm:w-[240px]"
+            align="right"
+            options={categories.map((c) => ({ value: String(c.id), label: c.name }))}
+            onChange={(v) => {
+              const id = Number(v);
               addItems(
                 products.filter((p) => p.categoryId === id && p.stock > 0),
                 (p) => p.stock,
               );
             }}
-          >
-            <option value="">Add a whole category…</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          />
         </div>
         {matches.length > 0 && (
           <ul className="grid gap-1">
@@ -113,7 +110,21 @@ export function LabelPicker({ products, categories }: { products: P[]; categorie
                       </td>
                       <td className={cn("py-2 pr-3", p.price > 0 ? "text-[#525252]" : "text-[#BDBDBD]")}>{p.price > 0 ? money(p.price) : "No price"}</td>
                       <td className="py-2 pr-3">
-                        <input type="number" min={0} max={500} value={i.qty} onChange={(e) => setQty(i.id, Number(e.target.value))} className="input h-9 w-20" aria-label={`Stickers for ${p.name}`} />
+                        <div className="inline-flex h-9 items-center rounded-[8px] border border-line bg-card">
+                          <button type="button" onClick={() => setQty(i.id, i.qty - 1)} disabled={i.qty <= 0} className="grid h-9 w-9 place-items-center text-[#525252] hover:text-brand disabled:opacity-40" aria-label={`One fewer sticker for ${p.name}`}>
+                            <MinusIcon className="h-4 w-4" />
+                          </button>
+                          <input
+                            inputMode="numeric"
+                            value={i.qty}
+                            onChange={(e) => setQty(i.id, Number(e.target.value.replace(/\D/g, "")) || 0)}
+                            className="h-full w-12 border-x border-line bg-transparent text-center text-sm text-ink outline-none"
+                            aria-label={`Stickers for ${p.name}`}
+                          />
+                          <button type="button" onClick={() => setQty(i.id, i.qty + 1)} className="grid h-9 w-9 place-items-center text-[#525252] hover:text-brand" aria-label={`One more sticker for ${p.name}`}>
+                            <PlusIcon className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                       <td className="py-2 text-right">
                         <button type="button" onClick={() => setPicked((cur) => cur.filter((x) => x.id !== i.id))} className="text-[#7C7C7C] hover:text-accent" aria-label={`Remove ${p.name}`}>
@@ -134,7 +145,7 @@ export function LabelPicker({ products, categories }: { products: P[]; categorie
           <legend className="label">Label size</legend>
           {(Object.keys(LABEL_FORMATS) as LabelFormat[]).map((f) => (
             <label key={f} className={cn("flex cursor-pointer items-start gap-3 rounded-[8px] border px-3 py-2 text-sm", format === f ? "border-brand bg-brand-light" : "border-line")}>
-              <input type="radio" name="format" checked={format === f} onChange={() => setFormat(f)} className="mt-1 accent-brand" />
+              <input type="radio" name="format" checked={format === f} onChange={() => setFormat(f)} className="checkbox checkbox-round mt-0.5" />
               <span>
                 <span className="block font-medium text-ink">{LABEL_FORMATS[f].name}</span>
                 <span className="block text-xs text-[#7C7C7C]">{LABEL_FORMATS[f].hint}</span>
@@ -150,6 +161,11 @@ export function LabelPicker({ products, categories }: { products: P[]; categorie
           <PrinterIcon className="h-5 w-5" /> Print {total} sticker{total === 1 ? "" : "s"}
         </button>
         <FieldHint>Opens the labels in a new tab. Try one page on plain paper first to check they line up.</FieldHint>
+        {picked.length > 0 && (
+          <button type="button" onClick={() => setPicked([])} className="justify-self-start text-sm font-medium text-[#7C7C7C] hover:text-accent">
+            Clear list ({picked.length} product{picked.length === 1 ? "" : "s"})
+          </button>
+        )}
       </aside>
     </div>
   );
