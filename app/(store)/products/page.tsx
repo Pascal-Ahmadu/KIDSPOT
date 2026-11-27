@@ -93,7 +93,6 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         tags={[
           { label: "Best Sellers", href: shopHref(sp, { sort: sp.sort === "popular" ? undefined : "popular" }), active: sp.sort === "popular" },
           { label: "New In", href: shopHref(sp, { sort: sp.sort === "newest" ? undefined : "newest" }), active: sp.sort === "newest" },
-          { label: "On Sale", href: shopHref(sp, { sale: filter.onSale ? undefined : "1" }), active: !!filter.onSale },
           { label: "Girls", href: shopHref(sp, { audience: filter.audience === "girls" ? undefined : "girls" }), active: filter.audience === "girls" },
           { label: "Boys", href: shopHref(sp, { audience: filter.audience === "boys" ? undefined : "boys" }), active: filter.audience === "boys" },
           ...allCategories.map((c) => ({ label: c.name, href: toggleIn(sp, "category", c.slug), active: cats.includes(c.slug) })),

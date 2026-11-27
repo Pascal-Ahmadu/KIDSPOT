@@ -22,14 +22,13 @@ const BANNERS: SideBanner[] = [
   },
 ];
 
-/** Home_1/Section_7: Best Selling list, Flash Sale list, and two stacked promo banners. */
-export function DealsRow({ bestSelling, flashSale }: { bestSelling: ProductWithCategory[]; flashSale: ProductWithCategory[] }) {
+/** Home_1/Section_7: Best Selling list beside two promo banners. */
+export function DealsRow({ bestSelling }: { bestSelling: ProductWithCategory[] }) {
   return (
-    <section className="container-x mt-20 lg:mt-[91px]" aria-label="Best selling and flash sale">
-      <div className="grid gap-x-[30px] gap-y-14 md:grid-cols-2 xl:grid-cols-[459fr_459fr_454fr]">
+    <section className="container-x mt-20 lg:mt-[91px]" aria-label="Best selling">
+      <div className="grid gap-x-[30px] gap-y-14 md:grid-cols-2 xl:grid-cols-[459fr_913fr]">
         <CompactProductList title="Best Selling" products={bestSelling} />
-        <CompactProductList title="Flash Sale" products={flashSale} />
-        <div className="grid gap-[30px] md:col-span-2 md:grid-cols-2 xl:col-span-1 xl:grid-cols-1 xl:grid-rows-2">
+        <div className="grid gap-[30px] md:grid-rows-2 xl:grid-cols-2 xl:grid-rows-1">
           {BANNERS.map((b) => (
             <SideBannerCard key={b.title} banner={b} />
           ))}

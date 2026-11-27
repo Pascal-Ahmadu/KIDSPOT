@@ -88,7 +88,6 @@ export function ShopFilters({ sp, counts }: { sp: ShopParams; counts: Counts }) 
                 count={counts.audienceCounts[a] ?? 0}
               />
             ))}
-            <CheckRow href={shopHref(sp, { sale: sp.sale === "1" ? undefined : "1" })} checked={sp.sale === "1"} label="On sale" />
             <CheckRow href={shopHref(sp, { stock: sp.stock === "1" ? undefined : "1" })} checked={sp.stock === "1"} label="In stock only" />
           </ul>
         </Widget>

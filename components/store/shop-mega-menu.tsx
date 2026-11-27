@@ -13,7 +13,6 @@ const SHOP_FOR = [
   { label: "Boys", href: "/products?audience=boys" },
   { label: "New In", href: "/products?sort=newest" },
   { label: "Best Sellers", href: "/products?sort=popular" },
-  { label: "Special Sale", href: "/products?sale=1" },
   { label: "All products", href: "/products" },
 ];
 

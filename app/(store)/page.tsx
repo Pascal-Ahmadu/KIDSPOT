@@ -60,8 +60,8 @@ export default async function HomePage() {
       {/* Promo cards */}
       <PromoBanners />
 
-      {/* Best selling + flash sale + side banners */}
-      {bestSelling.length > 0 && <DealsRow bestSelling={bestSelling} flashSale={[]} />}
+      {/* Best selling + side banners */}
+      {bestSelling.length > 0 && <DealsRow bestSelling={bestSelling} />}
 
       {/* Section 4 — Featured products (ticked "Featured" in the product form) */}
       {featured.length > 0 && (
