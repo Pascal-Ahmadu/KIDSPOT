@@ -14,7 +14,7 @@ export function ShopHead({
   title,
   crumbs,
   tags,
-  image = "/hero/winter-knits.webp",
+  image = "/dresses/banner-new.webp",
 }: {
   title: string;
   crumbs: { label: string; href?: string }[];

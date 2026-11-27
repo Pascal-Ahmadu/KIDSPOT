@@ -21,7 +21,7 @@ export function SpecialSaleBanner({
   text = "Special promotions for our regular customers. Time is limited.",
   cta = { label: "Shop now", href: "/products?sale=1" },
   percent = 60,
-  image = { src: "/products/pink-knit-dress-set.webp", alt: "Pink knit dress set with bow hat and booties" },
+  image = { src: "/dresses/lime-flower-hem-dress.webp", alt: "Lime green girls' dress with a flower hem" },
 }: Props) {
   return (
     <section className="relative mt-20 overflow-hidden bg-[#fdf1ef] lg:mt-[91px] lg:h-[495px]" aria-label={title}>

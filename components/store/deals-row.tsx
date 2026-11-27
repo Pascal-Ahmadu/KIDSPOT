@@ -11,14 +11,14 @@ const BANNERS: SideBanner[] = [
     text: "Get an extra 30% discount",
     href: "/products?category=clothing&audience=girls",
     bg: "#f9d3df",
-    image: { src: "/products/pink-knit-dress-set.webp", alt: "Pink knit dress set" },
+    image: { src: "/dresses/lilac-floral-print-dress.webp", alt: "Lilac floral print girls' dress" },
   },
   {
     title: "Girls Apparels",
     text: "Get an extra 50% discount",
     href: "/products?category=clothing&audience=girls",
     bg: "#cde6f7",
-    image: { src: "/products/pink-gingham-bib-cardigan.webp", alt: "Cream cardigan with pink gingham bib" },
+    image: { src: "/dresses/cream-flower-hem-dress.webp", alt: "Cream girls' dress with a flower hem" },
   },
 ];
 
