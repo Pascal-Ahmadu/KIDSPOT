@@ -4,11 +4,13 @@ import { z } from "zod";
 import { decodeList } from "@/lib/attributes";
 import { logActivity } from "@/lib/audit";
 import { approveWithPin } from "@/lib/auth";
-import { customerSummary, findCustomerIdByPhone, findOrCreateByPhone } from "@/lib/customers";
+import { after } from "next/server";
+import { customerSummary, findCustomerIdByPhone, findOrCreateTillCustomer } from "@/lib/customers";
 import { db } from "@/lib/db";
 import { orderItems, orders, products, stockMovements } from "@/lib/db/schema";
 import { money, toMinor } from "@/lib/format";
 import { PHONE_ERROR, phoneKey } from "@/lib/phone";
+import { sendReceiptEmail } from "@/lib/follow-ups";
 import { getSettings } from "@/lib/settings";
 
 /**
@@ -34,6 +36,8 @@ export const saleSchema = z.object({
   cashTendered: z.string().max(12).optional(),
   customerName: z.string().trim().max(60).optional(),
   customerPhone: z.string().trim().max(20).optional(),
+  customerEmail: z.union([z.literal(""), z.string().trim().toLowerCase().email("Check the customer's email address.").max(120)]).optional(),
+  emailOptIn: z.boolean().optional(),
   applyReward: z.boolean().optional(),
 });
 
@@ -52,6 +56,8 @@ export type PreparedSale = {
   approver: { id: number; name: string } | null;
   customerName?: string;
   customerPhone?: string;
+  customerEmail?: string;
+  emailOptIn?: boolean;
 };
 
 const PAY_LABEL: Record<string, string> = { cash: "cash", transfer: "transfer", card: "card" };
@@ -148,6 +154,8 @@ export async function prepareSale(
       approver,
       customerName: d.customerName || undefined,
       customerPhone: d.customerPhone || undefined,
+      customerEmail: d.customerEmail || undefined,
+      emailOptIn: !!d.customerEmail && !!d.emailOptIn,
     },
   };
 }
@@ -164,7 +172,7 @@ export async function recordSale(sale: PreparedSale, confirmedBy?: { ref: string
   for (const i of sale.items) wanted.set(i.productId, (wanted.get(i.productId) ?? 0) + i.quantity);
 
   const orderId = await db.transaction(async (tx) => {
-      const customerId = sale.customerPhone ? await findOrCreateByPhone(tx, sale.customerPhone, sale.customerName) : null;
+      const customerId = await findOrCreateTillCustomer(tx, { phone: sale.customerPhone, email: sale.customerEmail, name: sale.customerName, emailOptIn: sale.emailOptIn });
       const order = await tx
               .insert(orders)
               .values({
@@ -229,5 +237,7 @@ export async function recordSale(sale: PreparedSale, confirmedBy?: { ref: string
     await logActivity(sale.staff, "loyalty", `Loyalty reward of ${money(sale.reward)} on ${number} for ${sale.customerName || sale.customerPhone}`, { entity: "order", entityId: orderId });
   }
   revalidatePath("/", "layout");
+  // Email the receipt after the response, so a slow email never holds up the till.
+  if (sale.customerEmail) after(() => sendReceiptEmail(orderId).catch((e) => console.error("Receipt email failed", e)));
   return { orderId, orderNumber: number };
 }

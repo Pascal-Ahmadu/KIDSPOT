@@ -252,7 +252,7 @@ body {
    Colour comes from --cb / --cb-hover / --cb-tint (store purple by default; see checkbox-green etc.). */
 @utility checkbox {
   --cb: var(--brand);
-  --cb-hover: #8a6dd0;
+  --cb-hover: var(--brand-dark);
   --cb-tint: var(--brand-light);
   appearance: none;
   flex: none;

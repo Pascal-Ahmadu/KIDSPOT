@@ -96,7 +96,7 @@ export function Till({
     value: "",
     pin: "",
   });
-  const [customer, setCustomer] = useState({ name: "", phone: "" });
+  const [customer, setCustomer] = useState({ name: "", phone: "", email: "", optIn: false });
   const [lookup, setLookup] = useState<LookupResult | null>(null);
   const [applyReward, setApplyReward] = useState(false);
   const lookupTimer = useRef<number | undefined>(undefined);
@@ -114,13 +114,20 @@ export function Till({
     lookupTimer.current = window.setTimeout(async () => {
       const res = await lookupCustomerAction(phone);
       setLookup(res);
-      if (res.found && res.customer.name !== "Walk-in customer")
-        setCustomer((c) => (c.name ? c : { ...c, name: res.customer.name }));
+      if (res.found)
+        setCustomer((c) => ({
+          ...c,
+          name: c.name || (res.customer.name !== "Walk-in customer" ? res.customer.name : ""),
+          email: c.email || res.customer.email || "",
+          optIn: c.optIn || res.customer.emailOptIn,
+        }));
     }, 350);
   }
   // The phone is optional, but a typed one must be a real number before the sale can be charged.
   const [phoneTouched, setPhoneTouched] = useState(false);
   const phoneBad = !!customer.phone.trim() && !phoneKey(customer.phone);
+  const emailBad = !!customer.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(customer.email.trim());
+  const [emailTouched, setEmailTouched] = useState(false);
   const showPhoneError =
     phoneBad && (phoneTouched || customer.phone.replace(/\D/g, "").length >= 11);
   const [error, setError] = useState<string | null>(null);
@@ -369,8 +376,9 @@ export function Till({
     setDiscount({ type: "amount", value: "", pin: "" });
     setDiscountOpen(false);
     setTendered("");
-    setCustomer({ name: "", phone: "" });
+    setCustomer({ name: "", phone: "", email: "", optIn: false });
     setPhoneTouched(false);
+    setEmailTouched(false);
     setLookup(null);
     setApplyReward(false);
     setManual(false);
@@ -398,6 +406,8 @@ export function Till({
         cashTendered: payment === "cash" ? tendered : undefined,
         customerName: customer.name || undefined,
         customerPhone: customer.phone || undefined,
+        customerEmail: customer.email.trim() || undefined,
+        emailOptIn: !!customer.email.trim() && customer.optIn,
         applyReward: rewardValue > 0,
       };
       if (via) {
@@ -912,6 +922,42 @@ export function Till({
                         className="input"
                       />
                     </div>
+                    <input
+                      value={customer.email}
+                      onChange={(e) =>
+                        setCustomer((c) => ({ ...c, email: e.target.value.replace(/\s/g, "") }))
+                      }
+                      onBlur={() => setEmailTouched(true)}
+                      placeholder="Customer email (for the receipt)"
+                      aria-label="Customer email"
+                      aria-invalid={emailBad && emailTouched}
+                      type="email"
+                      inputMode="email"
+                      autoComplete="off"
+                      maxLength={120}
+                      className={cn("input", emailBad && emailTouched && "border-accent")}
+                    />
+                    {emailBad && emailTouched && (
+                      <p className="field-error">Check the email address, like name@gmail.com.</p>
+                    )}
+                    {customer.email.trim() && !emailBad && (
+                      <label className="flex cursor-pointer items-start gap-2 text-sm text-ink">
+                        <input
+                          type="checkbox"
+                          checked={customer.optIn}
+                          onChange={(e) =>
+                            setCustomer((c) => ({ ...c, optIn: e.target.checked }))
+                          }
+                          className="checkbox mt-0.5"
+                        />
+                        <span>
+                          Customer is happy to get emails about new stock and offers
+                          <span className="block text-xs text-[#7C7C7C]">
+                            Ask first. The receipt is emailed either way.
+                          </span>
+                        </span>
+                      </label>
+                    )}
                     {lookup?.found ? (
                       <div className="grid gap-1.5 rounded-[8px] bg-brand-light/60 p-3 text-sm">
                         <p className="font-medium text-ink">
@@ -1110,6 +1156,7 @@ export function Till({
                     pending ||
                     lines.length === 0 ||
                     phoneBad ||
+                    emailBad ||
                     (payment === "cash" && !!tendered && change < 0)
                   }
                   className="btn btn-primary h-12 text-base"

@@ -24,6 +24,7 @@ export function CheckoutForm() {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [optIn, setOptIn] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", city: "", notes: "", paymentMethod: "cash_on_delivery" as "cash_on_delivery" | "bank_transfer" });
 
   const subtotal = cartSubtotal(items);
@@ -56,7 +57,7 @@ export function CheckoutForm() {
     e.preventDefault();
     setError(null);
     start(async () => {
-      const res = await placeOrderAction({ ...values, couponCode: coupon.check?.ok ? coupon.check.code : null, items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, options: i.options })) });
+      const res = await placeOrderAction({ ...values, emailOptIn: optIn, couponCode: coupon.check?.ok ? coupon.check.code : null, items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, options: i.options })) });
       if (res.ok) {
         clear();
         router.push(`/orders/${res.orderNumber}?placed=1`);
@@ -103,6 +104,10 @@ export function CheckoutForm() {
             {field("name", "Full name *", { placeholder: "Adaeze Okafor", autoComplete: "name" })}
             {field("phone", "Phone number *", { placeholder: "0803 123 4567", autoComplete: "tel", type: "tel", inputMode: "tel", maxLength: 20 })}
             <div className="sm:col-span-2">{field("email", "Email address *", { placeholder: "you@example.com", autoComplete: "email", type: "email" })}</div>
+            <label className="flex cursor-pointer items-start gap-3 text-sm leading-[21px] text-ink sm:col-span-2">
+              <input type="checkbox" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} className="mt-0.5 h-4 w-4 accent-brand" />
+              <span>Email me about new stock and offers. You can unsubscribe at any time.</span>
+            </label>
           </div>
         </section>
 

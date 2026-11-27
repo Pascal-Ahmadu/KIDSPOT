@@ -19,7 +19,9 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
   const where = sp.where === "store" || sp.where === "online" ? sp.where : undefined;
   // "In store" = has bought at the till; "Online" = has an online account email.
   const inStore = (c: (typeof everyone)[number]) => c.storeOrders > 0 || c.source === "store";
-  const scoped = where === "store" ? everyone.filter(inStore) : where === "online" ? everyone.filter((c) => !!c.email) : everyone;
+  // Online: placed an order on the website, or signed up there (walk-in customers can now have an email too).
+  const online = (c: (typeof everyone)[number]) => c.onlineOrders > 0 || c.source === "online";
+  const scoped = where === "store" ? everyone.filter(inStore) : where === "online" ? everyone.filter(online) : everyone;
   const term = sp.q?.trim().toLowerCase();
   const digits = term?.replace(/\D/g, "");
   const matches = term
@@ -76,6 +78,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
                   <th className={th}>Customer</th>
                   <th className={th}>Phone</th>
                   <th className={th}>Shops</th>
+                  <th className={th}>Emails</th>
                   <th className={cn(th, "text-right")}>Orders</th>
                   <th className={cn(th, "text-right")}>Total spent</th>
                   <th className={th}>Last order</th>
@@ -116,8 +119,19 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
                     <td className={td}>
                       <span className="flex flex-wrap gap-1">
                         {inStore(c) && <Tag color={TAG.orange}>In store</Tag>}
-                        {c.email && <Tag color={TAG.teal}>Online</Tag>}
+                        {online(c) && <Tag color={TAG.teal}>Online</Tag>}
                       </span>
+                    </td>
+                    <td className={td}>
+                      {!c.email ? (
+                        <span className="text-[#BDBDBD]">—</span>
+                      ) : c.unsubscribedAt ? (
+                        <Tag color={TAG.grey}>Unsubscribed</Tag>
+                      ) : c.emailOptIn ? (
+                        <Tag color={TAG.green}>Agreed</Tag>
+                      ) : (
+                        <span className="text-xs text-[#7C7C7C]">Receipts only</span>
+                      )}
                     </td>
                     <td className={cn(td, "text-right")}>
                       <Link href={`/admin/orders?customer=${c.id}`} className="font-medium text-brand hover:underline" title={`View ${c.name}'s orders`}>

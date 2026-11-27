@@ -69,8 +69,30 @@ export const customers = sqliteTable("customers", {
   phoneKey: text("phone_key"),
   /** Where we first met them: "online" or "store". */
   source: text("source").notNull().default("online"),
+  /** Agreed to follow-up and offer emails (1). Receipts don't need it. */
+  emailOptIn: integer("email_opt_in").notNull().default(0),
+  /** Clicked "unsubscribe" in an email: never sent offers again until they opt in afresh. */
+  unsubscribedAt: integer("unsubscribed_at"),
   createdAt: integer("created_at").notNull().default(now),
 });
+
+/** Every email sent (or tried) to a customer, so nobody gets the same follow-up twice. */
+export const emailLog = sqliteTable("email_log", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  customerId: integer("customer_id"),
+  orderId: integer("order_id"),
+  /** receipt | thank_you | come_back | loyalty | test */
+  kind: text("kind").notNull(),
+  to: text("to_address").notNull(),
+  subject: text("subject").notNull(),
+  /** sent | failed */
+  status: text("status").notNull(),
+  error: text("error"),
+  providerId: text("provider_id"),
+  createdAt: integer("created_at").notNull().default(now),
+});
+
+export type EmailLogEntry = typeof emailLog.$inferSelect;
 
 export const orders = sqliteTable("orders", {
   id: integer("id").primaryKey({ autoIncrement: true }),

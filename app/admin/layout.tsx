@@ -7,6 +7,7 @@ import { SIDEBAR_COOKIE } from "@/lib/admin-prefs";
 import { getStaffSession } from "@/lib/auth";
 import { after } from "next/server";
 import { runBackupIfDue } from "@/lib/backup";
+import { runFollowUpsIfDue } from "@/lib/follow-ups";
 import { and, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { expenses, orders } from "@/lib/db/schema";
@@ -28,6 +29,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Daily safety copy of the database (cheap check; runs at most once a day).
   // After the page is sent, so a backup never slows an admin page down.
   after(runBackupIfDue);
+  // Follow-up emails (thank-you, come back, loyalty): at most once an hour.
+  after(runFollowUpsIfDue);
 
   const [statusCounts, inventory, unread, cookieStore] = await Promise.all([getOrderStatusCounts(), getInventorySummary(), getUnreadMessageCount(), cookies()]);
   const pending = (statusCounts.pending ?? 0) + (statusCounts.paid ?? 0) + (statusCounts.processing ?? 0);

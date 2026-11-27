@@ -99,6 +99,7 @@ const GROUPS: Group[] = [
       { href: "/admin/settings/store", label: "Store details" },
       { href: "/admin/settings/delivery", label: "Delivery" },
       { href: "/admin/settings/newsletter", label: "Newsletter" },
+      { href: "/admin/settings/emails", label: "Emails" },
       { href: "/admin/settings/banners", label: "Banners" },
       { href: "/admin/settings/categories", label: "Categories" },
       { href: "/admin/settings/payments", label: "Payments" },

@@ -10,7 +10,7 @@ import { FieldError, FieldHint, InputAffix } from "@/components/admin/field";
 type Action = (prev: ActionState, data: FormData) => Promise<ActionState>;
 
 /** useActionState + submit through a transition (so fields aren't cleared when the server returns an error). */
-function useSettingsForm(action: Action) {
+export function useSettingsForm(action: Action) {
   const [state, run, pending] = useActionState<ActionState, FormData>(action, {});
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ function useSettingsForm(action: Action) {
   return { state, run, pending, onSubmit, errs, bad, err };
 }
 
-function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+export function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-[8px] border border-line bg-card">
       <div className="border-b border-line px-5 py-4">
@@ -35,7 +35,7 @@ function Section({ title, description, children }: { title: string; description?
   );
 }
 
-function SaveBar({ state, pending }: { state: ActionState; pending: boolean }) {
+export function SaveBar({ state, pending }: { state: ActionState; pending: boolean }) {
   const hasFieldErrors = Object.keys(state.fieldErrors ?? {}).length > 0;
   return (
     <div className="flex flex-wrap items-center justify-end gap-3">
@@ -56,7 +56,7 @@ function SaveBar({ state, pending }: { state: ActionState; pending: boolean }) {
   );
 }
 
-const Optional = () => <span className="font-normal text-[#7C7C7C]">(optional)</span>;
+export const Optional = () => <span className="font-normal text-[#7C7C7C]">(optional)</span>;
 
 /* ------------------------------------------------------------------ */
 

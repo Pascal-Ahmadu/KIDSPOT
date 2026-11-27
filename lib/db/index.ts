@@ -359,6 +359,19 @@ const DDL = `
       updated_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
     CREATE INDEX IF NOT EXISTS idx_payment_requests_status ON payment_requests(status);
+    CREATE TABLE IF NOT EXISTS email_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_id INTEGER,
+      order_id INTEGER,
+      kind TEXT NOT NULL,
+      to_address TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      status TEXT NOT NULL,
+      error TEXT,
+      provider_id TEXT,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+    CREATE INDEX IF NOT EXISTS idx_email_log_customer ON email_log(customer_id, kind);
     CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
     CREATE INDEX IF NOT EXISTS idx_movements_product ON stock_movements(product_id);
     CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
@@ -396,4 +409,6 @@ async function migrate() {
   await add("customers", "phone_key", "TEXT");
   await add("customers", "source", "TEXT NOT NULL DEFAULT 'online'");
   await client.execute("CREATE INDEX IF NOT EXISTS idx_customers_phone_key ON customers(phone_key)");
+  await add("customers", "email_opt_in", "INTEGER NOT NULL DEFAULT 0");
+  await add("customers", "unsubscribed_at", "INTEGER");
 }

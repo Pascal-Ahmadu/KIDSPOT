@@ -1,6 +1,8 @@
 "use server";
 
 import { logActivity } from "@/lib/audit";
+import { after as afterResponse } from "next/server";
+import { sendReceiptEmail } from "@/lib/follow-ups";
 import { PHONE_ERROR, phoneKey } from "@/lib/phone";
 import { money } from "@/lib/format";
 import { and, eq, inArray, isNull } from "drizzle-orm";
@@ -22,6 +24,7 @@ const checkoutSchema = z.object({
   address: z.string().trim().min(5, "Please enter your delivery address"),
   city: z.string().trim().min(2, "Please enter your city"),
   notes: z.string().trim().optional(),
+  emailOptIn: z.boolean().optional(),
   paymentMethod: z.enum(["cash_on_delivery", "bank_transfer"]).default("cash_on_delivery"),
   couponCode: z.string().trim().max(24).optional().nullable(),
   items: z
@@ -105,10 +108,12 @@ export async function placeOrderAction(input: CheckoutInput): Promise<CheckoutRe
           let customer = await tx.select().from(customers).where(eq(customers.email, email)).get();
           // Someone who shopped in store with this phone (no email yet) becomes the same customer.
           if (!customer && key) customer = await tx.select().from(customers).where(and(eq(customers.phoneKey, key), isNull(customers.email))).get();
+          // Ticking "email me" records consent; leaving it unticked keeps an earlier choice.
+          const consent = data.emailOptIn ? { emailOptIn: 1, unsubscribedAt: null } : {};
           if (!customer) {
-            customer = await tx.insert(customers).values({ name: data.name, email, phone: data.phone, phoneKey: key, source: "online" }).returning().get();
+            customer = await tx.insert(customers).values({ name: data.name, email, phone: data.phone, phoneKey: key, source: "online", ...consent }).returning().get();
           } else {
-            await tx.update(customers).set({ name: data.name, email, phone: data.phone, phoneKey: key }).where(eq(customers.id, customer.id)).run();
+            await tx.update(customers).set({ name: data.name, email, phone: data.phone, phoneKey: key, ...consent }).where(eq(customers.id, customer.id)).run();
           }
 
           const orderNumber = makeOrderNumber();
@@ -168,6 +173,11 @@ export async function placeOrderAction(input: CheckoutInput): Promise<CheckoutRe
         });
 
     revalidatePath("/", "layout");
+    // Order email after the response, so the shopper isn't kept waiting.
+    afterResponse(async () => {
+      const placed = await db.select({ id: orders.id }).from(orders).where(eq(orders.orderNumber, orderNumber)).get();
+      if (placed) await sendReceiptEmail(placed.id).catch((e) => console.error("Order email failed", e));
+    });
     return { ok: true, orderNumber };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Could not place your order. Please try again." };
