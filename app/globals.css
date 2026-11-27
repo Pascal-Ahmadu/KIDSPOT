@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 :root {
+  /* Motion speeds: 1 press/hover · 2 menus, fades · 3 pop-ups, drawers · 4 pages, reveals. */
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 520ms;
+  --stagger: 55ms;
   /* Kid's Spot design tokens (from Figma) */
   --brand: #f37021; /* Brand/Brand-1 (orange; was purple #9f86d9) */
   --brand-dark: #d95c12;
@@ -59,16 +65,60 @@
 
   --shadow-soft: 0 6px 24px -10px rgb(28 29 29 / 0.14);
 
-  --animate-fade-up: fade-up 0.4s ease-out both;
-  --animate-slide-in: slide-in 0.25s ease-out;
+  /* ---------------------------------------------------------------- */
+  /* Motion system: one set of speeds and curves for the shop and admin. */
+  /* Entrances use fill-mode "backwards" so no transform is left behind   */
+  /* (a leftover transform would break position: fixed pop-ups inside).   */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* things arriving: fast start, soft landing */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* things moving across the screen */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* small pops: badges, ticks, presses */
 
-  @keyframes slide-in {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+  --animate-fade-in: fade-in var(--dur-2) var(--ease-out) backwards;
+  --animate-fade-up: fade-up var(--dur-4) var(--ease-out) backwards;
+  --animate-page-in: page-in var(--dur-4) var(--ease-out) backwards;
+  --animate-scale-in: scale-in var(--dur-3) var(--ease-out) backwards;
+  --animate-pop-in: pop-in var(--dur-2) var(--ease-out) backwards;
+  --animate-slide-in: slide-in var(--dur-3) var(--ease-out) backwards;
+  --animate-slide-in-left: slide-in-left var(--dur-3) var(--ease-out) backwards;
+  --animate-slide-up: slide-up var(--dur-3) var(--ease-out) backwards;
+  --animate-slide-down: slide-down var(--dur-3) var(--ease-out) backwards;
+  --animate-backdrop-in: fade-in var(--dur-3) var(--ease-out) backwards;
+  --animate-bump: bump var(--dur-3) var(--ease-spring);
+  --animate-shimmer: shimmer 1.4s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
   }
   @keyframes fade-up {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(var(--rise, 14px)); }
+  }
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(8px); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  }
+  @keyframes slide-in {
+    from { transform: translateX(100%); }
+  }
+  @keyframes slide-in-left {
+    from { transform: translateX(-100%); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(24px); }
+  }
+  @keyframes slide-down {
+    from { opacity: 0; transform: translateY(-10px); }
+  }
+  @keyframes bump {
+    40% { transform: scale(1.28); }
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
   }
 }
 
@@ -351,10 +401,16 @@ body {
   font-size: 0.925rem;
   line-height: 1;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s, border-color 0.15s, opacity 0.15s, transform 0.1s;
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out),
+    opacity var(--dur-2),
+    transform var(--dur-1) var(--ease-spring);
   white-space: nowrap;
-  &:active {
-    transform: translateY(1px);
+  &:active:not(:disabled) {
+    transform: scale(0.97);
   }
   &:disabled {
     opacity: 0.55;
@@ -434,5 +490,89 @@ body {
   .invoice-doc {
     padding: 0 !important;
     max-width: none !important;
+  }
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Motion utilities                                                    */
+/* ------------------------------------------------------------------ */
+
+/* Children appear one after another: put .stagger on the parent (first 12 children). */
+@utility stagger {
+  & > * {
+    animation: fade-up var(--dur-4) var(--ease-out) backwards;
+  }
+  & > *:nth-child(2) { animation-delay: calc(var(--stagger) * 1); }
+  & > *:nth-child(3) { animation-delay: calc(var(--stagger) * 2); }
+  & > *:nth-child(4) { animation-delay: calc(var(--stagger) * 3); }
+  & > *:nth-child(5) { animation-delay: calc(var(--stagger) * 4); }
+  & > *:nth-child(6) { animation-delay: calc(var(--stagger) * 5); }
+  & > *:nth-child(7) { animation-delay: calc(var(--stagger) * 6); }
+  & > *:nth-child(8) { animation-delay: calc(var(--stagger) * 7); }
+  & > *:nth-child(9) { animation-delay: calc(var(--stagger) * 8); }
+  & > *:nth-child(10) { animation-delay: calc(var(--stagger) * 9); }
+  & > *:nth-child(11) { animation-delay: calc(var(--stagger) * 10); }
+  & > *:nth-child(12) { animation-delay: calc(var(--stagger) * 11); }
+}
+
+/* Cards that lift a little under the pointer. */
+@utility lift {
+  transition:
+    transform var(--dur-3) var(--ease-out),
+    box-shadow var(--dur-3) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px -16px rgb(28 29 29 / 0.25);
+    }
+  }
+}
+
+/* Loading placeholder with a moving sheen. */
+@utility skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--n100) 25%, var(--n0) 50%, var(--n100) 75%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/*
+ * Scroll reveal: [data-reveal] fades up the first time it scrolls into view (MotionProvider adds .is-in).
+ * Until the script runs everything stays visible, so nothing is ever hidden without JavaScript.
+ * data-reveal-delay="1".."6" staggers items in a row.
+ */
+.motion-ready :is([data-reveal], .section-title, .section-sub):not(.is-in) {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.motion-ready :is([data-reveal], .section-title, .section-sub).is-in {
+  animation: fade-up var(--dur-4) var(--ease-out) backwards;
+  animation-delay: calc(var(--stagger) * var(--reveal-i, 0));
+}
+.motion-ready .section-sub.is-in {
+  --reveal-i: 1;
+}
+.motion-ready :is([data-reveal], .section-title, .section-sub).is-in.no-anim {
+  animation: none;
+}
+
+/* Respect "reduce motion": keep fades instant, stop movement (spinners keep turning). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *:not(.animate-spin),
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .motion-ready :is([data-reveal], .section-title, .section-sub):not(.is-in) {
+    opacity: 1;
+    transform: none;
   }
 }

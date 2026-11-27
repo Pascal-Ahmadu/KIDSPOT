@@ -212,7 +212,7 @@ export function StoreHeader({ shopMenu }: { shopMenu?: ShopMenuData }) {
 function CountBadge({ value }: { value: number }) {
   if (!value) return null;
   return (
-    <span className="absolute -right-2 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-brand px-1 text-[11px] font-medium leading-none text-white">
+    <span key={value} className="absolute -right-2 -top-2 grid h-[18px] min-w-[18px] animate-bump place-items-center rounded-full bg-brand px-1 text-[11px] font-medium leading-none text-white">
       {value > 99 ? "99+" : value}
     </span>
   );

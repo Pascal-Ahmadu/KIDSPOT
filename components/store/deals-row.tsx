@@ -40,7 +40,7 @@ export function DealsRow({ bestSelling }: { bestSelling: ProductWithCategory[] }
 
 function SideBannerCard({ banner }: { banner: SideBanner }) {
   return (
-    <article className="relative h-[260px] overflow-hidden xl:h-auto xl:min-h-[268px]" style={{ background: banner.bg }}>
+    <article data-reveal className="relative h-[260px] overflow-hidden xl:h-auto xl:min-h-[268px]" style={{ background: banner.bg }}>
       <div className="absolute bottom-0 right-0 top-0 w-[52%]">
         <Image src={banner.image.src} alt={banner.image.alt} fill sizes="240px" className="object-contain object-right-bottom mix-blend-multiply" />
       </div>

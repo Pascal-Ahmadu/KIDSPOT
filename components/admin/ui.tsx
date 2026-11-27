@@ -100,7 +100,7 @@ export function StatCard({ label, value, hint, trend, icon, tone = "orange" }: {
 export function Flash({ message, tone = "success" }: { message?: string; tone?: "success" | "error" }) {
   if (!message) return null;
   return (
-    <div className={cn("mb-4 rounded-[6px] px-4 py-3 text-sm font-semibold", tone === "success" ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800")}>
+    <div role="status" className={cn("mb-4 animate-slide-down rounded-[6px] px-4 py-3 text-sm font-semibold", tone === "success" ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800")}>
       {message}
     </div>
   );

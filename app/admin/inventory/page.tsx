@@ -356,7 +356,7 @@ export default async function InventoryPage({
         description="Stock on hand, low-stock alerts and a log of every change."
       />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="stagger mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           tone="blue" label="Units on hand"
           value={summary.totalUnits.toLocaleString("en-NG")}

@@ -46,7 +46,7 @@ export function ProductCard({ product, index = 0, trending = false, trendingStyl
   const href = `/products/${product.slug}`;
 
   return (
-    <article className={cn("group flex flex-col gap-4 animate-fade-up", boxed && "border border-line bg-card p-5", className)} style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}>
+    <article data-reveal data-reveal-delay={index % 4} className={cn("group flex flex-col gap-4", boxed && "border border-line bg-card p-5", className)}>
       <div className={cn("relative overflow-hidden", boxed ? "aspect-[296/274] bg-card" : "aspect-[336/397] bg-surface")}>
         <Link href={href} className="absolute inset-0 block" tabIndex={-1} aria-hidden="true">
           <ProductImage

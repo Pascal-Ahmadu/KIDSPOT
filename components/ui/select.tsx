@@ -257,7 +257,7 @@ export function Select({
           aria-labelledby={ariaLabel ? undefined : buttonId}
           aria-label={ariaLabel}
           className={cn(
-            "absolute top-full z-50 mt-1 max-h-[280px] min-w-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-[6px] border border-line bg-white py-1 shadow-soft",
+            "absolute top-full z-50 mt-1 max-h-[280px] min-w-full origin-top animate-pop-in overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-[6px] border border-line bg-white py-1 shadow-soft",
             align === "right" ? "right-0" : "left-0",
           )}
         >

@@ -748,9 +748,9 @@ export function Till({
             type="button"
             aria-label="Close"
             onClick={closeBasket}
-            className="fixed inset-0 bg-ink/40"
+            className="fixed inset-0 animate-backdrop-in bg-ink/40"
           />
-          <div className="relative my-auto w-full max-w-[560px] rounded-[16px] border border-line bg-card shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
+          <div className="relative my-auto w-full max-w-[560px] animate-scale-in rounded-[16px] border border-line bg-card shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
             {waiting && !receipt ? (
               <TillWaiting
                 initial={waiting}
@@ -1251,8 +1251,8 @@ function LinkBarcode({
       aria-modal="true"
       aria-label="New barcode"
     >
-      <button type="button" aria-label="Close" onClick={onClose} className="fixed inset-0 bg-ink/40" />
-      <div className="relative my-auto grid w-full max-w-[520px] gap-4 rounded-[16px] border border-line bg-card p-5 shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
+      <button type="button" aria-label="Close" onClick={onClose} className="fixed inset-0 animate-backdrop-in bg-ink/40" />
+      <div className="relative my-auto grid w-full max-w-[520px] animate-scale-in gap-4 rounded-[16px] border border-line bg-card p-5 shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
         <div>
           <h2 className="text-xl font-medium text-ink">New barcode</h2>
           <p className="mt-1 text-sm text-[#525252]">

@@ -357,8 +357,8 @@ export function AdminSidebar({
       </div>
       {open && (
         <div className="fixed inset-0 z-40 flex lg:hidden">
-          <button className="absolute inset-0 bg-ink/40" onClick={() => setOpen(false)} aria-label="Close menu" />
-          <div className="relative h-full w-[300px] overflow-y-auto bg-background">{panel(false, false)}</div>
+          <button className="absolute inset-0 animate-backdrop-in bg-ink/40" onClick={() => setOpen(false)} aria-label="Close menu" />
+          <div className="relative h-full w-[300px] animate-slide-in-left overflow-y-auto bg-background">{panel(false, false)}</div>
         </div>
       )}
 

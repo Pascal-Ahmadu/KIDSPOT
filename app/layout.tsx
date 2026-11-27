@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Fredoka, Lobster_Two, Mulish } from "next/font/google";
 import "./globals.css";
+import { MotionProvider } from "@/components/motion/motion-provider";
 import { STORE_NAME } from "@/lib/format";
 
 const dmSans = DM_Sans({
@@ -40,7 +41,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${dmSans.variable} ${mulish.variable} ${logoFont.variable} ${lobster.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <MotionProvider />
+        {children}
+      </body>
     </html>
   );
 }

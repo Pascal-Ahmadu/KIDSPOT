@@ -65,7 +65,7 @@ function CompactCard({ product }: { product: ProductWithCategory }) {
   const href = `/products/${product.slug}`;
   const onSale = product.compareAtPrice != null && product.compareAtPrice > product.price;
   return (
-    <article className="group flex items-start gap-[26px] animate-fade-up">
+    <article data-reveal className="group flex items-start gap-[26px]">
       <Link href={href} className="relative block h-[120px] w-[120px] shrink-0 overflow-hidden border border-line bg-card sm:h-[158px] sm:w-[158px]" tabIndex={-1} aria-hidden="true">
         <ProductImage
           src={mainPhoto(product)}

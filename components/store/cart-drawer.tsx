@@ -31,7 +31,7 @@ export function CartDrawer() {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <button aria-label="Close cart" className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" onClick={close} />
+      <button aria-label="Close cart" className="absolute inset-0 animate-backdrop-in bg-ink/40 backdrop-blur-[2px]" onClick={close} />
       <aside className="relative flex h-full w-full max-w-md flex-col bg-surface shadow-2xl animate-slide-in">
         <header className="flex items-center justify-between border-b border-line bg-card px-5 py-4">
           <h2 className="font-heading text-2xl font-semibold">

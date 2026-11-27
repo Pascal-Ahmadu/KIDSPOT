@@ -103,7 +103,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       <PageHeader title="Dashboard" description={`Overview for the last 30 days · ${todayLabel()}`} />
 
       {/* Stat cards row (design: four 150px cards, 20px apart) */}
-      <div className="mb-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="stagger mb-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile tone="blue" label="Orders" value={String(stats.orders30)} icon={ShoppingBagIcon} trend={change(stats.orders30, stats.ordersPrev30)} href="/admin/orders" linkLabel="View orders" />
         <StatTile tone="orange" label="Total sales" value={money(stats.revenue30)} icon={BanknotesIcon} trend={change(stats.revenue30, stats.revenuePrev30)} href="/admin/orders" linkLabel="View orders" />
         <StatTile tone="yellow" label="Items sold" value={String(cards.units30)} icon={CubeIcon} trend={change(cards.units30, cards.unitsPrev30)} href="/admin/products" linkLabel="View products" />
@@ -120,7 +120,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       </div>
 
       {/* Charts row (design: Chart-01 + Chart-07, 40px apart) */}
-      <div className="mb-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-10 [&>*]:min-w-0">
+      <div className="stagger mb-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-10 [&>*]:min-w-0">
         <section className="flex flex-col rounded-[8px] border border-line bg-card">
           <div className="flex flex-col gap-3 border-b border-line px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex flex-col gap-0.5">
@@ -210,7 +210,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       </div>
 
       {/* Category sales + Top products */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2 xl:gap-10 [&>*]:min-w-0">
+      <div className="stagger grid grid-cols-1 gap-5 xl:grid-cols-2 xl:gap-10 [&>*]:min-w-0">
         <section className="flex flex-col rounded-[8px] border border-line bg-card">
           <div className="flex flex-col gap-0.5 border-b border-line px-5 py-4">
             <h2 className="text-xl font-bold leading-[30px] text-ink">Category sales</h2>
@@ -305,7 +305,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       </div>
 
       {/* Recent orders + Low stock (design: table, 40px gap, side column) */}
-      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-10 [&>*]:min-w-0">
+      <div className="stagger mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-10 [&>*]:min-w-0">
         <RecentOrdersTable orders={recent} />
         <div className="xl:pt-[60px]">
           <section className="rounded-[8px] border border-line bg-card">

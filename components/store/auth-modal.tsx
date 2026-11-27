@@ -154,8 +154,8 @@ export function AuthModal() {
   if (!tab) return null;
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-ink/50 p-4" onMouseDown={(e) => e.target === e.currentTarget && closeAuth()}>
-      <div ref={dialog} role="dialog" aria-modal="true" aria-label={tab === "login" ? "Login" : "Register"} className="relative my-auto w-full max-w-[482px] overflow-hidden rounded-[4px] bg-card shadow-2xl">
+    <div className="fixed inset-0 z-[90] flex animate-backdrop-in items-center justify-center overflow-y-auto bg-ink/50 p-4" onMouseDown={(e) => e.target === e.currentTarget && closeAuth()}>
+      <div ref={dialog} role="dialog" aria-modal="true" aria-label={tab === "login" ? "Login" : "Register"} className="relative my-auto w-full max-w-[482px] animate-scale-in overflow-hidden rounded-[4px] bg-card shadow-2xl">
         <div className="flex h-[180px] items-end justify-start bg-[#FFF5F2] pl-3 pt-6 sm:h-[253px] sm:pl-[11px] sm:pt-[33px]">
           <LoginArt />
         </div>

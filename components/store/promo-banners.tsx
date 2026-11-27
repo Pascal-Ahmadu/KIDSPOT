@@ -57,7 +57,7 @@ export function PromoBanners({ cards = DEFAULT_CARDS }: { cards?: PromoCard[] })
 
 function Card({ card }: { card: PromoCard }) {
   return (
-    <article className="relative h-[320px] overflow-hidden border-[10px] border-white sm:h-[333px]" style={{ background: card.tint }}>
+    <article data-reveal className="relative h-[320px] overflow-hidden border-[10px] border-white sm:h-[333px]" style={{ background: card.tint }}>
       <div className="absolute bottom-0 right-0 h-[55%] w-[50%] sm:top-0 sm:h-auto sm:w-[50%]">
         <Image
           src={card.image.src}

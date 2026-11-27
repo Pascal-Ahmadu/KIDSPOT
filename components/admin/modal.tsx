@@ -8,9 +8,9 @@ import Link from "next/link";
 export function Modal({ title, description, closeHref, children, width = 480 }: { title: string; description?: string; closeHref: string; children: React.ReactNode; width?: number }) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <Link href={closeHref} scroll={false} className="fixed inset-0 bg-ink/40" aria-label="Close" />
+      <Link href={closeHref} scroll={false} className="fixed inset-0 animate-backdrop-in bg-ink/40" aria-label="Close" />
       <div
-        className="relative my-auto w-full rounded-[16px] border border-line bg-card shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]"
+        className="relative my-auto w-full animate-scale-in rounded-[16px] border border-line bg-card shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]"
         style={{ maxWidth: width }}
       >
         <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
