@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { settings } from "@/lib/db/schema";
+import { MONIEPOINT_PAUSED } from "@/lib/till-options";
 
 /**
  * Payment provider keys, edited in Settings → Payments (owner only).
@@ -61,7 +62,7 @@ export async function savePaymentSettings(value: PaymentSettings) {
   else await db.insert(settings).values({ key: KEY, value: json, updatedAt: now }).run();
 }
 
-export const moniepointReady = (s: PaymentSettings) => s.moniepoint.enabled && !!s.moniepoint.clientId && !!s.moniepoint.clientSecret && s.moniepoint.terminals.length > 0;
+export const moniepointReady = (s: PaymentSettings) => !MONIEPOINT_PAUSED && s.moniepoint.enabled && !!s.moniepoint.clientId && !!s.moniepoint.clientSecret && s.moniepoint.terminals.length > 0;
 export const monnifyReady = (s: PaymentSettings) => s.monnify.enabled && !!s.monnify.apiKey && !!s.monnify.secretKey && !!s.monnify.contractCode;
 
 /** What the till and the shop may know: no keys. */

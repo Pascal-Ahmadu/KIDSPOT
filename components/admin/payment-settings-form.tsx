@@ -3,6 +3,7 @@
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useState, useTransition } from "react";
 import { FieldHint } from "@/components/admin/field";
+import { MONIEPOINT_PAUSED } from "@/lib/till-options";
 import { savePaymentSettingsAction, testMonnifyAction, testTerminalAction, type PaymentSettingsState } from "@/lib/actions/payments";
 
 export type PaymentFormValue = {
@@ -50,7 +51,12 @@ export function PaymentSettingsForm({ value }: { value: PaymentFormValue }) {
 
   return (
     <form onSubmit={submit} className="grid gap-6">
-      {/* Moniepoint terminal */}
+      {/* Moniepoint terminal: paused for now, cards go through the Zenith POS */}
+      {MONIEPOINT_PAUSED ? (
+        <p className="rounded-[8px] border border-line bg-card px-5 py-4 text-sm text-muted sm:px-6">
+          The Moniepoint terminal is switched off for now. Card payments are taken on the Zenith POS and recorded at the till by hand.
+        </p>
+      ) : (
       <section className="rounded-[8px] border border-line bg-card px-5 py-5 sm:px-6">
         <label className="flex cursor-pointer items-start gap-3 text-sm">
           <input type="checkbox" name="moniepointEnabled" defaultChecked={value.moniepoint.enabled} className="checkbox mt-0.5" />
@@ -153,6 +159,7 @@ export function PaymentSettingsForm({ value }: { value: PaymentFormValue }) {
           </div>
         </div>
       </section>
+      )}
 
       {/* Monnify */}
       <section className="rounded-[8px] border border-line bg-card px-5 py-5 sm:px-6">

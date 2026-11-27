@@ -29,6 +29,7 @@ import type { PaymentView } from "@/lib/payment-requests";
 import type { PublicPayments } from "@/lib/payments-config";
 import { ProductImage } from "@/components/store/product-image";
 import { cn, formatDateTime, money } from "@/lib/format";
+import { CASH_ACCEPTED } from "@/lib/till-options";
 
 export type TillProduct = {
   id: number;
@@ -66,7 +67,7 @@ const PAYMENTS: { value: Payment; label: string }[] = [
   { value: "transfer", label: "Transfer" },
   { value: "card", label: "Card" },
   { value: "cash", label: "Cash" },
-];
+].filter((p) => p.value !== "cash" || CASH_ACCEPTED) as { value: Payment; label: string }[];
 
 /** In-store till: search or scan, basket, discount with manager PIN, payment, receipt, refunds. */
 export function Till({
@@ -1065,7 +1066,7 @@ export function Till({
                         ? "An account number for this sale shows next. The sale is saved when Monnify confirms the money arrived."
                         : payment === "transfer"
                           ? "Wait for the bank alert before you hand over the goods. A manager checks it in Transfer check."
-                          : "Recorded by hand: make sure the card machine approved it."}
+                          : "Take the card on the Zenith POS. Only charge here once the POS approves it."}
                     {connected(payment) && manualAllowed && (
                       <>
                         {" "}

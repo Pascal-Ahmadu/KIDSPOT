@@ -10,6 +10,7 @@ import { money, toMinor } from "@/lib/format";
 import { absolute, orderInvoicePath } from "@/lib/invoice-link";
 import { getPaymentSettings, publicPaymentSettings } from "@/lib/payments-config";
 import { prepareSale, recordSale, type SaleInput } from "@/lib/sales";
+import { CASH_ACCEPTED } from "@/lib/till-options";
 import { customerSummary, findCustomerIdByPhone, type CustomerSummary } from "@/lib/customers";
 import { phoneKey } from "@/lib/phone";
 import { getSettings } from "@/lib/settings";
@@ -91,6 +92,7 @@ export type SaleResult = { ok: true; orderId: number; orderNumber: string; total
 export async function createSaleAction(input: SaleInput): Promise<SaleResult> {
   const me = await getStaffSession();
   if (!me) return { ok: false, error: "Please sign in again." };
+  if (input.payment === "cash" && !CASH_ACCEPTED) return { ok: false, error: "The shop is not taking cash. Use card or transfer." };
   const shift = await getOpenShift(me.id);
   if (!shift) return { ok: false, error: "Open a till shift before selling." };
   const prepared = await prepareSale(me, shift.id, input);
