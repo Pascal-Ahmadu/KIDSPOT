@@ -411,4 +411,5 @@ async function migrate() {
   await client.execute("CREATE INDEX IF NOT EXISTS idx_customers_phone_key ON customers(phone_key)");
   await add("customers", "email_opt_in", "INTEGER NOT NULL DEFAULT 0");
   await add("customers", "unsubscribed_at", "INTEGER");
+  await add("products", "barcodes", "TEXT");
 }

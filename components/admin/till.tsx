@@ -31,6 +31,7 @@ import { ProductImage } from "@/components/store/product-image";
 import { cn, formatDateTime, money } from "@/lib/format";
 import { CASH_ACCEPTED } from "@/lib/till-options";
 import { PHONE_ERROR, phoneInput, phoneKey } from "@/lib/phone";
+import { linkBarcodeAction } from "@/lib/actions/barcodes";
 
 export type TillProduct = {
   id: number;
@@ -44,6 +45,8 @@ export type TillProduct = {
   brand: string | null;
   description: string | null;
   stockNote: string | null;
+  /** Barcodes from the packaging (upper case). */
+  barcodes: string[];
 };
 export type TillSale = {
   id: number;
@@ -231,10 +234,19 @@ export function Till({
     });
   }
 
-  /** Match a scanned barcode or QR code: the SKU, or a product link (…/products/slug). */
+  // Barcodes linked during this session (the page data refreshes on the next visit).
+  const [linked, setLinked] = useState<Record<string, number>>({});
+  const [unknownCode, setUnknownCode] = useState<string | null>(null);
+
+  /** Match a scanned code: the packaging barcode, our SKU (printed labels), or a product link (…/products/slug). */
   function findByCode(raw: string) {
     const code = raw.trim().toLowerCase();
     if (!code) return undefined;
+    const upper = code.toUpperCase();
+    const byBarcode =
+      products.find((p) => p.barcodes.includes(upper)) ??
+      (linked[upper] ? products.find((p) => p.id === linked[upper]) : undefined);
+    if (byBarcode) return byBarcode;
     const bySku = products.find((p) => p.sku.toLowerCase() === code);
     if (bySku) return bySku;
     const last =
@@ -251,7 +263,7 @@ export function Till({
     onScanRef.current = (code: string) => {
       const hit = findByCode(code);
       if (hit) add(hit);
-      else setError(`No product matches the scanned code “${code}”.`);
+      else setUnknownCode(code.trim().toUpperCase());
     };
   });
   useEffect(() => {
@@ -292,6 +304,10 @@ export function Till({
     const pick = exact ?? (results.length === 1 ? results[0] : null);
     if (pick) {
       add(pick);
+      setQuery("");
+    } else if (results.length === 0 && /^[0-9]{6,}$/.test(q)) {
+      // A packaging barcode the till doesn't know yet: ask which product it is.
+      setUnknownCode(q.toUpperCase());
       setQuery("");
     }
   }
@@ -337,6 +353,10 @@ export function Till({
       const hit = code ? findByCode(code) : undefined;
       if (hit) {
         add(hit);
+        return stop();
+      }
+      if (code) {
+        setUnknownCode(code.trim().toUpperCase());
         return stop();
       }
       requestAnimationFrame(loop);
@@ -1176,6 +1196,105 @@ export function Till({
           </div>
         </div>
       )}
+
+      {unknownCode && (
+        <LinkBarcode
+          code={unknownCode}
+          products={products}
+          onClose={() => setUnknownCode(null)}
+          onLinked={(p) => {
+            setLinked((m) => ({ ...m, [unknownCode]: p.id }));
+            setUnknownCode(null);
+            add(p);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/** An unknown barcode was scanned: pick the product once and the till remembers it. */
+function LinkBarcode({
+  code,
+  products,
+  onClose,
+  onLinked,
+}: {
+  code: string;
+  products: TillProduct[];
+  onClose: () => void;
+  onLinked: (p: TillProduct) => void;
+}) {
+  const [q, setQ] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const matches = words.length
+    ? products
+        .filter((p) => {
+          const hay = `${p.name} ${p.sku} ${p.brand ?? ""} ${p.description ?? ""}`.toLowerCase();
+          return words.every((w) => hay.includes(w));
+        })
+        .slice(0, 8)
+    : [];
+  const pick = (p: TillProduct) =>
+    start(async () => {
+      setError(null);
+      const res = await linkBarcodeAction(p.id, code);
+      if (res.ok) onLinked(p);
+      else setError(res.error);
+    });
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto p-4 sm:items-center"
+      role="dialog"
+      aria-modal="true"
+      aria-label="New barcode"
+    >
+      <button type="button" aria-label="Close" onClick={onClose} className="fixed inset-0 bg-ink/40" />
+      <div className="relative my-auto grid w-full max-w-[520px] gap-4 rounded-[16px] border border-line bg-card p-5 shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
+        <div>
+          <h2 className="text-xl font-medium text-ink">New barcode</h2>
+          <p className="mt-1 text-sm text-[#525252]">
+            <span className="font-mono">{code}</span> isn&apos;t linked to a product yet. Which product is it? The till
+            remembers it from now on.
+          </p>
+        </div>
+        <input
+          autoFocus
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search the product name, brand or SKU"
+          aria-label="Find the product for this barcode"
+          className="input"
+        />
+        {words.length > 0 && (
+          <ul className="grid max-h-[320px] gap-1 overflow-y-auto">
+            {matches.length === 0 && <li className="px-1 py-2 text-sm text-[#7C7C7C]">Nothing matches.</li>}
+            {matches.map((p) => (
+              <li key={p.id}>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => pick(p)}
+                  className="flex w-full items-center justify-between gap-3 rounded-[8px] border border-line px-3 py-2 text-left text-sm hover:border-brand disabled:opacity-50"
+                >
+                  <span className="min-w-0">
+                    {p.brand && <span className="block truncate text-xs font-medium text-brand">{p.brand}</span>}
+                    <span className="block truncate text-ink">{p.name}</span>
+                    <span className="block font-mono text-xs text-[#7C7C7C]">{p.sku}</span>
+                  </span>
+                  <span className="shrink-0 text-[#525252]">{p.price > 0 ? money(p.price) : "No price"}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {error && <p className="field-error">{error}</p>}
+        <button type="button" onClick={onClose} className="btn btn-ghost justify-self-end">
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }

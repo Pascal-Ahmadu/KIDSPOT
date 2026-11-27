@@ -65,6 +65,11 @@ export default async function ProductsPage({
       <PageHeader
         title="Products"
         description={`${products.length} product${products.length === 1 ? "" : "s"}`}
+        action={
+          <Link href="/admin/products/labels" className="btn btn-ghost">
+            Print labels
+          </Link>
+        }
       />
       <Flash
         message={

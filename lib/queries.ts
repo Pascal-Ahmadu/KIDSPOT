@@ -214,6 +214,7 @@ export async function getAdminProducts(filter: AdminProductFilter = {}) {
         like(products.brand, term),
         like(products.description, term),
         like(products.stockNote, term),
+        like(products.barcodes, term),
       )!,
     );
   }

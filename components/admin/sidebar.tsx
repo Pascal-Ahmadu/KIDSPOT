@@ -69,6 +69,7 @@ const GROUPS: Group[] = [
     items: [
       { href: "/admin/products", label: "Products" },
       { href: "/admin/inventory", label: "Inventory", countKey: "lowStock" },
+      { href: "/admin/products/labels", label: "Print labels" },
       { href: "/admin/deliveries", label: "Deliveries" },
       { href: "/admin/reviews", label: "Reviews" },
     ],

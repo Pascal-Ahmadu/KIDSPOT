@@ -235,6 +235,29 @@ export function ProductForm({ categories, product }: Props) {
               </InputAffix>
               {err("sku")}
             </div>
+            <div>
+              <label className="label" htmlFor="barcodes">
+                Barcode on the packaging <span className="font-normal text-[#7C7C7C]">(optional)</span>
+              </label>
+              <input
+                id="barcodes"
+                name="barcodes"
+                className="input font-mono"
+                {...bad("barcodes")}
+                defaultValue={decodeList(product?.barcodes).join(", ")}
+                placeholder="Scan it here"
+                autoComplete="off"
+                onKeyDown={(e) => {
+                  // A scanner presses Enter after the code: add a comma instead of submitting the form.
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const el = e.currentTarget;
+                    if (el.value.trim() && !el.value.trim().endsWith(",")) el.value = `${el.value.trim()}, `;
+                  }
+                }}
+              />
+              {errs.barcodes ? err("barcodes") : <FieldHint>Click here and scan. Several? Scan each one.</FieldHint>}
+            </div>
             {product ? (
               <div>
                 <span className="label">Current stock</span>

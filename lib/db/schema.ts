@@ -34,6 +34,8 @@ export const products = sqliteTable("products", {
   brand: text("brand"),
   /** The stock sheet's own quantity wording, e.g. "5 Navy blue & 1 red" (staff only, searchable). */
   stockNote: text("stock_note"),
+  /** Barcodes printed on the packaging, comma-wrapped (",5012345678900,"), for scanning at the till. */
+  barcodes: text("barcodes"),
   /** Longer "Details & Care" text shown in the product page tab. */
   details: text("details"),
   /** Extra photos as a JSON array of URLs (imageUrl stays the main photo). */

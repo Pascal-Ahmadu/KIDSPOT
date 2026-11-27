@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { barcodeList, barcodeOwner, parseBarcodes } from "@/lib/barcodes";
 import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { products, stockMovements } from "@/lib/db/schema";
@@ -35,6 +36,7 @@ const productSchema = z.object({
   ageRange: z.string().trim().optional(),
   audience: z.enum(["girls", "boys", "unisex", ""]).optional(),
   brand: z.string().trim().max(60).optional(),
+  barcodes: z.string().max(600).optional(),
   stock: z.string().optional(),
   lowStockThreshold: z.string().optional(),
   isActive: z.string().optional(),
@@ -52,6 +54,8 @@ function parseProduct(formData: FormData) {
   const d = parsed.data;
   const price = toMinor(d.price);
   if (price <= 0) return { fieldErrors: { price: "Price must be greater than zero" } };
+  const codes = parseBarcodes(d.barcodes ?? "");
+  if ("error" in codes) return { fieldErrors: { barcodes: codes.error } };
   return {
     values: {
       name: d.name,
@@ -67,6 +71,7 @@ function parseProduct(formData: FormData) {
       ageRange: d.ageRange || null,
       audience: d.audience || null,
       brand: d.brand || null,
+      barcodes: codes.value,
       // Multi-value checkboxes: keep only known sizes/colours.
       sizes: encodeList(formData.getAll("sizes").map(String).filter((v) => (SIZES as readonly string[]).includes(v))),
       colors: encodeList(formData.getAll("colors").map(String).filter((v) => COLORS.some((c) => c.key === v))),
@@ -102,10 +107,21 @@ function revalidateStore() {
   revalidatePath("/", "layout");
 }
 
+/** A barcode may belong to one product only; returns the message for the first clash. */
+async function takenBarcode(stored: string | null, productId?: number) {
+  for (const code of barcodeList(stored)) {
+    const other = await barcodeOwner(code, productId);
+    if (other) return `${code} is already on ${other.name} (${other.sku}).`;
+  }
+  return null;
+}
+
 export async function createProductAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const me = await requireAdmin();
   const result = parseProduct(formData);
   if ("fieldErrors" in result) return { fieldErrors: result.fieldErrors };
+  const taken = await takenBarcode(result.values.barcodes);
+  if (taken) return { fieldErrors: { barcodes: taken } };
 
   try {
     const uploaded = await saveUpload(formData);
@@ -133,6 +149,8 @@ export async function updateProductAction(id: number, _prev: ActionState, formDa
   const before = await db.select({ name: products.name, price: products.price, costPrice: products.costPrice }).from(products).where(eq(products.id, id)).get();
   const result = parseProduct(formData);
   if ("fieldErrors" in result) return { fieldErrors: result.fieldErrors };
+  const taken = await takenBarcode(result.values.barcodes, id);
+  if (taken) return { fieldErrors: { barcodes: taken } };
 
   try {
     const uploaded = await saveUpload(formData);

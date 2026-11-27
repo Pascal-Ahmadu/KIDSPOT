@@ -75,6 +75,7 @@ export default async function TillPage() {
         sizes: decodeList(p.sizes),
         imageUrl: p.imageUrl,
         slug: p.slug,
+        barcodes: decodeList(p.barcodes).map((b) => b.toUpperCase()),
       }))}
       recent={sales.map((s) => ({
         id: s.id,
