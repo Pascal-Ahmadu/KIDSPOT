@@ -8,7 +8,7 @@ import { loginAction, registerAction, type AuthState } from "@/lib/actions/accou
 import { cn } from "@/lib/format";
 import { useAccount, type AuthTab } from "@/lib/store/account";
 
-const input = "h-[51px] w-full rounded-[4px] border bg-card px-[18px] text-sm text-ink outline-none placeholder:text-muted focus:border-brand";
+const input = "h-11 w-full rounded-[4px] border bg-card px-4 text-sm text-ink outline-none placeholder:text-muted focus:border-brand";
 
 /** Phone-with-password illustration for the peach header band. */
 function LoginArt() {
@@ -61,8 +61,8 @@ function LoginForm({ onDone }: { onDone: () => void }) {
     if (state.ok) onDone();
   }, [state.ok, onDone]);
   return (
-    <form action={action} className="flex flex-col gap-6" noValidate>
-      <div className="flex flex-col gap-3">
+    <form action={action} className="flex flex-col gap-4" noValidate>
+      <div className="flex flex-col gap-2.5">
         <Field id="login-email" name="email" type="email" label="Email address" autoComplete="email" autoFocus value={email} onChange={(e) => setEmail(e.target.value)} error={errs.email} />
         <Field id="login-password" name="password" type="password" label="Password" autoComplete="current-password" error={errs.password} />
         <button type="button" onClick={() => setForgot((f) => !f)} className="self-start text-sm leading-[21px] text-brand hover:underline">
@@ -75,7 +75,7 @@ function LoginForm({ onDone }: { onDone: () => void }) {
         )}
       </div>
       {state.error && <p className="-mt-3 text-sm font-semibold text-accent" role="alert">{state.error}</p>}
-      <button type="submit" disabled={pending} className="h-[51px] w-full rounded-[4px] bg-brand text-base font-bold text-white transition hover:bg-brand-dark disabled:opacity-60">
+      <button type="submit" disabled={pending} className="h-11 w-full rounded-[4px] bg-brand text-sm font-bold text-white transition hover:bg-brand-dark disabled:opacity-60">
         {pending ? "Logging in…" : "Login"}
       </button>
     </form>
@@ -91,19 +91,21 @@ function RegisterForm({ onDone }: { onDone: () => void }) {
     if (state.ok) onDone();
   }, [state.ok, onDone]);
   return (
-    <form action={action} className="flex flex-col gap-6" noValidate>
-      <div className="flex flex-col gap-3">
-        <Field id="reg-first" name="firstName" label="First Name" autoComplete="given-name" autoFocus {...bind("firstName")} error={errs.firstName} />
-        <Field id="reg-last" name="lastName" label="Last Name" autoComplete="family-name" {...bind("lastName")} error={errs.lastName} />
+    <form action={action} className="flex flex-col gap-4" noValidate>
+      <div className="flex flex-col gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5">
+          <Field id="reg-first" name="firstName" label="First Name" autoComplete="given-name" autoFocus {...bind("firstName")} error={errs.firstName} />
+          <Field id="reg-last" name="lastName" label="Last Name" autoComplete="family-name" {...bind("lastName")} error={errs.lastName} />
+        </div>
         <Field id="reg-email" name="email" type="email" label="Email" autoComplete="email" {...bind("email")} error={errs.email} />
         <Field id="reg-password" name="password" type="password" label="Password (at least 8 characters)" autoComplete="new-password" minLength={8} error={errs.password} />
-        <label className="mt-1 flex cursor-pointer items-start gap-3 text-sm leading-[21px] text-ink">
-          <input type="checkbox" name="newsletter" className="mt-0.5 h-5 w-5 shrink-0 rounded-[3px] border border-muted accent-brand" />
+        <label className="mt-1 flex cursor-pointer items-start gap-2.5 text-xs leading-5 text-ink">
+          <input type="checkbox" name="newsletter" className="checkbox mt-0.5" />
           <span>Email me new arrivals, restocks and member offers. You can unsubscribe at any time.</span>
         </label>
       </div>
       {state.error && <p className="-mt-3 text-sm font-semibold text-accent" role="alert">{state.error}</p>}
-      <button type="submit" disabled={pending} className="h-[51px] w-full rounded-[4px] bg-brand text-base font-bold text-white transition hover:bg-brand-dark disabled:opacity-60">
+      <button type="submit" disabled={pending} className="h-11 w-full rounded-[4px] bg-brand text-sm font-bold text-white transition hover:bg-brand-dark disabled:opacity-60">
         {pending ? "Creating account…" : "Register"}
       </button>
     </form>
@@ -117,7 +119,7 @@ function TabButton({ id, label, active, onSelect }: { id: AuthTab; label: string
       role="tab"
       aria-selected={active === id}
       onClick={() => onSelect(id)}
-      className={cn("text-2xl font-bold leading-8 transition", active === id ? "text-ink" : "text-[#BEC0C1] hover:text-muted")}
+      className={cn("text-xl font-bold leading-7 transition", active === id ? "text-ink" : "text-[#BEC0C1] hover:text-muted")}
     >
       {label}
     </button>
@@ -155,21 +157,21 @@ export function AuthModal() {
 
   return (
     <div className="fixed inset-0 z-[90] flex animate-backdrop-in items-center justify-center overflow-y-auto bg-ink/50 p-4" onMouseDown={(e) => e.target === e.currentTarget && closeAuth()}>
-      <div ref={dialog} role="dialog" aria-modal="true" aria-label={tab === "login" ? "Login" : "Register"} className="relative my-auto w-full max-w-[482px] animate-scale-in overflow-hidden rounded-[4px] bg-card shadow-2xl">
-        <div className="flex h-[180px] items-end justify-start bg-[#FFF5F2] pl-3 pt-6 sm:h-[253px] sm:pl-[11px] sm:pt-[33px]">
+      <div ref={dialog} role="dialog" aria-modal="true" aria-label={tab === "login" ? "Login" : "Register"} className="relative my-auto w-full max-w-[400px] animate-scale-in overflow-hidden rounded-[4px] bg-card shadow-2xl">
+        <div className="flex h-[104px] items-end justify-start bg-[#FFF5F2] pl-3 pt-4 sm:h-[128px] sm:pt-5">
           <LoginArt />
         </div>
-        <button type="button" onClick={closeAuth} aria-label="Close" className="absolute right-[25px] top-[24px] grid h-[31px] w-[31px] place-items-center rounded-full border border-ink bg-card text-ink transition hover:bg-ink hover:text-white">
+        <button type="button" onClick={closeAuth} aria-label="Close" className="absolute right-4 top-4 grid h-[30px] w-[30px] place-items-center rounded-full border border-ink bg-card text-ink transition hover:bg-ink hover:text-white">
           <XMarkIcon className="h-4 w-4 stroke-2" />
         </button>
 
-        <div className="px-6 pb-6 pt-8 sm:px-[33px] sm:pt-[48px]">
-          <div role="tablist" aria-label="Account" className="mb-[25px] flex gap-[29px]">
+        <div className="px-6 pb-5 pt-5 sm:px-7 sm:pt-6">
+          <div role="tablist" aria-label="Account" className="mb-4 flex gap-6">
             <TabButton id="login" label="Login" active={tab} onSelect={openAuth} />
             <TabButton id="register" label="Register" active={tab} onSelect={openAuth} />
           </div>
           {tab === "login" ? <LoginForm key="login" onDone={onDone} /> : <RegisterForm key="register" onDone={onDone} />}
-          <p className="mt-10 text-center text-sm leading-[21px] text-ink/80">
+          <p className="mt-5 text-center text-xs leading-5 text-ink/70">
             <Link href="/support" onClick={closeAuth} className="hover:text-brand hover:underline">Privacy &amp; Terms</Link>
           </p>
         </div>
