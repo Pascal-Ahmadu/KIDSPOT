@@ -2,7 +2,7 @@ import { ChatBubbleLeftRightIcon, EnvelopeIcon, PhoneIcon, ShareIcon } from "@he
 import { cn } from "@/lib/format";
 import { getStoreInfo } from "@/lib/settings";
 import { telHref } from "@/lib/store-info";
-import { FacebookIcon, InstagramIcon, PinterestIcon, TwitterIcon, YoutubeIcon } from "./footer";
+import { FacebookIcon, InstagramIcon, PinterestIcon, TiktokIcon, TwitterIcon, YoutubeIcon } from "./footer";
 
 
 /** Chat to sales · Call us · Postal mail · Social Network, used on the Contact and 404 pages. */
@@ -12,6 +12,7 @@ export async function ContactInfoRow({ className }: { className?: string }) {
     { label: "Facebook", href: STORE.socials.facebook, icon: FacebookIcon },
     { label: "Twitter", href: STORE.socials.twitter, icon: TwitterIcon },
     { label: "Instagram", href: STORE.socials.instagram, icon: InstagramIcon },
+    { label: "TikTok", href: STORE.socials.tiktok, icon: TiktokIcon },
     { label: "Pinterest", href: STORE.socials.pinterest, icon: PinterestIcon },
     { label: "Youtube", href: STORE.socials.youtube, icon: YoutubeIcon },
   ].filter((s) => s.href);

@@ -5,6 +5,7 @@ import { emailLog } from "@/lib/db/schema";
 import { emailConnected, getEmailSettings, type EmailSettings } from "@/lib/email-config";
 import { siteUrl } from "@/lib/invoice-link";
 import { getSettings } from "@/lib/settings";
+import { socialLine } from "@/lib/store-info";
 
 /**
  * Sends customer emails through Resend's HTTP API and logs every attempt in email_log.
@@ -99,7 +100,12 @@ export async function sendEmail(input: {
   if ((await sentToday()) >= config.dailyLimit) return { ok: false, error: "Today's email limit is reached.", skipped: true };
   const { store } = await getSettings();
   const unsubscribe = input.unsubscribeFor !== undefined ? unsubscribeUrl(input.unsubscribeFor) : undefined;
-  const footer = ["Kidspot", ...store.addressLines, store.phones.filter(Boolean).join(" · ")];
+  const footer = [
+    "Kidspot",
+    ...store.addressLines,
+    [store.phones.filter(Boolean).join(" · "), store.email].filter(Boolean).join(" · "),
+    socialLine(store.socials),
+  ];
   const text = `${input.text.trim()}\n\n--\n${footer.filter(Boolean).join("\n")}${unsubscribe ? `\nUnsubscribe: ${unsubscribe}` : ""}`;
   const html = renderHtml(input.text, { footer, unsubscribe });
   const replyTo = config.replyTo || store.email;

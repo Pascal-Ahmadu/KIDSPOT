@@ -9,6 +9,7 @@ import { formatDateTime, money } from "@/lib/format";
 import { verifyOrderInvoiceToken } from "@/lib/invoice-link";
 import { paymentLabel } from "@/lib/payments";
 import { getStoreInfo } from "@/lib/settings";
+import { socialLine } from "@/lib/store-info";
 
 export const metadata: Metadata = {
   title: "Receipt",
@@ -66,7 +67,8 @@ export default async function ReceiptPage({
             {store.addressLines.map((l) => (
               <p key={l}>{l}</p>
             ))}
-            {store.phones.length > 0 && <p>{store.phones.join(" · ")}</p>}
+            {store.phones.length > 0 && <p>Tel: {store.phones.join(" · ")}</p>}
+            {store.email && <p className="break-all">{store.email}</p>}
           </header>
 
           <div className="my-2 border-t border-dashed border-black" />
@@ -125,6 +127,7 @@ export default async function ReceiptPage({
           <footer className="text-center">
             <p className="font-bold">Thank you for shopping with us!</p>
             <p>Keep this receipt for returns and exchanges.</p>
+            {socialLine(store.socials) && <p className="mt-1">{socialLine(store.socials)}</p>}
           </footer>
         </article>
       </div>

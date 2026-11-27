@@ -64,6 +64,7 @@ export function StoreDetailsForm({ value }: { value: StoreDetails }) {
   const f = useSettingsForm(saveStoreDetailsAction);
   const socials = [
     { key: "instagram", label: "Instagram" },
+    { key: "tiktok", label: "TikTok" },
     { key: "facebook", label: "Facebook" },
     { key: "twitter", label: "X (Twitter)" },
     { key: "youtube", label: "YouTube" },

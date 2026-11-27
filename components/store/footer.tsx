@@ -76,6 +76,14 @@ export function InstagramIcon({ size = 20, className }: IconProps) {
   );
 }
 
+export function TiktokIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M16.6 2h-3.4v13.4a2.9 2.9 0 1 1-2.1-2.8V9.1a6.4 6.4 0 1 0 5.5 6.3V8.6a8.2 8.2 0 0 0 4.8 1.5V6.7a4.8 4.8 0 0 1-4.8-4.7z" />
+    </svg>
+  );
+}
+
 export function YoutubeIcon({ size = 20, className }: IconProps) {
   return (
     <svg
@@ -130,6 +138,7 @@ export async function StoreFooter({ categories }: { categories: Category[] }) {
     { label: "Facebook", icon: FacebookIcon, href: STORE.socials.facebook },
     { label: "Twitter", icon: TwitterIcon, href: STORE.socials.twitter },
     { label: "Instagram", icon: InstagramIcon, href: STORE.socials.instagram },
+    { label: "TikTok", icon: TiktokIcon, href: STORE.socials.tiktok },
     { label: "Pinterest", icon: PinterestIcon, href: STORE.socials.pinterest },
     { label: "Youtube", icon: YoutubeIcon, href: STORE.socials.youtube },
   ].filter((s) => s.href);

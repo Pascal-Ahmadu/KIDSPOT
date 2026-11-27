@@ -36,6 +36,7 @@ const storeSchema = z.object({
   instagram: url,
   pinterest: url,
   youtube: url,
+  tiktok: url,
   bankName: z.string().trim().max(60),
   accountName: z.string().trim().max(80),
   accountNumber: z.union([z.literal(""), z.string().trim().regex(/^\d{10}$/, "Nigerian account numbers have 10 digits")]),
@@ -53,6 +54,7 @@ export async function saveStoreDetailsAction(_prev: ActionState, formData: FormD
     instagram: formData.get("instagram") ?? "",
     pinterest: formData.get("pinterest") ?? "",
     youtube: formData.get("youtube") ?? "",
+    tiktok: formData.get("tiktok") ?? "",
     bankName: formData.get("bankName") ?? "",
     accountName: formData.get("accountName") ?? "",
     accountNumber: String(formData.get("accountNumber") ?? "").replace(/\s/g, ""),
@@ -64,7 +66,7 @@ export async function saveStoreDetailsAction(_prev: ActionState, formData: FormD
         hours: d.hours,
         phones: d.phones,
         addressLines: d.addressLines,
-        socials: { facebook: d.facebook, twitter: d.twitter, instagram: d.instagram, pinterest: d.pinterest, youtube: d.youtube },
+        socials: { facebook: d.facebook, twitter: d.twitter, instagram: d.instagram, tiktok: d.tiktok, pinterest: d.pinterest, youtube: d.youtube },
         bank: { bankName: d.bankName, accountName: d.accountName, accountNumber: d.accountNumber },
       });
   revalidatePath("/", "layout");

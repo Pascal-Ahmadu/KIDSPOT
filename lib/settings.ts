@@ -19,7 +19,7 @@ export type StoreDetails = {
   phones: string[];
   email: string;
   addressLines: string[];
-  socials: { facebook: string; twitter: string; instagram: string; pinterest: string; youtube: string };
+  socials: { facebook: string; twitter: string; instagram: string; tiktok: string; pinterest: string; youtube: string };
   /** Printed on invoices so customers know where to pay. */
   bank: { bankName: string; accountName: string; accountNumber: string };
 };
@@ -84,6 +84,7 @@ export const getSettings = cache(async (): Promise<Settings> => {
       ...DEFAULT_SETTINGS.store,
       ...((saved.store as object) ?? {}),
       bank: { ...DEFAULT_SETTINGS.store.bank, ...((saved.store as Partial<StoreDetails> | undefined)?.bank ?? {}) },
+      socials: { ...DEFAULT_SETTINGS.store.socials, ...((saved.store as Partial<StoreDetails> | undefined)?.socials ?? {}) },
     } as StoreDetails,
     delivery: { note: (saved.delivery as Partial<DeliverySettings> | undefined)?.note ?? DEFAULT_SETTINGS.delivery.note },
     newsletter: { ...DEFAULT_SETTINGS.newsletter, ...((saved.newsletter as object) ?? {}) } as NewsletterSettings,
