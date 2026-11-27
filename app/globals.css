@@ -92,7 +92,7 @@ body {
 
 /* Admin surface */
 .admin-surface {
-  --background: #fdfdfd; /* Dashboard overview design */
+  --background: #fff6ee; /* Light orange page background (cards stay white) */
   background: var(--background);
 }
 
