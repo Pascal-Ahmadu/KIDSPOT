@@ -6,6 +6,7 @@ import { FieldHint } from "@/components/admin/field";
 import { Select } from "@/components/ui/select";
 import { cn, money } from "@/lib/format";
 import { LABEL_FORMATS, encodeLabelItems, type LabelFormat } from "@/lib/labels";
+import { matchesSearch } from "@/lib/search-terms";
 
 type P = { id: number; name: string; sku: string; brand: string | null; price: number; stock: number; categoryId: number | null; categoryName: string | null };
 
@@ -19,7 +20,7 @@ export function LabelPicker({ products, categories }: { products: P[]; categorie
 
   const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const matches = words.length
-    ? products.filter((p) => words.every((w) => `${p.name} ${p.sku} ${p.brand ?? ""}`.toLowerCase().includes(w))).slice(0, 10)
+    ? products.filter((p) => matchesSearch(`${p.name} ${p.sku} ${p.brand ?? ""}`, words)).slice(0, 10)
     : [];
 
   const addItems = (items: P[], qtyOf: (p: P) => number) =>

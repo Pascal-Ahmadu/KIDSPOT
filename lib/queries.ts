@@ -1,4 +1,6 @@
+import { searchWords, variants } from "@/lib/search-terms";
 import {
+  type AnyColumn,
   and,
   asc,
   desc,
@@ -88,14 +90,17 @@ export type StoreProductFilter = {
   max?: number;
 };
 
+/**
+ * Every search word (or one of its sheet spellings, e.g. "armless" for "sleeveless") must appear in
+ * one of the given columns. Words can come in any order.
+ */
+function wordSearch(q: string | undefined, columns: AnyColumn[]) {
+  return searchWords(q).map((word) => or(...variants(word).flatMap((v) => columns.map((c) => like(c, `%${v}%`))))!);
+}
+
 export async function getStoreProducts(filter: StoreProductFilter = {}) {
   const conds = [eq(products.isActive, true)];
-  if (filter.q) {
-    const term = `%${filter.q}%`;
-    conds.push(
-      or(like(products.name, term), like(products.description, term))!,
-    );
-  }
+  conds.push(...wordSearch(filter.q, [products.name, products.description, products.brand]));
   if (filter.category) conds.push(eq(categories.slug, filter.category));
   if (filter.audience === "girls" || filter.audience === "boys") {
     conds.push(
@@ -200,24 +205,8 @@ export type AdminProductFilter = {
 
 export async function getAdminProducts(filter: AdminProductFilter = {}) {
   const conds = [];
-  // Every word must appear somewhere: name, SKU, brand (the sheet's first column), description or stock note.
-  for (const word of (filter.q ?? "")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 8)) {
-    const term = `%${word}%`;
-    conds.push(
-      or(
-        like(products.name, term),
-        like(products.sku, term),
-        like(products.brand, term),
-        like(products.description, term),
-        like(products.stockNote, term),
-        like(products.barcodes, term),
-      )!,
-    );
-  }
+  // Every word must appear somewhere: name, SKU, brand (the sheet's first column), description, stock note or barcode.
+  conds.push(...wordSearch(filter.q, [products.name, products.sku, products.brand, products.description, products.stockNote, products.barcodes]));
   if (filter.category)
     conds.push(eq(products.categoryId, Number(filter.category)));
   if (filter.stock === "low")
@@ -983,12 +972,7 @@ type Facet =
 /** WHERE clause for the listing; `skip` drops one facet so its own counts stay useful. */
 function listingConditions(f: ListingFilter, skip?: Facet) {
   const conds = [eq(products.isActive, true)];
-  if (f.q) {
-    const term = `%${f.q}%`;
-    conds.push(
-      or(like(products.name, term), like(products.description, term))!,
-    );
-  }
+  conds.push(...wordSearch(f.q, [products.name, products.description, products.brand]));
   if (f.categories?.length && skip !== "categories")
     conds.push(inArray(categories.slug, f.categories));
   if (f.audience && skip !== "audience") {

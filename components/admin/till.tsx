@@ -32,6 +32,7 @@ import { cn, formatDateTime, money } from "@/lib/format";
 import { CASH_ACCEPTED } from "@/lib/till-options";
 import { PHONE_ERROR, phoneInput, phoneKey } from "@/lib/phone";
 import { linkBarcodeAction } from "@/lib/actions/barcodes";
+import { matchesSearch } from "@/lib/search-terms";
 
 export type TillProduct = {
   id: number;
@@ -168,9 +169,10 @@ export function Till({
     const words = q.split(/\s+/).filter(Boolean);
     const list = words.length
       ? products.filter((p) => {
-          const hay =
-            `${p.name} ${p.sku} ${p.brand ?? ""} ${p.description ?? ""} ${p.stockNote ?? ""}`.toLowerCase();
-          return words.every((w) => hay.includes(w));
+          return matchesSearch(
+            `${p.name} ${p.sku} ${p.brand ?? ""} ${p.description ?? ""} ${p.stockNote ?? ""} ${p.barcodes.join(" ")}`,
+            words,
+          );
         })
       : products;
     // Items with a price first; the ones still waiting for a price at the end.
@@ -1232,8 +1234,7 @@ function LinkBarcode({
   const matches = words.length
     ? products
         .filter((p) => {
-          const hay = `${p.name} ${p.sku} ${p.brand ?? ""} ${p.description ?? ""}`.toLowerCase();
-          return words.every((w) => hay.includes(w));
+          return matchesSearch(`${p.name} ${p.sku} ${p.brand ?? ""} ${p.description ?? ""} ${p.stockNote ?? ""}`, words);
         })
         .slice(0, 8)
     : [];
