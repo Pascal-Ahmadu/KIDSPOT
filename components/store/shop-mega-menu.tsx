@@ -63,7 +63,7 @@ export function ShopMegaMenu({
           )}
         </div>
         <Link href="/products" onClick={onNavigate} className="group relative hidden w-[572px] shrink-0 xl:block" aria-label="Shop all products">
-          <Image src="/dresses/banner-occasion.webp" alt="" fill sizes="572px" className="object-cover transition duration-500 group-hover:scale-105" />
+          <Image src="/dresses/banner-occasion-v2.webp" alt="" fill sizes="572px" className="object-cover transition duration-500 group-hover:scale-105" />
           <span className="absolute bottom-8 left-8 rounded-[4px] bg-card px-5 py-3 text-sm font-bold uppercase text-ink shadow-sm transition group-hover:bg-brand group-hover:text-white">Shop all</span>
         </Link>
       </div>
