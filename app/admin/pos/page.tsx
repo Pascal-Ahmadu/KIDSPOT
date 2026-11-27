@@ -1,4 +1,4 @@
-import { and, desc, eq, or } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { OpenShiftForm } from "@/components/admin/shift-forms";
 import { Till } from "@/components/admin/till";
@@ -37,8 +37,7 @@ export default async function TillPage() {
   const list = await db
     .select()
     .from(products)
-    // Everything on sale, plus items still waiting for a price (shown greyed out so staff know they exist).
-    .where(or(eq(products.isActive, true), eq(products.price, 0)))
+    // Every product: "Active" only controls the online shop. Items without a price show greyed out.
     .orderBy(products.name)
     .all();
   const sales = await db

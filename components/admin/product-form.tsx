@@ -298,7 +298,7 @@ export function ProductForm({ categories, product }: Props) {
               <input type="checkbox" name="isActive" defaultChecked={product?.isActive ?? true} className="checkbox mt-0.5" />
               <span>
                 <span className="block font-medium text-ink">Active</span>
-                <span className="block text-[#7C7C7C]">Visible in the storefront</span>
+                <span className="block text-[#7C7C7C]">Shown in the online shop. The till sells every product that has a price.</span>
               </span>
             </label>
             <label className="flex cursor-pointer items-start gap-3 text-sm">

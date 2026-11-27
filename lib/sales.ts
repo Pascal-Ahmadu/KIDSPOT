@@ -92,7 +92,9 @@ export async function prepareSale(
   const wanted = new Map<number, number>();
   for (const item of d.items) {
     const p = byId.get(item.productId);
-    if (!p || !p.isActive) return { ok: false, error: "One of the products is no longer for sale." };
+    // Hidden-online products still sell in the shop; only a missing price stops a sale.
+    if (!p) return { ok: false, error: "One of the products is no longer for sale." };
+    if (p.price <= 0) return { ok: false, error: `${p.name} has no price yet.` };
     wanted.set(p.id, (wanted.get(p.id) ?? 0) + item.quantity);
     subtotal += p.price * item.quantity;
     const sizes = decodeList(p.sizes);

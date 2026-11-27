@@ -156,6 +156,8 @@ export async function updateProductAction(id: number, _prev: ActionState, formDa
   try {
     const uploaded = await saveUpload(formData);
     const values = { ...result.values, imageUrl: uploaded ?? result.values.imageUrl, gallery: await saveGallery(formData) };
+    // Unpriced stock-sheet items are imported switched off; giving one a price puts it on sale.
+    if (before && before.price === 0 && values.price > 0 && !values.isActive && values.description) values.isActive = true;
     await db
       .update(products)
       .set({ ...values, updatedAt: Math.floor(Date.now() / 1000) })
