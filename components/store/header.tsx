@@ -83,7 +83,7 @@ export function StoreHeader({ shopMenu }: { shopMenu?: ShopMenuData }) {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-card">
+    <header className="sticky top-0 z-40 bg-[#FFE4CF]">
       <TopBar />
 
       <div className="border-b border-line">

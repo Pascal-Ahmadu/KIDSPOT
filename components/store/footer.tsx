@@ -115,7 +115,7 @@ function PaymentBadge({
 }) {
   return (
     <span
-      className="grid h-8 w-[46px] place-items-center rounded-[5px] border border-[#D9D9D9] bg-card"
+      className="grid h-8 w-[46px] place-items-center rounded-[5px] border border-line bg-white"
       aria-label={label}
       title={label}
     >
@@ -134,12 +134,12 @@ export async function StoreFooter({ categories }: { categories: Category[] }) {
     { label: "Youtube", icon: YoutubeIcon, href: STORE.socials.youtube },
   ].filter((s) => s.href);
   return (
-    <footer className="mt-20 bg-card">
+    <footer className="mt-20 bg-[#FFE4CF] text-ink">
       <div className="container-x">
         <div className="grid gap-10 pb-12 sm:grid-cols-2 lg:grid-cols-[261px_repeat(4,minmax(0,1fr))] lg:gap-16">
           {/* Contact */}
           <div className="flex flex-col gap-8">
-            <h4 className="footer-heading">Contact</h4>
+            <h4 className="footer-heading text-brand">Contact</h4>
             <div className="flex flex-col gap-[7px] text-lg leading-[30px] text-ink">
               <p>{STORE.hours}</p>
               {STORE.phones.map((p) => (
@@ -177,7 +177,7 @@ export async function StoreFooter({ categories }: { categories: Category[] }) {
 
           {/* Social */}
           <div className="flex flex-col gap-8">
-            <h4 className="footer-heading">Social</h4>
+            <h4 className="footer-heading text-brand">Social</h4>
             <ul className="flex flex-col gap-[11px]">
               {SOCIALS.map(({ label, icon: Icon, href }) => (
                 <li key={label}>
@@ -195,7 +195,7 @@ export async function StoreFooter({ categories }: { categories: Category[] }) {
           </div>
         </div>
 
-        <div className="border-t border-line" />
+        <div className="border-t border-[#F3CBAB]" />
 
         <div className="flex flex-col items-center justify-between gap-5 py-6 md:h-20 md:flex-row md:py-0">
           <Logo />
@@ -275,7 +275,7 @@ function FooterMenu({
 }) {
   return (
     <div className="flex flex-col gap-8">
-      <h4 className="footer-heading">{title}</h4>
+      <h4 className="footer-heading text-brand">{title}</h4>
       <ul className="flex flex-col gap-[11px]">
         {links.map((l) => (
           <li key={l.label}>

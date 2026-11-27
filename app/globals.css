@@ -422,7 +422,7 @@ body {
   line-height: 1.25;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--n900);
+  /* colour set where it's used (yellow on the blue footer) */
 }
 
 /* Printing: hide on-screen controls. The page size is set by each printable page itself
