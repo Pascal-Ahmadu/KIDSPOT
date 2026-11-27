@@ -14,9 +14,10 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     delivery: settings.delivery,
     contact: { hours: settings.store.hours, phones: settings.store.phones, email: settings.store.email },
   };
-  const categories = categoryRows;
+  // Only categories with something on sale online (e.g. toys stay hidden until they're priced).
+  const categories = categoryRows.filter((c) => c.liveCount > 0);
   const shopMenu = {
-    categories: categoryRows.filter((c) => c.productCount > 0).map((c) => ({ name: c.name, slug: c.slug, count: c.productCount })),
+    categories: categories.map((c) => ({ name: c.name, slug: c.slug, count: c.liveCount })),
     brands,
   };
   return (

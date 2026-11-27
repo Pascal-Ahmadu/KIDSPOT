@@ -11,7 +11,7 @@ import { ShopFilters, listParam, shopHref, toggleIn, type ShopParams } from "@/c
 import { ShopHead } from "@/components/store/shop-head";
 import { COLORS, PER_PAGE_OPTIONS, SIZES } from "@/lib/attributes";
 import { cn, money, toMinor } from "@/lib/format";
-import { getBrands, getCategories, getPhotoProducts, getProductListing, getTrendingProductIds, getTrendingProducts, type ListingFilter } from "@/lib/queries";
+import { getBrands, getCategoriesWithCounts, getPhotoProducts, getProductListing, getTrendingProductIds, getTrendingProducts, type ListingFilter } from "@/lib/queries";
 
 const SORTS = ["newest", "price-asc", "price-desc", "name", "popular"] as const;
 const COLOR_KEYS = COLORS.map((c) => c.key as string);
@@ -33,7 +33,7 @@ function toFilter(sp: ShopParams): ListingFilter {
 }
 
 async function titleFor(sp: ShopParams) {
-  const all = await getCategories();
+  const all = await getCategoriesWithCounts();
   const picked = all.filter((c) => listParam(sp.category).includes(c.slug));
   const who = sp.audience === "girls" ? "Girls' " : sp.audience === "boys" ? "Boys' " : "";
   if (picked.length === 1) return { title: `${who}${picked[0].name}`, single: picked[0], all };
@@ -95,7 +95,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           { label: "New In", href: shopHref(sp, { sort: sp.sort === "newest" ? undefined : "newest" }), active: sp.sort === "newest" },
           { label: "Girls", href: shopHref(sp, { audience: filter.audience === "girls" ? undefined : "girls" }), active: filter.audience === "girls" },
           { label: "Boys", href: shopHref(sp, { audience: filter.audience === "boys" ? undefined : "boys" }), active: filter.audience === "boys" },
-          ...allCategories.map((c) => ({ label: c.name, href: toggleIn(sp, "category", c.slug), active: cats.includes(c.slug) })),
+          ...allCategories.filter((c) => c.liveCount > 0 || cats.includes(c.slug)).map((c) => ({ label: c.name, href: toggleIn(sp, "category", c.slug), active: cats.includes(c.slug) })),
         ]}
       />
 

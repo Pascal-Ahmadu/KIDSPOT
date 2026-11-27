@@ -51,6 +51,8 @@ export async function getCategoriesWithCounts() {
       color: categories.color,
       createdAt: categories.createdAt,
       productCount: sql<number>`(select count(*) from products p where p.category_id = ${categories}.id)`,
+      /** Products shoppers can see (active). The shop hides categories with none. */
+      liveCount: sql<number>`(select count(*) from products p where p.category_id = ${categories}.id and p.is_active = 1)`,
     })
     .from(categories)
     .orderBy(asc(categories.name));
