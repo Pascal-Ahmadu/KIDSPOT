@@ -10,7 +10,7 @@ export default async function ShopControlsPage() {
   return (
     <div className="max-w-[880px]">
       <PageHeader title="Shop controls" description="Approval limits and opening hours used to spot unusual activity." />
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-5 sm:px-6">
+      <section className="rounded-[8px] border border-line bg-card px-5 py-5 sm:px-6">
         <ControlsForm value={controls} />
       </section>
     </div>

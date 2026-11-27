@@ -36,7 +36,7 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
       <PageHeader title="Deliveries" description="Stock that arrived, matched to each supplier's invoice. This is the only way stock is added." />
 
       {owedBySupplier.size > 0 && (
-        <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-4">
+        <section className="rounded-[8px] border border-line bg-card px-5 py-4">
           <p className="text-sm text-[#7C7C7C]">Owed to suppliers</p>
           <p className="text-2xl font-semibold text-ink">{money(owed)}</p>
           <ul className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-[#525252]">

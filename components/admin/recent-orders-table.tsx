@@ -38,7 +38,7 @@ export function RecentOrdersTable({ orders }: { orders: RecentOrder[] }) {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-[8px] border border-line bg-[#FDFDFD] [scrollbar-width:thin]">
+      <div className="overflow-x-auto rounded-[8px] border border-line bg-card [scrollbar-width:thin]">
         <table className="w-full min-w-[680px] border-collapse">
           <thead>
             <tr>

@@ -16,7 +16,7 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
     <div className="max-w-[880px]">
       <Breadcrumbs items={[{ label: "Settings" }, { label: "Banners", href: "/admin/settings/banners" }, { label: banner.title }]} />
       <PageHeader title={`Edit “${banner.title}”`} description="One slide at the top of the home page." />
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-5 sm:px-6">
+      <section className="rounded-[8px] border border-line bg-card px-5 py-5 sm:px-6">
         <BannerForm banner={banner} doneHref="/admin/settings/banners" />
       </section>
     </div>

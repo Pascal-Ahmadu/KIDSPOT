@@ -51,7 +51,7 @@ export function PaymentSettingsForm({ value }: { value: PaymentFormValue }) {
   return (
     <form onSubmit={submit} className="grid gap-6">
       {/* Moniepoint terminal */}
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-5 sm:px-6">
+      <section className="rounded-[8px] border border-line bg-card px-5 py-5 sm:px-6">
         <label className="flex cursor-pointer items-start gap-3 text-sm">
           <input type="checkbox" name="moniepointEnabled" defaultChecked={value.moniepoint.enabled} className="checkbox mt-0.5" />
           <span>
@@ -155,7 +155,7 @@ export function PaymentSettingsForm({ value }: { value: PaymentFormValue }) {
       </section>
 
       {/* Monnify */}
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-5 sm:px-6">
+      <section className="rounded-[8px] border border-line bg-card px-5 py-5 sm:px-6">
         <label className="flex cursor-pointer items-start gap-3 text-sm">
           <input type="checkbox" name="monnifyEnabled" defaultChecked={value.monnify.enabled} className="checkbox mt-0.5" />
           <span>
@@ -220,7 +220,7 @@ export function PaymentSettingsForm({ value }: { value: PaymentFormValue }) {
       </section>
 
       {/* Manual entry */}
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-5 sm:px-6">
+      <section className="rounded-[8px] border border-line bg-card px-5 py-5 sm:px-6">
         <label className="flex cursor-pointer items-start gap-3 text-sm">
           <input type="checkbox" name="allowManual" defaultChecked={value.allowManual} className="checkbox mt-0.5" />
           <span>

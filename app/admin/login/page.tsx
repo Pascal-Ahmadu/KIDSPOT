@@ -24,7 +24,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const isDev = process.env.NODE_ENV !== "production";
 
   return (
-    <div className={`${inter.className} grid min-h-screen bg-white lg:grid-cols-2`}>
+    <div className={`${inter.className} grid min-h-screen bg-background lg:grid-cols-2`}>
       {/* Left: header + form */}
       <section className="flex min-h-screen flex-col">
         <header className="flex h-24 items-start p-8">

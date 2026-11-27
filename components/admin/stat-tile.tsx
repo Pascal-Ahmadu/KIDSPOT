@@ -29,7 +29,7 @@ export function StatTile({
   const up = (trend ?? 0) >= 0;
   const TrendIcon = up ? ArrowTrendingUpIcon : ArrowTrendingDownIcon;
   return (
-    <section className="flex min-h-[150px] flex-1 flex-col gap-1 rounded-[8px] border border-line bg-[#FDFDFD] px-5 pb-4 pt-3">
+    <section className="flex min-h-[150px] flex-1 flex-col gap-1 rounded-[8px] border border-line bg-card px-5 pb-4 pt-3">
       <div className="flex items-center justify-between gap-2">
         <span className="grid h-10 w-10 place-items-center rounded-[8px] p-1" aria-hidden="true">
           <Icon className="h-8 w-8 text-ink" />

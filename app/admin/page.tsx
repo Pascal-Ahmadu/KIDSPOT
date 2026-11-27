@@ -121,7 +121,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
       {/* Charts row (design: Chart-01 + Chart-07, 40px apart) */}
       <div className="mb-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-10 [&>*]:min-w-0">
-        <section className="flex flex-col rounded-[8px] border border-line bg-[#FDFDFD]">
+        <section className="flex flex-col rounded-[8px] border border-line bg-card">
           <div className="flex flex-col gap-3 border-b border-line px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex flex-col gap-0.5">
               <h2 className="text-xl font-bold leading-[30px] text-ink">Sales trend</h2>
@@ -184,7 +184,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
         </section>
 
-        <section className="flex flex-col rounded-[8px] border border-line bg-[#FDFDFD]">
+        <section className="flex flex-col rounded-[8px] border border-line bg-card">
           <div className="flex flex-col gap-0.5 border-b border-line px-5 py-4">
             <h2 className="text-xl font-bold leading-[30px] text-ink">Sales by category</h2>
             <p className="text-sm leading-5 text-[#525252]">Each category&apos;s share of sales over the last 30 days. Outer ring = biggest seller.</p>
@@ -211,7 +211,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
       {/* Category sales + Top products */}
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2 xl:gap-10 [&>*]:min-w-0">
-        <section className="flex flex-col rounded-[8px] border border-line bg-[#FDFDFD]">
+        <section className="flex flex-col rounded-[8px] border border-line bg-card">
           <div className="flex flex-col gap-0.5 border-b border-line px-5 py-4">
             <h2 className="text-xl font-bold leading-[30px] text-ink">Category sales</h2>
             <p className="text-sm leading-5 text-[#525252]">
@@ -252,7 +252,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     );
                   })}
                 </ul>
-                <div className="rounded-[8px] border border-[#F1F1F1] bg-[#FDFDFD] p-2">
+                <div className="rounded-[8px] border border-[#F1F1F1] bg-card p-2">
                   <CategoryBarChart months={catMonthly.months} series={catMonthly.series} />
                 </div>
                 <ul className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2">
@@ -276,7 +276,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
         </section>
 
-        <section className="rounded-[8px] border border-line bg-[#FDFDFD]">
+        <section className="rounded-[8px] border border-line bg-card">
           <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
             <h2 className="text-xl font-bold leading-[30px] text-ink">Top products</h2>
             <Link href="/admin/products" className="text-xs font-semibold text-brand hover:underline">
@@ -308,7 +308,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-10 [&>*]:min-w-0">
         <RecentOrdersTable orders={recent} />
         <div className="xl:pt-[60px]">
-          <section className="rounded-[8px] border border-line bg-[#FDFDFD]">
+          <section className="rounded-[8px] border border-line bg-card">
             <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
               <h2 className="flex items-center gap-2 text-xl font-bold leading-[30px] text-ink">
                 <ExclamationTriangleIcon className="h-5 w-5 text-brand-2" /> Low stock

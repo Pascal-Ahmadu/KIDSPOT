@@ -70,7 +70,7 @@ export function ProductImport() {
 
   if (result?.ok) {
     return (
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-6 py-10 text-center">
+      <section className="rounded-[8px] border border-line bg-card px-6 py-10 text-center">
         <CheckCircleIcon
           className="mx-auto h-12 w-12 text-[#10A957]"
           aria-hidden="true"
@@ -102,7 +102,7 @@ export function ProductImport() {
   return (
     <div className="grid gap-6">
       {/* How it works */}
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-5 sm:px-6">
+      <section className="rounded-[8px] border border-line bg-card px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-[640px] text-sm leading-6 text-[#525252]">
             <p>
@@ -152,7 +152,7 @@ export function ProductImport() {
             "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[8px] border-2 border-dashed px-6 py-14 text-center transition",
             drag
               ? "border-brand bg-brand-light"
-              : "border-[#BDBDBD] bg-[#FDFDFD] hover:border-brand",
+              : "border-[#BDBDBD] bg-card hover:border-brand",
           )}
         >
           <ArrowUpTrayIcon className="h-8 w-8 text-brand" aria-hidden="true" />
@@ -169,7 +169,7 @@ export function ProductImport() {
           />
         </label>
       ) : (
-        <div className="flex items-center justify-between gap-3 rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-4">
+        <div className="flex items-center justify-between gap-3 rounded-[8px] border border-line bg-card px-5 py-4">
           <span className="flex min-w-0 items-center gap-3">
             <DocumentTextIcon
               className="h-6 w-6 shrink-0 text-brand"
@@ -208,7 +208,7 @@ export function ProductImport() {
 
       {/* Preview */}
       {preview && preview.rows.length > 0 && (
-        <section className="rounded-[16px] border border-line bg-[#FDFDFD]">
+        <section className="rounded-[16px] border border-line bg-card">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <Tag color={TAG.green}>{preview.counts.create} new</Tag>
@@ -252,7 +252,7 @@ export function ProductImport() {
           )}
           <div className="max-h-[560px] overflow-auto">
             <table className="w-full min-w-[900px] border-collapse">
-              <thead className="sticky top-0 bg-[#FDFDFD]">
+              <thead className="sticky top-0 bg-card">
                 <tr>
                   <th className={th}>Row</th>
                   <th className={th}>SKU</th>

@@ -75,7 +75,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
     <div className="grid gap-6">
       <PageHeader title="Activity log" description="Everything staff do, in order. Entries can't be edited or deleted." />
 
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD]">
+      <section className="rounded-[8px] border border-line bg-card">
         <div className="border-b border-line px-5 py-4">
           <h2 className="text-lg font-bold leading-7 text-ink">Needs attention</h2>
           <p className="text-sm leading-5 text-[#7C7C7C]">Patterns worth a closer look. A flag is a reason to check, not proof.</p>

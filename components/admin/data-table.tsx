@@ -32,14 +32,14 @@ export function TableCard({
 }) {
   const searchId = search ? `${search.action.replace(/^\W+|\W+$/g, "").replace(/\W+/g, "-")}-q` : undefined;
   return (
-    <section className="overflow-hidden rounded-[16px] border border-line bg-[#FDFDFD] shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
+    <section className="overflow-hidden rounded-[16px] border border-line bg-card shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
       <div className="flex flex-wrap items-center gap-4 border-b border-line p-6">
         <h2 className="mr-auto text-xl font-medium leading-[30px] text-ink">
           {title}
           {count != null && <span className="ml-2 text-sm font-normal text-muted">{count}</span>}
         </h2>
         {search && (
-          <form action={search.action} role="search" className="flex h-9 w-full items-center gap-1.5 rounded-[8px] border border-line bg-[#FDFDFD] px-3 transition focus-within:border-brand sm:w-64">
+          <form action={search.action} role="search" className="flex h-9 w-full items-center gap-1.5 rounded-[8px] border border-line bg-card px-3 transition focus-within:border-brand sm:w-64">
             {Object.entries(search.hidden ?? {}).map(([k, v]) => (v ? <input key={k} type="hidden" name={k} value={v} /> : null))}
             <MagnifyingGlassIcon className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
             <label htmlFor={searchId} className="sr-only">

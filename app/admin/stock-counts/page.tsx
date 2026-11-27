@@ -60,7 +60,7 @@ export default async function StockCountsPage({ searchParams }: { searchParams: 
     <div className="grid gap-6">
       <PageHeader title="Stock counts" description="Count a few random products each week. Gaps show up within days, not months." />
 
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD]">
+      <section className="rounded-[8px] border border-line bg-card">
         <div className="border-b border-line px-5 py-4">
           <h2 className="text-lg font-bold leading-7 text-ink">{open ? `Count #${open.id}` : "New count"}</h2>
           <p className="text-sm leading-5 text-[#7C7C7C]">

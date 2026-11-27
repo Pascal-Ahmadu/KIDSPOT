@@ -38,7 +38,7 @@ export default async function DeliveryPage({ params }: { params: Promise<{ id: s
         />
       </div>
 
-      <section className="overflow-hidden rounded-[8px] border border-line bg-[#FDFDFD]">
+      <section className="overflow-hidden rounded-[8px] border border-line bg-card">
         <table className="w-full border-collapse">
           <thead>
             <tr>
@@ -70,7 +70,7 @@ export default async function DeliveryPage({ params }: { params: Promise<{ id: s
         </p>
       </section>
 
-      <section className="grid gap-4 rounded-[8px] border border-line bg-[#FDFDFD] p-5 sm:grid-cols-2">
+      <section className="grid gap-4 rounded-[8px] border border-line bg-card p-5 sm:grid-cols-2">
         <div>
           <h2 className="mb-2 font-bold text-ink">Invoice photo</h2>
           {inv.photoUrl ? (

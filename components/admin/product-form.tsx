@@ -17,7 +17,7 @@ type Props = { categories: Category[]; product?: Product };
 /** Card in the dashboard style: 20px title + one-line description, divider, then the fields. */
 function Card({ title, description, children, className }: { title: string; description?: string; children: React.ReactNode; className?: string }) {
   return (
-    <section className={`rounded-[8px] border border-line bg-[#FDFDFD] ${className ?? ""}`}>
+    <section className={`rounded-[8px] border border-line bg-card ${className ?? ""}`}>
       <div className="border-b border-line px-5 py-4">
         <h2 className="text-lg font-bold leading-7 text-ink">{title}</h2>
         {description && <p className="text-sm leading-5 text-[#7C7C7C]">{description}</p>}

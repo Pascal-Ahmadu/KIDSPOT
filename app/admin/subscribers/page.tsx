@@ -30,7 +30,7 @@ export default async function SubscribersPage({ searchParams }: { searchParams: 
   return (
     <div>
       <PageHeader title="Subscribers" description={`${items.length} newsletter sign-up${items.length === 1 ? "" : "s"}`} />
-      <div className="mb-5 rounded-[8px] border border-line bg-[#FDFDFD] p-4 text-sm">
+      <div className="mb-5 rounded-[8px] border border-line bg-card p-4 text-sm">
         {offer ? (
           <p>
             New subscribers are shown the code <b className="font-mono">{offer.code}</b> ({offer.label}).

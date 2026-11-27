@@ -22,7 +22,7 @@ export default async function TillPage() {
     return (
       <div className="mx-auto max-w-[480px]">
         <PageHeader title="Till" description="Open a shift to start selling." />
-        <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-5 sm:px-6">
+        <section className="rounded-[8px] border border-line bg-card px-5 py-5 sm:px-6">
           <h2 className="mb-1 text-lg font-bold text-ink">Open your shift</h2>
           <p className="mb-5 text-sm text-[#7C7C7C]">
             Every sale, refund and till expense is recorded against your shift.

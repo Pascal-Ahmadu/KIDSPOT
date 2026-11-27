@@ -16,7 +16,7 @@ export default async function BackupsPage() {
   return (
     <div className="grid gap-6">
       <PageHeader title="Backups" description="A full copy of the shop's data is made automatically once a day. The newest 30 are kept." />
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD] px-5 py-4 text-sm leading-6 text-[#525252]">
+      <section className="rounded-[8px] border border-line bg-card px-5 py-4 text-sm leading-6 text-[#525252]">
         <p>
           Each backup is a complete copy of the shop&apos;s data as a .sql file, saved in {BACKUP_LOCATION}. Download one now and then and keep it somewhere else
           (Google Drive, a USB stick). The database host, Turso, also keeps its own restore points.

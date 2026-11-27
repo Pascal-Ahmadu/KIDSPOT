@@ -531,7 +531,7 @@ export function Till({
   return (
     <div className="grid gap-6">
       {/* Products */}
-      <section className="min-w-0 rounded-[8px] border border-line bg-[#FDFDFD]">
+      <section className="min-w-0 rounded-[8px] border border-line bg-card">
         <div className="flex gap-2 border-b border-line p-4">
           <div className="relative flex-1">
             <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#7C7C7C]" />
@@ -634,7 +634,7 @@ export function Till({
       <RecentSales sales={recent} />
 
       {/* Basket bar: always in view at the bottom */}
-      <div className="sticky bottom-4 z-30 rounded-[12px] border border-line bg-[#FDFDFD] shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
+      <div className="sticky bottom-4 z-30 rounded-[12px] border border-line bg-card shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
         {lines.length > 0 && showItems && (
           <div className="max-h-[38vh] overflow-y-auto border-b border-line px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {basketList}
@@ -711,7 +711,7 @@ export function Till({
             onClick={closeBasket}
             className="fixed inset-0 bg-ink/40"
           />
-          <div className="relative my-auto w-full max-w-[560px] rounded-[16px] border border-line bg-[#FDFDFD] shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
+          <div className="relative my-auto w-full max-w-[560px] rounded-[16px] border border-line bg-card shadow-[0_12px_16px_-4px_rgba(36,36,36,0.08),0_4px_6px_-2px_rgba(36,36,36,0.03)]">
             {waiting && !receipt ? (
               <TillWaiting
                 initial={waiting}
@@ -1131,7 +1131,7 @@ function RecentSales({ sales }: { sales: TillSale[] }) {
   const [pending, start] = useTransition();
   if (sales.length === 0) return null;
   return (
-    <section className="rounded-[8px] border border-line bg-[#FDFDFD] p-5">
+    <section className="rounded-[8px] border border-line bg-card p-5">
       <h3 className="mb-3 text-base font-semibold text-ink">
         Sales this shift
       </h3>

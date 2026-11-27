@@ -25,7 +25,7 @@ function useSettingsForm(action: Action) {
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[8px] border border-line bg-[#FDFDFD]">
+    <section className="rounded-[8px] border border-line bg-card">
       <div className="border-b border-line px-5 py-4">
         <h2 className="text-lg font-bold leading-7 text-ink">{title}</h2>
         {description && <p className="text-sm leading-5 text-[#7C7C7C]">{description}</p>}

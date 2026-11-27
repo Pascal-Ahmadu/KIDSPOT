@@ -92,7 +92,12 @@ body {
 
 /* Admin surface */
 .admin-surface {
-  --background: #fff6ee; /* Light orange page background (cards stay white) */
+  --background: #fff6ee; /* Light orange page background */
+  /* Warm admin palette: cards/tables a lighter orange than the page, table headers and grey
+     buttons soft orange, borders warm instead of blue-grey. */
+  --n0: #fffbf7;
+  --n100: #fdeee2;
+  --n200: #f2dfcf;
   background: var(--background);
 }
 

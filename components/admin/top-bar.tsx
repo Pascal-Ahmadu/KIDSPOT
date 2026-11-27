@@ -85,7 +85,7 @@ export function AdminTopBar({ unreadMessages, role }: { email: string; role: Rol
   }
 
   const search = (id: string) => (
-    <form role="search" onSubmit={submit} className="flex h-10 w-full items-center gap-1.5 rounded-[8px] border border-[#BDBDBD] bg-[#FDFDFD] px-3 shadow-[0_1px_2px_rgba(16,24,40,0.05)] transition focus-within:border-brand lg:max-w-[400px] lg:border-line">
+    <form role="search" onSubmit={submit} className="flex h-10 w-full items-center gap-1.5 rounded-[8px] border border-[#BDBDBD] bg-card px-3 shadow-[0_1px_2px_rgba(16,24,40,0.05)] transition focus-within:border-brand lg:max-w-[400px] lg:border-line">
       <MagnifyingGlassIcon className="h-5 w-5 shrink-0 text-[#525252]" aria-hidden="true" />
       <label htmlFor={id} className="sr-only">Search products, orders or customers</label>
       <input
@@ -102,12 +102,12 @@ export function AdminTopBar({ unreadMessages, role }: { email: string; role: Rol
   return (
     <>
       {/* Phone (design "navbar"): full-width search, then the page title */}
-      <div className="flex flex-col gap-6 border-b border-line bg-[#FDFDFD] px-5 pb-5 pt-2 lg:hidden">
+      <div className="flex flex-col gap-6 border-b border-line bg-background px-5 pb-5 pt-2 lg:hidden">
         {!isCashier && search("admin-search-m")}
         <p className="text-2xl font-semibold leading-8 text-ink">{title}</p>
       </div>
 
-      <header className="sticky top-0 z-30 hidden h-[88px] shrink-0 items-center gap-6 border-b border-line bg-[#FDFDFD] px-7 lg:flex">
+      <header className="sticky top-0 z-30 hidden h-[88px] shrink-0 items-center gap-6 border-b border-line bg-background px-7 lg:flex">
         <p className="min-w-[111px] text-2xl font-semibold leading-8 text-ink">{title}</p>
 
         {isCashier ? <div className="flex-1" /> : search("admin-search")}

@@ -30,7 +30,7 @@ export default async function ShiftsPage({ searchParams }: { searchParams: Promi
       <PageHeader title="Shifts" description={manager ? "Every till shift: what should have been there and what was counted." : "Your till shifts."} />
 
       {open && openTotals && (
-        <section className="rounded-[8px] border border-line bg-[#FDFDFD]">
+        <section className="rounded-[8px] border border-line bg-card">
           <div className="border-b border-line px-5 py-4">
             <h2 className="text-lg font-bold leading-7 text-ink">Close your shift</h2>
             <p className="text-sm leading-5 text-[#7C7C7C]">

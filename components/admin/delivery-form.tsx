@@ -39,7 +39,7 @@ export function DeliveryForm({ products, suppliers, today }: { products: Product
       }}
       className="grid gap-6"
     >
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD]">
+      <section className="rounded-[8px] border border-line bg-card">
         <div className="border-b border-line px-5 py-4">
           <h2 className="text-lg font-bold leading-7 text-ink">Supplier&apos;s invoice</h2>
           <p className="text-sm text-[#7C7C7C]">Copy these from the paper invoice that came with the goods.</p>
@@ -85,7 +85,7 @@ export function DeliveryForm({ products, suppliers, today }: { products: Product
         </div>
       </section>
 
-      <section className="rounded-[8px] border border-line bg-[#FDFDFD]">
+      <section className="rounded-[8px] border border-line bg-card">
         <div className="border-b border-line px-5 py-4">
           <h2 className="text-lg font-bold leading-7 text-ink">What arrived</h2>
           <p className="text-sm text-[#7C7C7C]">Count the goods before you save. Stock goes up as soon as this is saved.</p>

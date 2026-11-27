@@ -170,7 +170,7 @@ export function AdminSidebar({
     cn(
       "flex h-11 w-full items-center gap-3 rounded-[6px] text-[15px] leading-6 text-ink transition",
       compact ? "relative justify-center px-0" : "px-3",
-      active ? "bg-brand-light font-medium text-brand" : "hover:text-brand",
+      active ? "bg-white font-medium text-brand shadow-[0_1px_2px_rgba(16,24,40,0.06)]" : "hover:text-brand",
     );
 
   const renderItem = ({ href, label, icon: Icon, exact, countKey }: Item, compact: boolean) => (
@@ -240,7 +240,7 @@ export function AdminSidebar({
                       href={c.href}
                       onClick={() => setOpen(false)}
                       aria-current={active ? "page" : undefined}
-                      className={cn("flex h-10 items-center gap-2 rounded-[6px] px-3 text-[15px] leading-6 transition", active ? "bg-brand-light font-medium text-brand" : "text-ink hover:text-brand")}
+                      className={cn("flex h-10 items-center gap-2 rounded-[6px] px-3 text-[15px] leading-6 transition", active ? "bg-white font-medium text-brand shadow-[0_1px_2px_rgba(16,24,40,0.06)]" : "text-ink hover:text-brand")}
                     >
                       <span className="flex-1">{c.label}</span>
                       <Badge value={c.countKey ? counts[c.countKey] : undefined} />
@@ -328,7 +328,7 @@ export function AdminSidebar({
   return (
     <>
       {/* Phone top bar (design "navbar-burger"): messages · logo · menu */}
-      <div className={`${inter.className} flex items-center justify-between bg-[#FDFDFD] px-5 pb-3 pt-6 lg:hidden`}>
+      <div className={`${inter.className} flex items-center justify-between bg-background px-5 pb-3 pt-6 lg:hidden`}>
         {role === "cashier" ? (
           <span className="h-[34px] w-[34px]" aria-hidden="true" />
         ) : (
@@ -355,12 +355,12 @@ export function AdminSidebar({
       {open && (
         <div className="fixed inset-0 z-40 flex lg:hidden">
           <button className="absolute inset-0 bg-ink/40" onClick={() => setOpen(false)} aria-label="Close menu" />
-          <div className="relative h-full w-[300px] overflow-y-auto bg-[#FDFDFD]">{panel(false, false)}</div>
+          <div className="relative h-full w-[300px] overflow-y-auto bg-background">{panel(false, false)}</div>
         </div>
       )}
 
       {/* Desktop sidebar: full (300px) or icon rail (76px) */}
-      <aside className={cn("sticky top-0 hidden h-screen shrink-0 border-r border-line bg-[#FDFDFD] transition-[width] duration-200 lg:block", collapsed ? "w-[76px]" : "w-[300px]")}>
+      <aside className={cn("sticky top-0 hidden h-screen shrink-0 border-r border-line bg-background transition-[width] duration-200 lg:block", collapsed ? "w-[76px]" : "w-[300px]")}>
         {panel(collapsed, true)}
       </aside>
     </>

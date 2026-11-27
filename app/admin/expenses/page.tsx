@@ -80,7 +80,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
       <Flash message={sp.saved} />
 
       {manager && (
-        <section className="grid gap-4 rounded-[8px] border border-line bg-[#FDFDFD] p-5 sm:grid-cols-4">
+        <section className="grid gap-4 rounded-[8px] border border-line bg-card p-5 sm:grid-cols-4">
           {summary.map((c) => (
             <div key={c.label} className={cn("flex flex-col gap-1", c.strong && "sm:border-l sm:border-line sm:pl-4")}>
               <span className="text-sm text-[#7C7C7C]">{c.label}</span>
