@@ -1,5 +1,5 @@
 import { eq, inArray } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { z } from "zod";
 import { decodeList } from "@/lib/attributes";
 import { logActivity } from "@/lib/audit";
@@ -238,7 +238,7 @@ export async function recordSale(sale: PreparedSale, confirmedBy?: { ref: string
   if (sale.reward > 0) {
     await logActivity(sale.staff, "loyalty", `Loyalty reward of ${money(sale.reward)} on ${number} for ${sale.customerName || sale.customerPhone}`, { entity: "order", entityId: orderId });
   }
-  revalidatePath("/", "layout");
+  refreshShop();
   // Email the receipt after the response, so a slow email never holds up the till.
   if (sale.customerEmail) after(() => sendReceiptEmail(orderId).catch((e) => console.error("Receipt email failed", e)));
   return { orderId, orderNumber: number };

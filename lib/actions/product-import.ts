@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { logActivity } from "@/lib/audit";
 import { getAdminSession } from "@/lib/auth";
 import { applyImport, checkImport, type ImportRow } from "@/lib/product-import";
@@ -59,7 +59,7 @@ export async function importProductsAction(fd: FormData): Promise<ImportResult> 
             `${me.name} imported ${file.name}: ${res.created} new, ${res.updated} updated${res.hidden ? `, ${res.hidden} hidden` : ""}${res.skipped ? `, ${res.skipped} skipped` : ""}; ${res.units} items of opening stock`,
             { entity: "product", details: res },
           );
-    revalidatePath("/", "layout");
+    refreshShop();
     return { ok: true, ...res };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "The import failed. Nothing was saved." };

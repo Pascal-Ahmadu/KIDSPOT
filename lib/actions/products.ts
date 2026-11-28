@@ -5,6 +5,7 @@ import { logActivity } from "@/lib/audit";
 import { money } from "@/lib/format";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { barcodeList, barcodeOwner, parseBarcodes } from "@/lib/barcodes";
@@ -105,7 +106,7 @@ async function saveGallery(formData: FormData): Promise<string | null> {
 }
 
 function revalidateStore() {
-  revalidatePath("/", "layout");
+  refreshShop();
 }
 
 /** A barcode may belong to one product only; returns the message for the first clash. */

@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { z } from "zod";
 import { CUSTOMER_COOKIE, createCustomerToken, customerCookieOptions, getCustomer, hashPassword, verifyPassword } from "@/lib/customer-auth";
 import { db } from "@/lib/db";
@@ -31,7 +31,7 @@ function errorsOf(issues: z.core.$ZodIssue[]) {
 
 async function startSession(id: number) {
   (await cookies()).set(CUSTOMER_COOKIE, createCustomerToken(id), customerCookieOptions());
-  revalidatePath("/", "layout");
+  refreshShop();
 }
 
 const loginSchema = z.object({
@@ -80,7 +80,7 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
 
 export async function logoutAction() {
   (await cookies()).delete(CUSTOMER_COOKIE);
-  revalidatePath("/", "layout");
+  refreshShop();
 }
 
 /** Who is logged in (for the header and checkout, without making every page dynamic). */

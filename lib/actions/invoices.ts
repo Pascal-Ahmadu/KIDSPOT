@@ -3,6 +3,7 @@
 import { randomBytes } from "node:crypto";
 import { eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { z } from "zod";
 import { PHONE_ERROR, phoneKey } from "@/lib/phone";
 import { logActivity } from "@/lib/audit";
@@ -178,7 +179,7 @@ export async function recordInvoicePaymentAction(id: number, method: "transfer" 
     return { error: e instanceof Error ? e.message : "Couldn't record the payment." };
   }
   await logActivity(me, "invoice_paid", `${me.name} recorded ${money(inv.total)} (${method}) for invoice ${inv.number} from ${inv.customerName}`, { entity: "invoice", entityId: id });
-  revalidatePath("/", "layout");
+  refreshShop();
   return {};
 }
 

@@ -1,4 +1,5 @@
 import { searchWords, variants } from "@/lib/search-terms";
+import { shopCache } from "@/lib/shop-cache";
 import {
   type AnyColumn,
   and,
@@ -42,7 +43,7 @@ export async function getCategories() {
   return db.select().from(categories).orderBy(asc(categories.name));
 }
 
-export async function getCategoriesWithCounts() {
+async function getCategoriesWithCountsLive() {
   return db
     .select({
       id: categories.id,
@@ -98,7 +99,7 @@ function wordSearch(q: string | undefined, columns: AnyColumn[]) {
   return searchWords(q).map((word) => or(...variants(word).flatMap((v) => columns.map((c) => like(c, `%${v}%`))))!);
 }
 
-export async function getStoreProducts(filter: StoreProductFilter = {}) {
+async function getStoreProductsLive(filter: StoreProductFilter = {}) {
   const conds = [eq(products.isActive, true)];
   conds.push(...wordSearch(filter.q, [products.name, products.description, products.brand]));
   if (filter.category) conds.push(eq(categories.slug, filter.category));
@@ -134,7 +135,7 @@ export async function getStoreProducts(filter: StoreProductFilter = {}) {
   return withCategory(rows);
 }
 
-export async function getFeaturedProducts(limit = 8) {
+async function getFeaturedProductsLive(limit = 8) {
   const rows = await db
     .select()
     .from(products)
@@ -145,7 +146,7 @@ export async function getFeaturedProducts(limit = 8) {
   return withCategory(rows);
 }
 
-export async function getNewArrivals(limit = 8) {
+async function getNewArrivalsLive(limit = 8) {
   const rows = await db
     .select()
     .from(products)
@@ -156,7 +157,7 @@ export async function getNewArrivals(limit = 8) {
   return withCategory(rows);
 }
 
-export async function getProductBySlug(slug: string) {
+async function getProductBySlugLive(slug: string) {
   const rows = await db
     .select()
     .from(products)
@@ -707,7 +708,7 @@ export type NewInStoreTab = {
 };
 
 /** Eight newest products per tab, photographed products first. Unisex / untagged clothing shows in both clothing tabs. */
-export async function getNewInStore(limit = 8): Promise<NewInStoreTab[]> {
+async function getNewInStoreLive(limit = 8): Promise<NewInStoreTab[]> {
   const base = (extra: ReturnType<typeof and>) =>
     db
       .select()
@@ -757,7 +758,7 @@ export async function getNewInStore(limit = 8): Promise<NewInStoreTab[]> {
 }
 
 /** Product ids with the most units sold in the last N days, for the "Trending" badge. */
-export async function getTrendingProductIds(limit = 6, days = 30) {
+async function getTrendingProductIdsLive(limit = 6, days = 30) {
   const rows = await getTopProducts(limit, days);
   return rows.map((r) => r.productId).filter((id): id is number => id != null);
 }
@@ -775,7 +776,7 @@ export type CategoryShowcase = {
 };
 
 /** Categories that have active products (most products first), each with its 3 newest items, photographed first. */
-export async function getCategoryShowcase(
+async function getCategoryShowcaseLive(
   maxCategories = 8,
   perCategory = 3,
 ): Promise<CategoryShowcase[]> {
@@ -819,7 +820,7 @@ export async function getCategoryShowcase(
  * Best sellers by units in the last N days (active, in stock first). With `fill`, topped up with featured,
  * photographed items; without it, only products that really sold (so "Trending"/"Best selling" stay true).
  */
-export async function getTrendingProducts(limit = 10, days = 30, fill = true) {
+async function getTrendingProductsLive(limit = 10, days = 30, fill = true) {
   const since = Math.floor(Date.now() / 1000) - days * 86400;
   const ranked = await db
     .select({
@@ -1011,7 +1012,7 @@ export const PRICE_BANDS = [
 ] as const;
 
 /** One page of products plus every count the filter sidebar needs. */
-export async function getProductListing(
+async function getProductListingLive(
   f: ListingFilter,
   page = 1,
   perPage = 12,
@@ -1172,7 +1173,7 @@ export async function getProductsByIds(ids: number[]) {
 }
 
 /** Brands stocked (active products only), most products first. */
-export async function getBrands() {
+async function getBrandsLive() {
   const rows = await db
     .select({ name: products.brand, count: sql<number>`count(*)` })
     .from(products)
@@ -1188,7 +1189,7 @@ export async function getBrands() {
 }
 
 /** Newest photographed products, for the Instagram strip. */
-export async function getPhotoProducts(limit = 6) {
+async function getPhotoProductsLive(limit = 6) {
   return db
     .select({
       slug: products.slug,
@@ -1207,7 +1208,7 @@ export async function getPhotoProducts(limit = 6) {
  * "Customers also viewed" for a product page: products bought in the same orders (most often first),
  * topped up with same-category items, then best sellers.
  */
-export async function getCustomersAlsoViewed(
+async function getCustomersAlsoViewedLive(
   product: { id: number; categoryId: number | null },
   limit = 4,
 ) {
@@ -1265,7 +1266,7 @@ export async function getCustomersAlsoViewed(
 }
 
 /** Number of (non-cancelled) orders that include a product. */
-export async function getProductOrderCount(productId: number) {
+async function getProductOrderCountLive(productId: number) {
   const [row] = await db
     .select({ n: sql<number>`count(distinct ${orderItems.orderId})` })
     .from(orderItems)
@@ -1290,7 +1291,7 @@ export type ReviewSummary = {
 };
 
 /** Published-review stats for one product: average, count and % per star level (5 → 1). */
-export async function getReviewSummary(
+async function getReviewSummaryLive(
   productId: number,
 ): Promise<ReviewSummary> {
   const rows = await db
@@ -1317,7 +1318,7 @@ export async function getReviewSummary(
   };
 }
 
-export async function getProductReviews(productId: number, limit = 20) {
+async function getProductReviewsLive(productId: number, limit = 20) {
   return db
     .select({
       id: reviews.id,
@@ -1335,7 +1336,7 @@ export async function getProductReviews(productId: number, limit = 20) {
 }
 
 /** Recent published 4- and 5-star reviews with some substance, for the "Our Happy Customers" carousel. */
-export async function getHappyCustomerReviews(limit = 9) {
+async function getHappyCustomerReviewsLive(limit = 9) {
   return db
     .select({
       id: reviews.id,
@@ -1362,7 +1363,7 @@ export async function getHappyCustomerReviews(limit = 9) {
 /* Newsletter */
 
 /** The active, usable welcome code (set in Settings → Newsletter), if the admin has created it. */
-export async function getWelcomeOffer() {
+async function getWelcomeOfferLive() {
   const { newsletter } = await getSettings();
   const code = newsletter.welcomeCode.trim().toUpperCase();
   if (!code) return null;
@@ -1436,3 +1437,26 @@ export async function getAdminReviews(
     )
     .orderBy(desc(reviews.createdAt));
 }
+
+/* ------------------------------------------------------------------ */
+/* Shop reads: served from the saved copy (see lib/shop-cache.ts)       */
+/* ------------------------------------------------------------------ */
+
+export const getPhotoProducts = shopCache(getPhotoProductsLive, "getPhotoProducts");
+export const getTrendingProducts = shopCache(getTrendingProductsLive, "getTrendingProducts");
+export const getWelcomeOffer = shopCache(getWelcomeOfferLive, "getWelcomeOffer");
+export const getTrendingProductIds = shopCache(getTrendingProductIdsLive, "getTrendingProductIds");
+export const getCategoriesWithCounts = shopCache(getCategoriesWithCountsLive, "getCategoriesWithCounts");
+export const getBrands = shopCache(getBrandsLive, "getBrands");
+export const getProductBySlug = shopCache(getProductBySlugLive, "getProductBySlug");
+export const getReviewSummary = shopCache(getReviewSummaryLive, "getReviewSummary");
+export const getProductReviews = shopCache(getProductReviewsLive, "getProductReviews");
+export const getProductOrderCount = shopCache(getProductOrderCountLive, "getProductOrderCount");
+export const getProductListing = shopCache(getProductListingLive, "getProductListing");
+export const getNewInStore = shopCache(getNewInStoreLive, "getNewInStore");
+export const getNewArrivals = shopCache(getNewArrivalsLive, "getNewArrivals");
+export const getHappyCustomerReviews = shopCache(getHappyCustomerReviewsLive, "getHappyCustomerReviews");
+export const getFeaturedProducts = shopCache(getFeaturedProductsLive, "getFeaturedProducts");
+export const getCustomersAlsoViewed = shopCache(getCustomersAlsoViewedLive, "getCustomersAlsoViewed");
+export const getCategoryShowcase = shopCache(getCategoryShowcaseLive, "getCategoryShowcase");
+export const getStoreProducts = shopCache(getStoreProductsLive, "getStoreProducts");

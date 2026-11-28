@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { z } from "zod";
 import { getOwnerSession } from "@/lib/auth";
 import { saveSettingsSection } from "@/lib/settings";
@@ -69,7 +69,7 @@ export async function saveStoreDetailsAction(_prev: ActionState, formData: FormD
         socials: { facebook: d.facebook, twitter: d.twitter, instagram: d.instagram, tiktok: d.tiktok, pinterest: d.pinterest, youtube: d.youtube },
         bank: { bankName: d.bankName, accountName: d.accountName, accountNumber: d.accountNumber },
       });
-  revalidatePath("/", "layout");
+  refreshShop();
   return { success: "Store details saved." };
 }
 
@@ -84,7 +84,7 @@ export async function saveDeliveryAction(_prev: ActionState, formData: FormData)
   const parsed = deliverySchema.safeParse({ note: formData.get("note") ?? "" });
   if (!parsed.success) return fail(parsed.error);
   await saveSettingsSection("delivery", { note: parsed.data.note });
-  revalidatePath("/", "layout");
+  refreshShop();
   return { success: "Delivery note saved." };
 }
 
@@ -111,6 +111,6 @@ export async function saveNewsletterAction(_prev: ActionState, formData: FormDat
   });
   if (!parsed.success) return fail(parsed.error);
   await saveSettingsSection("newsletter", { ...parsed.data, welcomeCode: parsed.data.welcomeCode.toUpperCase() });
-  revalidatePath("/", "layout");
+  refreshShop();
   return { success: "Newsletter settings saved." };
 }

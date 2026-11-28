@@ -2,6 +2,7 @@
 
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { logActivity } from "@/lib/audit";
 import { getStaffSession } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -98,5 +99,6 @@ export async function reviewCountAction(countId: number, applyCorrections: boole
       });
   revalidatePath("/admin/stock-counts");
   revalidatePath("/admin/inventory");
+  refreshShop();
   return {};
 }

@@ -6,7 +6,7 @@ import { sendReceiptEmail } from "@/lib/follow-ups";
 import { PHONE_ERROR, phoneKey } from "@/lib/phone";
 import { money } from "@/lib/format";
 import { and, eq, inArray, isNull } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getAdminSession } from "@/lib/auth";
@@ -172,7 +172,7 @@ export async function placeOrderAction(input: CheckoutInput): Promise<CheckoutRe
           return orderNumber;
         });
 
-    revalidatePath("/", "layout");
+    refreshShop();
     // Order email after the response, so the shopper isn't kept waiting.
     afterResponse(async () => {
       const placed = await db.select({ id: orders.id }).from(orders).where(eq(orders.orderNumber, orderNumber)).get();
@@ -238,7 +238,7 @@ export async function updateOrderStatusAction(orderId: number, status: OrderStat
     return { error: e instanceof Error ? e.message : "Could not update order." };
   }
   await logActivity(me, status === "cancelled" ? "order_cancel" : "order_status", `${order.orderNumber}: ${order.status} → ${status}`, { entity: "order", entityId: orderId });
-  revalidatePath("/", "layout");
+  refreshShop();
   return { success: `Order marked as ${status}.` };
 }
 
@@ -247,6 +247,6 @@ export async function deleteOrderAction(orderId: number) {
   const o = await db.select({ orderNumber: orders.orderNumber, total: orders.total }).from(orders).where(eq(orders.id, orderId)).get();
   await logActivity(me, "order_delete", `Deleted order ${o?.orderNumber ?? `#${orderId}`}${o ? ` (${money(o.total)})` : ""}`, { entity: "order", entityId: orderId });
   await db.delete(orders).where(eq(orders.id, orderId));
-  revalidatePath("/", "layout");
+  refreshShop();
   redirect("/admin/orders");
 }

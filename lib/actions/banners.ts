@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { z } from "zod";
 import { getOwnerSession } from "@/lib/auth";
 import type { Banner } from "@/lib/banners";
@@ -14,7 +14,7 @@ async function requireAdmin() {
 
 async function done(list: Banner[]) {
   await saveSettingsSection("banners", list);
-  revalidatePath("/", "layout");
+  refreshShop();
 }
 
 const link = z

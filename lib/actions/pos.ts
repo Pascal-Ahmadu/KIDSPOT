@@ -2,6 +2,7 @@
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { logActivity } from "@/lib/audit";
 import { approveWithPin, getStaffSession } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -158,7 +159,7 @@ export async function refundSaleAction(orderId: number, pin: string, reason: str
         entityId: orderId,
         details: { approverId: approver.id },
       });
-  revalidatePath("/", "layout");
+  refreshShop();
   return { ok: true };
 }
 

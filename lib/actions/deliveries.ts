@@ -2,6 +2,7 @@
 
 import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/audit";
 import { getAdminSession } from "@/lib/auth";
@@ -109,7 +110,7 @@ export async function receiveDeliveryAction(formData: FormData): Promise<Deliver
         entityId: id,
         details: { lines: d.lines.map((l) => ({ product: byId.get(l.productId)?.name, qty: l.quantity, cost: l.unitCost })) },
       });
-  revalidatePath("/", "layout");
+  refreshShop();
   return { ok: true, id };
 }
 

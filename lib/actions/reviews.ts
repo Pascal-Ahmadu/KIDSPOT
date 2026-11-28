@@ -2,6 +2,7 @@
 
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { z } from "zod";
 import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -61,11 +62,11 @@ async function requireAdmin() {
 export async function setReviewPublishedAction(id: number, isPublished: boolean) {
   await requireAdmin();
   await db.update(reviews).set({ isPublished }).where(eq(reviews.id, id)).run();
-  revalidatePath("/", "layout");
+  refreshShop();
 }
 
 export async function deleteReviewAction(id: number) {
   await requireAdmin();
   await db.delete(reviews).where(eq(reviews.id, id)).run();
-  revalidatePath("/", "layout");
+  refreshShop();
 }

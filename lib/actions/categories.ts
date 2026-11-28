@@ -1,7 +1,7 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { refreshShop } from "@/lib/shop-cache";
 import { z } from "zod";
 import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -34,14 +34,14 @@ export async function saveCategoryAction(_prev: ActionState, formData: FormData)
     const msg = e instanceof Error ? e.message : String(e);
     return { error: msg.includes("UNIQUE") ? "A category with that name already exists." : msg };
   }
-  revalidatePath("/", "layout");
+  refreshShop();
   return { success: id ? "Category updated." : "Category created." };
 }
 
 export async function deleteCategoryAction(id: number) {
   await requireAdmin();
   await db.delete(categories).where(eq(categories.id, id));
-  revalidatePath("/", "layout");
+  refreshShop();
 }
 
 /** Quick add from the product form: creates a category by name and returns it so it can be selected. */
@@ -55,7 +55,7 @@ export async function quickAddCategoryAction(rawName: string): Promise<{ categor
   if (existing[0]) return { category: existing[0] };
   try {
     const row = await db.insert(categories).values({ name, slug }).returning({ id: categories.id, name: categories.name }).get();
-    revalidatePath("/", "layout");
+    refreshShop();
     return { category: row };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

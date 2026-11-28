@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { cache } from "react";
 import { db } from "@/lib/db";
+import { shopCache } from "@/lib/shop-cache";
 import { settings } from "@/lib/db/schema";
 import { STORE_INFO } from "@/lib/store-info";
 import { DEFAULT_BANNERS, type Banner } from "@/lib/banners";
@@ -68,8 +69,10 @@ export const DEFAULT_SETTINGS: Settings = {
 type Section = keyof Settings;
 
 /** All settings, saved values merged over the defaults. Cached per request. */
+const loadSettingRows = shopCache(() => db.select().from(settings).all(), "settings");
+
 export const getSettings = cache(async (): Promise<Settings> => {
-  const rows = await db.select().from(settings).all();
+  const rows = await loadSettingRows();
   const saved = Object.fromEntries(
     rows.map((r) => {
       try {
