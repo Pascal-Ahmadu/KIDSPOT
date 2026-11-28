@@ -110,7 +110,7 @@ export function ProductForm({ categories, product }: Props) {
         <Card title="Photos" description="A square photo on a plain background looks best.">
           <div className="grid gap-5 sm:grid-cols-[160px_minmax(0,1fr)]">
             <div className="aspect-square overflow-hidden rounded-[8px] border border-line bg-surface">
-              <ProductImage src={preview} alt="Main photo preview" />
+              <ProductImage sizes="320px" src={preview} alt="Main photo preview" />
             </div>
             <div className="flex flex-col gap-4">
               <div>

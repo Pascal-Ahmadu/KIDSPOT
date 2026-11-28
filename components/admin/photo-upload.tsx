@@ -52,7 +52,7 @@ export function PhotoUpload({ productId, imageUrl, name, className }: { productI
         aria-label={imageUrl ? `Change photo of ${name}` : `Add a photo of ${name}`}
         className={cn("group relative block h-9 w-9 shrink-0 overflow-hidden rounded-[6px] bg-surface", className)}
       >
-        <ProductImage src={imageUrl} alt={name} />
+        <ProductImage sizes="48px" src={imageUrl} alt={name} />
         <span
           className={cn(
             "absolute inset-0 grid place-items-center bg-ink/45 text-white transition",

@@ -85,7 +85,7 @@ function CartRow({ item, items }: { item: CartItem; items: CartItem[] }) {
       <td className="row-span-3 md:py-6 md:pr-6">
         <div className="flex items-center gap-5">
           <Link href={`/products/${item.slug}`} className="block h-[90px] w-[90px] shrink-0 overflow-hidden rounded-[4px] bg-surface md:h-[100px] md:w-[100px]">
-            <ProductImage src={item.imageUrl} alt={item.name} emoji={item.emoji} color={item.color} emojiClassName="text-4xl" />
+            <ProductImage sizes="128px" src={item.imageUrl} alt={item.name} emoji={item.emoji} color={item.color} emojiClassName="text-4xl" />
           </Link>
           <div className="hidden min-w-0 md:block">
             <Link href={`/products/${item.slug}`} className="text-base leading-6 text-ink hover:text-brand">{item.name}</Link>

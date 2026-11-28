@@ -13,7 +13,7 @@ export function ProductRow({ product }: { product: ProductWithCategory }) {
   return (
     <article className="flex gap-5 border-b border-line pb-8 sm:gap-[30px]">
       <Link href={href} className="relative block aspect-[336/397] w-[130px] shrink-0 overflow-hidden bg-surface sm:w-[220px]" tabIndex={-1} aria-hidden="true">
-        <ProductImage src={mainPhoto(product)} alt="" emoji={product.category?.emoji} color={product.category?.color} emojiClassName="text-5xl" />
+        <ProductImage sizes="120px" src={mainPhoto(product)} alt="" emoji={product.category?.emoji} color={product.category?.color} emojiClassName="text-5xl" />
       </Link>
       <div className="flex min-w-0 flex-1 flex-col gap-2 py-1">
         <span className="text-xs uppercase tracking-wide text-muted">{product.category?.name}</span>

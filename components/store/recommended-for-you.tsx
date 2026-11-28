@@ -32,7 +32,7 @@ function RecommendedCard({ product }: { product: ProductWithCategory }) {
   return (
     <article className="group flex flex-col gap-2">
       <Link href={href} className="block aspect-square w-full overflow-hidden bg-line" tabIndex={-1} aria-hidden="true">
-        <ProductImage
+        <ProductImage sizes="171px"
           src={mainPhoto(product)}
           alt=""
           emoji={product.category?.emoji}

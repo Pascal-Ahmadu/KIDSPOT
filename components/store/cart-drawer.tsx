@@ -57,7 +57,7 @@ export function CartDrawer() {
               {items.map((item) => (
                 <li key={item.key} className="card flex gap-3 p-3">
                   <Link href={`/products/${item.slug}`} onClick={close} className="h-20 w-20 shrink-0 overflow-hidden rounded-md">
-                    <ProductImage src={item.imageUrl} alt={item.name} emoji={item.emoji} color={item.color} emojiClassName="text-3xl" />
+                    <ProductImage sizes="96px" src={item.imageUrl} alt={item.name} emoji={item.emoji} color={item.color} emojiClassName="text-3xl" />
                   </Link>
                   <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex items-start justify-between gap-2">

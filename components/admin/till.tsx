@@ -619,7 +619,7 @@ export function Till({
                   className="flex h-full w-full items-stretch gap-3 rounded-[8px] border border-line bg-white p-3 text-left transition hover:border-brand disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="block h-14 w-14 shrink-0 overflow-hidden rounded-[6px] bg-surface">
-                    <ProductImage src={p.imageUrl} alt="" />
+                    <ProductImage sizes="96px" src={p.imageUrl} alt="" />
                   </span>
                   {/* Same structure on every tile: brand, name, description, then SKU · stock · price on one bottom line. */}
                   <span className="flex min-w-0 flex-1 flex-col">

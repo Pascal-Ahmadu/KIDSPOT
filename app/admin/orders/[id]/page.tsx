@@ -83,7 +83,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                       <td className={td}>
                         <div className="flex items-center gap-2">
                           <div className="h-9 w-9 shrink-0 overflow-hidden rounded-[6px] bg-surface">
-                            <ProductImage src={item.imageUrl} alt={item.name} emoji={item.categoryEmoji} color={item.categoryColor} emojiClassName="text-lg" />
+                            <ProductImage sizes="64px" src={item.imageUrl} alt={item.name} emoji={item.categoryEmoji} color={item.categoryColor} emojiClassName="text-lg" />
                           </div>
                           {item.productId ? (
                             <Link href={`/admin/products/${item.productId}`} className="text-[#525252] hover:text-brand">

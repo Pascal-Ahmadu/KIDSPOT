@@ -47,7 +47,7 @@ export function CountSheet({ countId, items }: { countId: number; items: { id: n
         {items.map((it) => (
           <li key={it.id} className="flex items-center gap-3 px-4 py-3">
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-[6px] bg-surface">
-              <ProductImage src={it.imageUrl} alt="" />
+              <ProductImage sizes="48px" src={it.imageUrl} alt="" />
             </div>
             <label htmlFor={`item-${it.id}`} className="min-w-0 flex-1">
               <span className="block truncate text-sm text-ink">{it.name}</span>

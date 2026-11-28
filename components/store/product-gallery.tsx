@@ -74,7 +74,7 @@ export function ProductGallery({ images: baseImages, alt, emoji, color, badge }:
                   i === index ? "border-brand" : "border-transparent hover:border-line",
                 )}
               >
-                <ProductImage src={src} alt="" />
+                <ProductImage sizes="100px" src={src} alt="" />
               </button>
             ))}
           </div>
@@ -102,7 +102,7 @@ export function ProductGallery({ images: baseImages, alt, emoji, color, badge }:
           touchX.current = null;
         }}
       >
-        <ProductImage key={current ?? "none"} src={current} alt={alt} emoji={emoji} color={color} className="animate-fade-up" emojiClassName="text-[9rem]" />
+        <ProductImage sizes="(max-width: 1024px) 100vw, 570px" priority key={current ?? "none"} src={current} alt={alt} emoji={emoji} color={color} className="animate-fade-up" emojiClassName="text-[9rem]" />
         {badge && <div className="absolute left-5 top-5">{badge}</div>}
         {current && (
           <button

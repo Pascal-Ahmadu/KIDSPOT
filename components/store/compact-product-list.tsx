@@ -67,7 +67,7 @@ function CompactCard({ product }: { product: ProductWithCategory }) {
   return (
     <article data-reveal className="group flex items-start gap-[26px]">
       <Link href={href} className="relative block h-[120px] w-[120px] shrink-0 overflow-hidden border border-line bg-card sm:h-[158px] sm:w-[158px]" tabIndex={-1} aria-hidden="true">
-        <ProductImage
+        <ProductImage sizes="160px"
           src={mainPhoto(product)}
           alt=""
           emoji={product.category?.emoji}

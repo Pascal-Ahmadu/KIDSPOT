@@ -71,7 +71,7 @@ function ColourSlot({ productId, colour, url }: { productId: number; colour: Col
         )}
       >
         {url ? (
-          <ProductImage src={url} alt={`${colour.label} photo`} />
+          <ProductImage sizes="200px" src={url} alt={`${colour.label} photo`} />
         ) : (
           <span className="absolute inset-0 grid place-items-center text-center text-xs font-medium text-[#7C7C7C] group-hover:text-brand">
             <span className="grid justify-items-center gap-1">

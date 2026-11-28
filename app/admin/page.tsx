@@ -288,7 +288,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               <li key={`${p.productId}-${p.sku}`} className="flex items-center gap-3 py-2.5">
                 <span className="w-4 text-xs font-bold text-muted">{i + 1}</span>
                 <div className="h-10 w-10 overflow-hidden rounded-[5px] bg-surface">
-                  <ProductImage src={p.imageUrl} alt={p.name} emoji={p.categoryEmoji} color={p.categoryColor} emojiClassName="text-lg" />
+                  <ProductImage sizes="48px" src={p.imageUrl} alt={p.name} emoji={p.categoryEmoji} color={p.categoryColor} emojiClassName="text-lg" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold">{p.name}</div>
@@ -321,7 +321,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               {lowStock.map((p) => (
                 <li key={p.id} className="flex items-center gap-3 py-2.5">
                   <div className="h-10 w-10 overflow-hidden rounded-[5px] bg-surface">
-                    <ProductImage src={p.imageUrl} alt={p.name} emoji={p.category?.emoji} color={p.category?.color} emojiClassName="text-lg" />
+                    <ProductImage sizes="48px" src={p.imageUrl} alt={p.name} emoji={p.category?.emoji} color={p.category?.color} emojiClassName="text-lg" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <Link href={`/admin/products/${p.id}`} className="block truncate text-sm font-semibold hover:text-brand">

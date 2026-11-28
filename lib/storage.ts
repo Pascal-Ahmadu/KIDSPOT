@@ -18,6 +18,17 @@ export const usesBlob = live && !usesS3 && !!(process.env.BLOB_READ_WRITE_TOKEN 
 export const STORAGE_NAME = usesS3 ? "the store's private Amazon S3 bucket" : usesBlob ? "the store's private Vercel Blob storage" : "data/files on this computer";
 
 // On AWS the function's own role grants access; locally the AWS profile or env keys are used.
+// Local copy of S3 files on the server's disk (FILE_CACHE_DIR): uploads never change once written,
+// so each photo is fetched from S3 once and then served from disk.
+const cacheDir = process.env.FILE_CACHE_DIR;
+const cachePath = (p: string) => (cacheDir ? path.join(cacheDir, p) : null);
+async function cacheWrite(p: string, body: Buffer) {
+  const file = cachePath(p);
+  if (!file) return;
+  await fs.mkdir(path.dirname(file), { recursive: true }).catch(() => {});
+  await fs.writeFile(file, body).catch(() => {});
+}
+
 let s3Client: S3Client | undefined;
 const s3 = () => (s3Client ??= new S3Client({ region: process.env.S3_REGION || process.env.AWS_REGION || "eu-west-1" }));
 const isMissing = (e: unknown) => {
@@ -51,6 +62,7 @@ export async function putFile(pathname: string, body: Buffer | string, contentTy
   if (!p) throw new Error("Invalid file name");
   if (usesS3) {
     await s3().send(new PutObjectCommand({ Bucket: bucket, Key: p, Body: body, ContentType: contentType }));
+    if (p.startsWith("uploads/")) await cacheWrite(p, Buffer.isBuffer(body) ? body : Buffer.from(body));
     return;
   }
   if (usesBlob) {
@@ -67,9 +79,19 @@ export async function readFile(pathname: string): Promise<{ body: ReadableStream
   const p = safePathname(pathname);
   if (!p) return null;
   if (usesS3) {
+    const cached = p.startsWith("uploads/") ? cachePath(p) : null;
+    if (cached) {
+      const body = await fs.readFile(cached).catch(() => null);
+      if (body) return { body, contentType: contentTypeOf(p), size: body.length };
+    }
     try {
       const res = await s3().send(new GetObjectCommand({ Bucket: bucket, Key: p }));
       if (!res.Body) return null;
+      if (cached) {
+        const body = Buffer.from(await res.Body.transformToByteArray());
+        await cacheWrite(p, body);
+        return { body, contentType: res.ContentType || contentTypeOf(p), size: body.length };
+      }
       return { body: res.Body.transformToWebStream() as ReadableStream<Uint8Array>, contentType: res.ContentType || contentTypeOf(p), size: res.ContentLength };
     } catch (e) {
       if (isMissing(e)) return null;
@@ -131,7 +153,11 @@ export async function listFiles(prefix: string): Promise<StoredFile[]> {
 export async function deleteFile(pathname: string) {
   const p = safePathname(pathname);
   if (!p) return;
-  if (usesS3) await s3().send(new DeleteObjectCommand({ Bucket: bucket, Key: p }));
+  if (usesS3) {
+    await s3().send(new DeleteObjectCommand({ Bucket: bucket, Key: p }));
+    const cached = cachePath(p);
+    if (cached) await fs.rm(cached, { force: true });
+  }
   else if (usesBlob) await del(p);
   else await fs.rm(path.join(LOCAL_ROOT, p), { force: true });
 }

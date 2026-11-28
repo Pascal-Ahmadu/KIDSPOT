@@ -67,7 +67,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
             {order.items.map((item) => (
               <li key={item.id} className="flex items-center gap-4 py-3">
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-[5px] bg-surface">
-                  <ProductImage src={item.imageUrl} alt={item.name} emoji={item.categoryEmoji} color={item.categoryColor} emojiClassName="text-3xl" />
+                  <ProductImage sizes="96px" src={item.imageUrl} alt={item.name} emoji={item.categoryEmoji} color={item.categoryColor} emojiClassName="text-3xl" />
                 </div>
                 <div className="flex-1">
                   {item.slug ? <Link href={`/products/${item.slug}`} className="font-semibold hover:text-brand">{item.name}</Link> : <span className="font-semibold">{item.name}</span>}
