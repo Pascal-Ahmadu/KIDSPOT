@@ -1460,3 +1460,10 @@ export const getFeaturedProducts = shopCache(getFeaturedProductsLive, "getFeatur
 export const getCustomersAlsoViewed = shopCache(getCustomersAlsoViewedLive, "getCustomersAlsoViewed");
 export const getCategoryShowcase = shopCache(getCategoryShowcaseLive, "getCategoryShowcase");
 export const getStoreProducts = shopCache(getStoreProductsLive, "getStoreProducts");
+
+/** The next unused KS-number (KS-0388 after KS-0387), suggested on the New product form. */
+export async function nextFreeSku() {
+  const rows = await db.select({ sku: products.sku }).from(products).all();
+  const max = rows.reduce((m, r) => Math.max(m, /^KS-(\d+)$/.test(r.sku) ? Number(r.sku.slice(3)) : 0), 0);
+  return `KS-${String(max + 1).padStart(4, "0")}`;
+}

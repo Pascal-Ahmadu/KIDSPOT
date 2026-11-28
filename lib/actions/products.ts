@@ -1,5 +1,6 @@
 "use server";
 
+import { nextFreeSku } from "@/lib/queries";
 import { saveImageFile } from "@/lib/uploads";
 import { logActivity } from "@/lib/audit";
 import { money } from "@/lib/format";
@@ -124,6 +125,9 @@ export async function createProductAction(_prev: ActionState, formData: FormData
   if ("fieldErrors" in result) return { fieldErrors: result.fieldErrors };
   const taken = await takenBarcode(result.values.barcodes);
   if (taken) return { fieldErrors: { barcodes: taken } };
+  const skuTaken = await skuClash(result.values.sku);
+  if (skuTaken) return { fieldErrors: { sku: skuTaken } };
+  result.values.slug = await uniqueSlug(result.values.slug);
 
   try {
     const uploaded = await saveUpload(formData);
@@ -153,6 +157,9 @@ export async function updateProductAction(id: number, _prev: ActionState, formDa
   if ("fieldErrors" in result) return { fieldErrors: result.fieldErrors };
   const taken = await takenBarcode(result.values.barcodes, id);
   if (taken) return { fieldErrors: { barcodes: taken } };
+  const skuTaken = await skuClash(result.values.sku, id);
+  if (skuTaken) return { fieldErrors: { sku: skuTaken } };
+  result.values.slug = await uniqueSlug(result.values.slug, id);
 
   try {
     const uploaded = await saveUpload(formData);
@@ -277,10 +284,32 @@ export async function applyStockChange(input: {
 }
 
 function friendlyDbError(e: unknown) {
-  const msg = e instanceof Error ? e.message : String(e);
+  // Drizzle wraps the database error: the "UNIQUE constraint failed" detail is in the cause.
+  const parts: string[] = [];
+  for (let err: unknown = e, i = 0; err && i < 4; err = (err as { cause?: unknown }).cause, i++) parts.push(err instanceof Error ? err.message : String(err));
+  const msg = parts.join(" | ");
   if (msg.includes("UNIQUE") && msg.includes("sku")) return "A product with that SKU already exists.";
-  if (msg.includes("UNIQUE") && msg.includes("slug")) return "A product with that URL slug already exists. Change the name or slug.";
-  return msg;
+  if (msg.includes("UNIQUE") && msg.includes("slug")) return "A product with that web address already exists. Change the name or the web address.";
+  if (msg.includes("UNIQUE") && msg.includes("barcodes")) return "That barcode is already on another product.";
+  return "Couldn't save the product. Please try again.";
+}
+
+/** The SKU is used by another product: a message naming it and the next free SKU. */
+async function skuClash(sku: string, productId?: number) {
+  const other = await db.select({ id: products.id, name: products.name }).from(products).where(eq(products.sku, sku)).get();
+  if (!other || other.id === productId) return null;
+  return `${sku} is already used by "${other.name}". The next free SKU is ${await nextFreeSku()}.`;
+}
+
+/** A web address no other product uses: adds -2, -3… when the name is taken. */
+async function uniqueSlug(base: string, productId?: number) {
+  const root = base || "product";
+  for (let n = 1; n < 200; n++) {
+    const slug = n === 1 ? root : `${root}-${n}`;
+    const other = await db.select({ id: products.id }).from(products).where(eq(products.slug, slug)).get();
+    if (!other || other.id === productId) return slug;
+  }
+  return `${root}-${Date.now().toString(36)}`;
 }
 
 /** Quick photo upload from the Inventory / Products lists: sets the product's main photo. */

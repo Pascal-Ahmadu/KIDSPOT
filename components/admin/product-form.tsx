@@ -31,7 +31,7 @@ function Optional() {
   return <span className="font-normal text-[#7C7C7C]">(optional)</span>;
 }
 
-export function ProductForm({ categories, product }: Props) {
+export function ProductForm({ categories, product, suggestedSku }: Props & { suggestedSku?: string }) {
   const action = product ? updateProductAction.bind(null, product.id) : createProductAction;
   const [state, formAction, pending] = useActionState<ActionState, FormData>(action, {});
   const [name, setName] = useState(product?.name ?? "");
@@ -231,7 +231,7 @@ export function ProductForm({ categories, product }: Props) {
                 SKU
               </label>
               <InputAffix icon={TagIcon} help="Your own stock code. Each product needs a different one." invalid={!!errs.sku}>
-                <input id="sku" name="sku" className="input font-mono uppercase" {...bad("sku")} defaultValue={product?.sku} placeholder="TOY-001" required />
+                <input id="sku" name="sku" className="input font-mono uppercase" {...bad("sku")} defaultValue={product?.sku ?? suggestedSku} placeholder="KS-0001" required />
               </InputAffix>
               {err("sku")}
             </div>
