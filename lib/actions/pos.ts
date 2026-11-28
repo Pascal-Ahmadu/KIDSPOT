@@ -16,6 +16,7 @@ import { customerSummary, findCustomerIdByPhone, type CustomerSummary } from "@/
 import { phoneKey } from "@/lib/phone";
 import { getSettings } from "@/lib/settings";
 import { expectedForShift, getOpenShift, shiftTotals } from "@/lib/shop-floor";
+import { userMessage } from "@/lib/errors";
 
 /* ------------------------------------------------------------------ */
 /* Shifts                                                              */
@@ -106,7 +107,7 @@ export async function createSaleAction(input: SaleInput): Promise<SaleResult> {
     const { orderId, orderNumber } = await recordSale(sale);
     return { ok: true, orderId, orderNumber, total: sale.total, change: sale.change, discount: sale.discount + sale.reward, invoiceUrl: absolute(orderInvoicePath(orderNumber)) };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Couldn't save the sale. Try again." };
+    return { ok: false, error: userMessage(e, "Couldn't save the sale. Try again.") };
   }
 }
 

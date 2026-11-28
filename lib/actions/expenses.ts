@@ -13,6 +13,7 @@ import { getOpenShift } from "@/lib/shop-floor";
 import { isManager } from "@/lib/staff";
 import { saveImageFile } from "@/lib/uploads";
 import type { ActionState } from "./products";
+import { userMessage } from "@/lib/errors";
 
 const METHOD_LABEL: Record<string, string> = { till: "cash from the till", transfer: "bank transfer", card: "card", personal: "own money" };
 
@@ -53,7 +54,7 @@ export async function createExpenseAction(_prev: ActionState, formData: FormData
     try {
       receiptUrl = await saveImageFile(file, { private: true });
     } catch (e) {
-      return { fieldErrors: { receipt: e instanceof Error ? e.message : "Couldn't save the photo" } };
+      return { fieldErrors: { receipt: userMessage(e, "Couldn't save the photo") } };
     }
   }
 

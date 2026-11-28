@@ -7,6 +7,7 @@ import type { Banner } from "@/lib/banners";
 import { getSettings, saveSettingsSection } from "@/lib/settings";
 import { saveImageFile } from "@/lib/uploads";
 import type { ActionState } from "./products";
+import { userMessage } from "@/lib/errors";
 
 async function requireAdmin() {
   if (!(await getOwnerSession())) throw new Error("Only the owner can change settings");
@@ -69,7 +70,7 @@ export async function saveBannerAction(_prev: ActionState, formData: FormData): 
     try {
       image = await saveImageFile(file);
     } catch (e) {
-      return { fieldErrors: { imageUrl: e instanceof Error ? e.message : "Couldn't save the picture" } };
+      return { fieldErrors: { imageUrl: userMessage(e, "Couldn't save the picture") } };
     }
   }
   if (!image) return { fieldErrors: { imageUrl: "Upload a picture for this banner" } };

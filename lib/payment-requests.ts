@@ -10,6 +10,7 @@ import { pushToTerminal, terminalStatus, type ProviderStatus } from "@/lib/provi
 import { createTransferAccount, transferStatus } from "@/lib/providers/monnify";
 import { recordSale, type PreparedSale } from "@/lib/sales";
 import { getStoreInfo } from "@/lib/settings";
+import { userMessage } from "@/lib/errors";
 
 /**
  * Payments that wait for a provider: a till sale sent to a Moniepoint terminal, or a one-time
@@ -68,7 +69,7 @@ export async function startTerminalPayment(sale: PreparedSale, serial: string) {
   try {
     await pushToTerminal(s.moniepoint, { serial, amount: sale.total, reference });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Couldn't reach the terminal.";
+    const message = userMessage(e, "Couldn't reach the terminal.");
     await db.update(paymentRequests).set({ status: "failed", message, updatedAt: nowSec() }).where(eq(paymentRequests.id, row.id)).run();
     throw new Error(message);
   }
@@ -170,7 +171,7 @@ export async function refreshPayment(id: number): Promise<PaymentRequest | undef
   try {
     result = await askProvider(r);
   } catch (e) {
-    await db.update(paymentRequests).set({ message: e instanceof Error ? e.message : "Couldn't reach the provider." }).where(eq(paymentRequests.id, id)).run();
+    await db.update(paymentRequests).set({ message: userMessage(e, "Couldn't reach the provider.") }).where(eq(paymentRequests.id, id)).run();
     return await get(id);
   }
 
@@ -227,7 +228,7 @@ async function complete(r: PaymentRequest, result: ProviderStatus) {
       await db.update(paymentRequests).set({ orderId }).where(eq(paymentRequests.id, r.id)).run();
     } catch (e) {
       await db.update(paymentRequests)
-                .set({ message: `Paid, but the sale couldn't be saved: ${e instanceof Error ? e.message : "unknown error"}` })
+                .set({ message: `Paid, but the sale couldn't be saved: ${userMessage(e, "unknown error")}` })
                 .where(eq(paymentRequests.id, r.id))
                 .run();
     }

@@ -4,6 +4,7 @@ import { refreshShop } from "@/lib/shop-cache";
 import { logActivity } from "@/lib/audit";
 import { getAdminSession } from "@/lib/auth";
 import { applyImport, checkImport, type ImportRow } from "@/lib/product-import";
+import { userMessage } from "@/lib/errors";
 
 export type ImportPreview = {
   ok: boolean;
@@ -62,6 +63,6 @@ export async function importProductsAction(fd: FormData): Promise<ImportResult> 
     refreshShop();
     return { ok: true, ...res };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "The import failed. Nothing was saved." };
+    return { ok: false, error: userMessage(e, "The import failed. Nothing was saved.") };
   }
 }

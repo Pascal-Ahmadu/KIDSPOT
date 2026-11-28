@@ -16,6 +16,7 @@ import { products, stockMovements } from "@/lib/db/schema";
 import { COLORS, SIZES, colorLabel, encodeList } from "@/lib/attributes";
 import { parseColorImages } from "@/lib/color-images";
 import { slugify, toMinor } from "@/lib/format";
+import { userMessage } from "@/lib/errors";
 
 export type ActionState = { error?: string; success?: string; fieldErrors?: Record<string, string> };
 
@@ -236,7 +237,7 @@ export async function adjustStockAction(_prev: ActionState, formData: FormData):
             entityId: productId,
           });
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Could not update stock." };
+    return { error: userMessage(e, "Could not update stock.") };
   }
   revalidateStore();
   return { success: "Stock updated." };
@@ -284,14 +285,7 @@ export async function applyStockChange(input: {
 }
 
 function friendlyDbError(e: unknown) {
-  // Drizzle wraps the database error: the "UNIQUE constraint failed" detail is in the cause.
-  const parts: string[] = [];
-  for (let err: unknown = e, i = 0; err && i < 4; err = (err as { cause?: unknown }).cause, i++) parts.push(err instanceof Error ? err.message : String(err));
-  const msg = parts.join(" | ");
-  if (msg.includes("UNIQUE") && msg.includes("sku")) return "A product with that SKU already exists.";
-  if (msg.includes("UNIQUE") && msg.includes("slug")) return "A product with that web address already exists. Change the name or the web address.";
-  if (msg.includes("UNIQUE") && msg.includes("barcodes")) return "That barcode is already on another product.";
-  return "Couldn't save the product. Please try again.";
+  return userMessage(e, "Couldn't save the product. Please try again.");
 }
 
 /** The SKU is used by another product: a message naming it and the next free SKU. */
@@ -324,7 +318,7 @@ export async function setProductPhotoAction(productId: number, formData: FormDat
   try {
     url = await saveImageFile(file);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Couldn't save the photo." };
+    return { error: userMessage(e, "Couldn't save the photo.") };
   }
   await db.update(products).set({ imageUrl: url, updatedAt: Math.floor(Date.now() / 1000) }).where(eq(products.id, productId)).run();
   await logActivity(me, "product_photo", `${me.name} added a photo to ${product.name}`, { entity: "product", entityId: productId });
@@ -346,7 +340,7 @@ export async function setColorPhotoAction(productId: number, color: string, form
   try {
     url = await saveImageFile(file);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Couldn't save the photo." };
+    return { error: userMessage(e, "Couldn't save the photo.") };
   }
   const images = { ...parseColorImages(product.colorImages), [color]: url };
   await db.update(products).set({ colorImages: JSON.stringify(images), updatedAt: Math.floor(Date.now() / 1000) }).where(eq(products.id, productId)).run();

@@ -16,6 +16,7 @@ import { ORDER_STATUSES, coupons, customers, orderItems, orders, products, stock
 import { decodeList } from "@/lib/attributes";
 import { evaluateCoupon, normaliseCode } from "@/lib/coupons";
 import type { ActionState } from "./products";
+import { userMessage } from "@/lib/errors";
 
 const checkoutSchema = z.object({
   name: z.string().trim().min(2, "Please enter your full name"),
@@ -180,7 +181,7 @@ export async function placeOrderAction(input: CheckoutInput): Promise<CheckoutRe
     });
     return { ok: true, orderNumber };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Could not place your order. Please try again." };
+    return { ok: false, error: userMessage(e, "Could not place your order. Please try again.") };
   }
 }
 
@@ -235,7 +236,7 @@ export async function updateOrderStatusAction(orderId: number, status: OrderStat
             await tx.update(orders).set({ status, updatedAt: Math.floor(Date.now() / 1000) }).where(eq(orders.id, orderId)).run();
           });
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Could not update order." };
+    return { error: userMessage(e, "Could not update order.") };
   }
   await logActivity(me, status === "cancelled" ? "order_cancel" : "order_status", `${order.orderNumber}: ${order.status} → ${status}`, { entity: "order", entityId: orderId });
   refreshShop();

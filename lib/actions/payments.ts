@@ -13,6 +13,7 @@ import { pushToTerminal } from "@/lib/providers/moniepoint";
 import { createTransferAccount } from "@/lib/providers/monnify";
 import { prepareSale, type PreparedSale, type SaleInput } from "@/lib/sales";
 import { getOpenShift } from "@/lib/shop-floor";
+import { userMessage } from "@/lib/errors";
 
 /* ------------------------------------------------------------------ */
 /* Till                                                                */
@@ -39,7 +40,7 @@ export async function startTillPaymentAction(input: SaleInput, via: "terminal" |
     const row = via === "terminal" ? await startTerminalPayment(prepared.sale, terminal ?? "") : await startTillTransfer(prepared.sale);
     return { ok: true, payment: await toView(row) };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Couldn't start the payment." };
+    return { ok: false, error: userMessage(e, "Couldn't start the payment.") };
   }
 }
 
@@ -147,7 +148,7 @@ export async function testTerminalAction(serial: string): Promise<PaymentSetting
     await pushToTerminal(s.moniepoint, { serial, amount: 10_000, reference: `TEST-${Date.now().toString(36).toUpperCase()}` });
     return { ok: true, message: "Sent. The terminal should now ask for ₦100. If it shows ₦1 or ₦10,000 instead, switch the amount unit. Cancel it on the terminal." };
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "The test failed." };
+    return { error: userMessage(e, "The test failed.") };
   }
 }
 
@@ -167,6 +168,6 @@ export async function testMonnifyAction(): Promise<PaymentSettingsState> {
     });
     return { ok: true, message: `Connected. Monnify gave a test account: ${a.bankName} ${a.accountNumber} (${a.accountName}). Don't pay into it.` };
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "The test failed." };
+    return { error: userMessage(e, "The test failed.") };
   }
 }

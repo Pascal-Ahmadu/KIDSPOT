@@ -12,6 +12,7 @@ import { db } from "@/lib/db";
 import { invoiceItems, invoices, orderItems, orders, products, stockMovements } from "@/lib/db/schema";
 import { money, toMinor } from "@/lib/format";
 import { getOpenShift } from "@/lib/shop-floor";
+import { userMessage } from "@/lib/errors";
 
 const naira = z
   .string()
@@ -176,7 +177,7 @@ export async function recordInvoicePaymentAction(id: number, method: "transfer" 
             await tx.update(invoices).set({ status: "paid", paidAt: now, paidMethod: method, paidBy: me.id, orderId: order.id }).where(eq(invoices.id, id)).run();
           });
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Couldn't record the payment." };
+    return { error: userMessage(e, "Couldn't record the payment.") };
   }
   await logActivity(me, "invoice_paid", `${me.name} recorded ${money(inv.total)} (${method}) for invoice ${inv.number} from ${inv.customerName}`, { entity: "invoice", entityId: id });
   refreshShop();

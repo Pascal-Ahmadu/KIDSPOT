@@ -10,6 +10,7 @@ import { db } from "@/lib/db";
 import { products, stockMovements, supplierInvoiceItems, supplierInvoices, suppliers } from "@/lib/db/schema";
 import { money, toMinor } from "@/lib/format";
 import { saveImageFile } from "@/lib/uploads";
+import { userMessage } from "@/lib/errors";
 
 export type DeliveryResult = { ok: true; id: number } | { ok: false; error: string };
 
@@ -60,7 +61,7 @@ export async function receiveDeliveryAction(formData: FormData): Promise<Deliver
     try {
       photoUrl = await saveImageFile(file, { private: true });
     } catch (e) {
-      return { ok: false, error: e instanceof Error ? e.message : "Couldn't save the photo." };
+      return { ok: false, error: userMessage(e, "Couldn't save the photo.") };
     }
   }
 
@@ -101,7 +102,7 @@ export async function receiveDeliveryAction(formData: FormData): Promise<Deliver
           return inv.id;
         });
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Couldn't save the delivery." };
+    return { ok: false, error: userMessage(e, "Couldn't save the delivery.") };
   }
 
   const units = d.lines.reduce((n, l) => n + l.quantity, 0);
