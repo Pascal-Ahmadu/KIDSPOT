@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { client, db } from "@/lib/db";
 import { appMeta } from "@/lib/db/schema";
-import { deleteFile, listFiles, putFile, readFile, usesBlob } from "@/lib/storage";
+import { deleteFile, listFiles, putFile, readFile, STORAGE_NAME } from "@/lib/storage";
 
 /**
  * Daily backups: a complete SQL copy of the database (tables + every row), saved to file storage
@@ -15,7 +15,7 @@ const DAY = 24 * 3600;
 
 export type BackupFile = { name: string; size: number; createdAt: number };
 
-export const BACKUP_LOCATION = usesBlob ? "the store's private Vercel Blob storage" : "data/files/backups on this computer";
+export const BACKUP_LOCATION = STORAGE_NAME;
 
 export async function listBackups(): Promise<BackupFile[]> {
   const files = await listFiles(PREFIX);
