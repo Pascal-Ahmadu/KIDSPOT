@@ -7,6 +7,7 @@ import { ProductRow } from "@/components/store/product-row";
 import { ProductCard } from "@/components/store/product-card";
 import { InstagramStrip, PopularBrands } from "@/components/store/brands-and-instagram";
 import { RecentlyViewed } from "@/components/store/recently-viewed";
+import { FilterLayout, FilterToggle } from "@/components/store/filter-layout";
 import { ShopFilters, listParam, shopHref, toggleIn, type ShopParams } from "@/components/store/shop-filters";
 import { ShopHead } from "@/components/store/shop-head";
 import { COLORS, PER_PAGE_OPTIONS, SIZES } from "@/lib/attributes";
@@ -99,18 +100,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         ]}
       />
 
-      <div className="container-x mt-[58px] grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-[30px] xl:grid-cols-[306px_minmax(0,1fr)] xl:gap-[60px]">
-        <aside aria-label="Filters">
-          <details className="lg:hidden">
-            <summary className="btn btn-ghost w-full cursor-pointer list-none">Filters{active.length ? ` (${active.length})` : ""}</summary>
-            <div className="mt-6">{filters}</div>
-          </details>
-          <div className="hidden lg:block" data-filters="desktop">{filters}</div>
-        </aside>
-
-        <div className="min-w-0">
+      <FilterLayout filters={filters}>
           <div className="flex min-h-[57px] flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
-            <p className="text-base leading-6 text-ink">{listing.total === 0 ? "No products found" : `Showing ${from}–${to} of ${listing.total} results`}</p>
+            <div className="flex flex-wrap items-center gap-4">
+              <FilterToggle activeCount={active.length} />
+              <p className="text-base leading-6 text-ink">{listing.total === 0 ? "No products found" : `Showing ${from}–${to} of ${listing.total} results`}</p>
+            </div>
             <Suspense>
               <ListingToolbar perPage={PER_PAGE} view={view} />
             </Suspense>
@@ -145,7 +140,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
               ))}
             </div>
           ) : (
-            <div className="mt-[22px] grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-[30px] md:grid-cols-3 lg:gap-y-[50px]">
+            <div className="mt-[22px] grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-[30px] md:grid-cols-3 lg:gap-y-[50px] lg:group-data-[open=false]/filters:grid-cols-4">
               {listing.items.map((p, i) => (
                 <ProductCard key={p.id} product={p} index={i} trending={trending.has(p.id)} />
               ))}
@@ -153,8 +148,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           )}
 
           {listing.pages > 1 && <Pagination sp={sp} page={listing.page} pages={listing.pages} />}
-        </div>
-      </div>
+      </FilterLayout>
 
       <RecentlyViewed fallback={popular} />
       <PopularBrands brands={brands} />
